@@ -21,6 +21,10 @@ h1 .dot{color:var(--teal)}
 .badge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
 .btn{background:var(--teal);color:#0d1320;border:none;border-radius:9px;padding:8px 15px;font-weight:600;cursor:pointer;font-size:12.5px}
 .btn:disabled{opacity:.5;cursor:default}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{background:transparent;border:none;color:var(--mute);padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--teal);color:#0d1320}
+.seg button+button{border-left:1px solid var(--line)}
 .keybar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
 border-radius:11px;padding:10px 14px;margin:14px 0 6px}
 .keybar input{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);
@@ -90,6 +94,11 @@ padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:300p
     <div class="sub">금리·곡선·유동성·인플레·고용·신용·통화·실물을 한 화면에 — FRED 데이터 · 타일을 누르면 해석</div>
   </div>
   <div class="ctrl">
+    <div class="seg" id="granSeg" title="차트 일/주/월 전환">
+      <button data-g="D" class="on">일</button>
+      <button data-g="W">주</button>
+      <button data-g="M">월</button>
+    </div>
     <span class="badge" id="updInfo">대기 중</span>
     <button class="btn" id="refreshBtn">새로고침</button>
   </div>
@@ -187,15 +196,18 @@ async function fredGet(id, limit){
 }
 
 const SPEC = {
-  DFF:260, SOFR:260, DGS3MO:60, DGS1:60, DGS2:260, DGS5:60, DGS10:260, DGS30:260,
-  T10Y2Y:520, T10Y3M:520,
-  WALCL:170, WTREGEN:170, RRPONTSYD:820,
-  CPIAUCSL:60, PCEPILFE:60, UNRATE:36, PAYEMS:36,
-  BAMLH0A0HYM2:300, VIXCLS:260, T5YIE:260, NFCI:104,
-  DTWEXBGS:260, DFII10:260, T10YIE:260, BAMLC0A0CM:300,
-  DCOILWTICO:300, MORTGAGE30US:120, ICSA:104, INDPRO:36, UMCSENT:36,
+  DFF:520, SOFR:520, DGS3MO:120, DGS1:120, DGS2:520, DGS5:120, DGS10:780, DGS30:520,
+  T10Y2Y:1300, T10Y3M:780,
+  WALCL:260, WTREGEN:260, RRPONTSYD:1040,
+  CPIAUCSL:72, PCEPILFE:72, UNRATE:60, PAYEMS:60,
+  BAMLH0A0HYM2:780, VIXCLS:520, T5YIE:520, NFCI:260,
+  DTWEXBGS:520, DFII10:780, T10YIE:520, BAMLC0A0CM:780,
+  DCOILWTICO:780, MORTGAGE30US:260, ICSA:260, INDPRO:60, UMCSENT:60,
 };
 const D = {};
+let GRAN = 'D';                       // 차트 입자: D(일)/W(주)/M(월)
+let curModalKey = null, curModalTone = 'mute';
+const GRANLABEL = {D:'일', W:'주', M:'월'};
 
 async function runLimited(items, limit, fn){
   const q=items.slice();
@@ -236,8 +248,8 @@ function renderRates(){
   const cv=[['DGS3MO','3M'],['DGS1','1Y'],['DGS2','2Y'],['DGS5','5Y'],['DGS10','10Y'],['DGS30','30Y']];
   const labels=[],vals=[]; cv.forEach(([id,lb])=>{ if(D[id]&&D[id].length){ labels.push(lb); vals.push(D[id][0].v); } });
   drawLine('curveChart',labels,[{label:'국채금리',data:vals,borderColor:C.teal,backgroundColor:'rgba(45,212,191,.10)',fill:true,borderWidth:2,pointRadius:3,pointBackgroundColor:C.teal,tension:.25}],{yfmt:v=>v+'%'});
-  const asc=[...(D.T10Y2Y||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
-  drawLine('spreadChart',sm.map(x=>x.date.slice(2,7)),[{label:'10Y-2Y',data:sm.map(x=>x.v),borderColor:C.blue,backgroundColor:'rgba(91,141,239,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
+  const spd=prepDisplay(D.T10Y2Y||[]);
+  drawLine('spreadChart',spd.map(x=>x.date.slice(2,7)),[{label:'10Y-2Y',data:spd.map(x=>x.v),borderColor:C.blue,backgroundColor:'rgba(91,141,239,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
 }
 function renderLiquidity(){
   const wl=last('WALCL'),tg=last('WTREGEN'),rp=last('RRPONTSYD');
@@ -249,8 +261,8 @@ function renderLiquidity(){
   if(s.length>8){ const d=s[0].v-s[8].v; tnd=`<span class="${d>=0?'pos':'neg'}">${d>=0?'▲':'▼'} ${sgn(d,2)}T vs 8주전</span>`; }
   html += `<div class="tile hl" onclick="explain('NETLIQ')"><div class="k">순유동성 (WALCL−TGA−RRP)</div><div class="v ${net>=0?'ink':'neg'}">${net!=null?T_M(net):'—'}</div><div class="d">${tnd||'시중 순유동성'}</div></div>`;
   $('liqTiles').innerHTML = html;
-  const asc=[...s].reverse();
-  drawLine('netliqChart',asc.map(x=>x.date.slice(2,7)),[{label:'순유동성($T)',data:asc.map(x=>x.v),borderColor:C.teal,backgroundColor:'rgba(45,212,191,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.25}],{yfmt:v=>'$'+v+'T'});
+  const nl=prepDisplay(s);
+  drawLine('netliqChart',nl.map(x=>x.date.slice(2,7)),[{label:'순유동성($T)',data:nl.map(x=>x.v),borderColor:C.teal,backgroundColor:'rgba(45,212,191,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.25}],{yfmt:v=>'$'+v+'T'});
 }
 function renderInfl(){
   const cpiY=yoySeries(D.CPIAUCSL||[]), pceY=yoySeries(D.PCEPILFE||[]);
@@ -275,8 +287,8 @@ function renderCredit(){
    +tile('VIXCLS','VIX (변동성)',f2(vixV),'공포지수',vixV==null?'':(vixV<16?'pos':vixV<25?'amber':'neg'))
    +tile('T5YIE','5년 기대인플레',t5V==null?'—':t5V.toFixed(2)+'%','시장 반영','ink')
    +tile('NFCI','금융상황지수 (NFCI)',nV==null?'—':sgn(nV,2),'+긴축 / −완화',nV==null?'':(nV<0?'pos':'neg'));
-  const asc=[...(D.BAMLH0A0HYM2||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
-  drawLine('hyChart',sm.map(x=>x.date.slice(2,7)),[{label:'HY OAS',data:sm.map(x=>x.v),borderColor:C.rose,backgroundColor:'rgba(242,112,110,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
+  const hy=prepDisplay(D.BAMLH0A0HYM2||[]);
+  drawLine('hyChart',hy.map(x=>x.date.slice(2,7)),[{label:'HY OAS',data:hy.map(x=>x.v),borderColor:C.rose,backgroundColor:'rgba(242,112,110,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
 }
 function renderFX(){
   const dx=last('DTWEXBGS'),rr=last('DFII10'),t10=last('T10YIE'),ig=last('BAMLC0A0CM');
@@ -286,8 +298,8 @@ function renderFX(){
    +tile('DFII10','10년 실질금리 (TIPS)',rr==null?'—':rr.toFixed(2)+'%','밸류에이션 동인',rr==null?'':(rr<1?'pos':rr<2?'blue':'amber'))
    +tile('T10YIE','10년 기대인플레',t10==null?'—':t10.toFixed(2)+'%','장기 인플레 기대','ink')
    +tile('BAMLC0A0CM','투자등급 회사채 스프레드',ig==null?'—':ig.toFixed(2)+'%p','우량 신용',ig==null?'':(ig<1.2?'pos':ig<1.6?'amber':'neg'));
-  const asc=[...(D.DFII10||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
-  drawLine('realChart',sm.map(x=>x.date.slice(2,7)),[{label:'10Y 실질금리',data:sm.map(x=>x.v),borderColor:C.violet,backgroundColor:'rgba(167,139,250,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
+  const rl=prepDisplay(D.DFII10||[]);
+  drawLine('realChart',rl.map(x=>x.date.slice(2,7)),[{label:'10Y 실질금리',data:rl.map(x=>x.v),borderColor:C.violet,backgroundColor:'rgba(167,139,250,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
 }
 function renderReal(){
   const oil=last('DCOILWTICO'),mor=last('MORTGAGE30US'),ic=last('ICSA');
@@ -298,8 +310,8 @@ function renderReal(){
    +tile('ICSA','신규 실업수당 청구',ic==null?'—':Math.round(ic/1000)+'K','주간 · 노동 선행',ic==null?'':(ic<250000?'pos':ic<300000?'amber':'neg'))
    +tile('INDPRO','산업생산 (전년比)',ind==null?'—':sgn(ind,1,'%'),'실물 경기',ind==null?'':(ind>0?'pos':'neg'))
    +tile('UMCSENT','소비자심리 (미시간대)',um==null?'—':um.toFixed(0),'소비 선행',um==null?'':(um<70?'neg':um<85?'amber':'pos'));
-  const asc=[...(D.DCOILWTICO||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
-  drawLine('oilChart',sm.map(x=>x.date.slice(2,7)),[{label:'WTI($)',data:sm.map(x=>x.v),borderColor:C.amber,backgroundColor:'rgba(245,181,63,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>'$'+v});
+  const ol=prepDisplay(D.DCOILWTICO||[]);
+  drawLine('oilChart',ol.map(x=>x.date.slice(2,7)),[{label:'WTI($)',data:ol.map(x=>x.v),borderColor:C.amber,backgroundColor:'rgba(245,181,63,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>'$'+v});
 }
 
 // ── 해석 엔진 ──
@@ -455,6 +467,7 @@ function explain(key){
   badge.style.display = status?'inline-block':'none';
   $('m-body').innerHTML = lines||'';
   $('m-foot').textContent = foot||'';
+  curModalKey=key; curModalTone=tone;
   $('modal').style.display='flex';
   requestAnimationFrame(()=>drawModalChart(key, tone));
 }
@@ -515,41 +528,60 @@ function drawLine(id, labels, datasets, opt={}){
         y:{grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:10},callback:opt.yfmt?(v=>opt.yfmt(Math.round(v*100)/100)):undefined}}}}});
 }
 
+// ── 추이 차트 공통: 일/주/월 리샘플 ──
+function periodKey(ds,gran){
+  if(gran==='M') return ds.slice(0,7);                       // YYYY-MM
+  const d=new Date(ds+'T00:00:00Z'), yr=d.getUTCFullYear(), oj=new Date(Date.UTC(yr,0,1));
+  const wk=Math.ceil((((d-oj)/86400000)+oj.getUTCDay()+1)/7);
+  return yr+'-W'+wk;                                          // ISO주 근사
+}
+// descArr: 최신순. 같은 기간 버킷에서 가장 최근 관측치 1개만 유지
+function resample(descArr,gran){ const seen=new Set(),out=[]; for(const o of descArr){ const k=periodKey(o.date,gran); if(!seen.has(k)){ seen.add(k); out.push(o); } } return out; }
+// 현재 GRAN에 맞춰 표시용 오름차순 시계열 생성 (일=최근 구간, 주/월=다년 리샘플)
+function prepDisplay(descArr){
+  if(!descArr||!descArr.length) return [];
+  let arr;
+  if(GRAN==='D') arr=descArr.slice(0,130);
+  else if(GRAN==='W') arr=resample(descArr,'W').slice(0,160);
+  else arr=resample(descArr,'M').slice(0,130);
+  const asc=[...arr].reverse(), max=150, st=Math.max(1,Math.floor(asc.length/max));
+  return asc.filter((_,i)=>i%st===0||i===asc.length-1);
+}
+
 // ── 모달 미니 추이 차트 ──
 function hexA(h,a){ const n=parseInt(h.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
 function modalSeries(key){
   const T=v=>v/1e6, B=v=>v/1e3;
-  const rev=(arr,tf)=>[...arr].reverse().map(o=>({date:o.date, v:tf?tf(o.v):o.v}));
+  const map=(arr,tf)=>arr.map(o=>({date:o.date, v:tf?tf(o.v):o.v}));   // 최신순 유지
   switch(key){
-    case 'SP_2_10':  return {data:rev(D.T10Y2Y||[]), yfmt:v=>v+'%p'};
-    case 'SP_3M_10': return {data:rev(D.T10Y3M||[]), yfmt:v=>v+'%p'};
-    case 'NETLIQ':   return {data:[...netLiqSeries()].reverse(), yfmt:v=>'$'+v+'T'};
-    case 'WALCL':    return {data:rev(D.WALCL||[],T),    yfmt:v=>'$'+v+'T'};
-    case 'TGA':      return {data:rev(D.WTREGEN||[],T),  yfmt:v=>'$'+v+'T'};
-    case 'RRP':      return {data:rev(D.RRPONTSYD||[],B),yfmt:v=>'$'+v+'T'};
-    case 'CPIYOY':   return {data:[...yoySeries(D.CPIAUCSL||[])].reverse(), yfmt:v=>v+'%'};
-    case 'PCEYOY':   return {data:[...yoySeries(D.PCEPILFE||[])].reverse(), yfmt:v=>v+'%'};
-    case 'INDPRO':   return {data:[...yoySeries(D.INDPRO||[])].reverse(),   yfmt:v=>v+'%'};
-    case 'NFP':      { const p=D.PAYEMS||[], d=[]; for(let i=0;i+1<p.length;i++) d.push({date:p[i].date, v:p[i].v-p[i+1].v}); return {data:d.reverse(), yfmt:v=>Math.round(v)+'K'}; }
-    case 'DXY':      return {data:rev(D.DTWEXBGS||[]),   yfmt:v=>v};
-    case 'OIL':      return {data:rev(D.DCOILWTICO||[]), yfmt:v=>'$'+v};
-    case 'ICSA':     return {data:rev(D.ICSA||[],v=>v/1000), yfmt:v=>v+'K'};
+    case 'SP_2_10':  return {desc:map(D.T10Y2Y||[]), yfmt:v=>v+'%p'};
+    case 'SP_3M_10': return {desc:map(D.T10Y3M||[]), yfmt:v=>v+'%p'};
+    case 'NETLIQ':   return {desc:netLiqSeries(), yfmt:v=>'$'+v+'T'};
+    case 'WALCL':    return {desc:map(D.WALCL||[],T),    yfmt:v=>'$'+v+'T'};
+    case 'TGA':      return {desc:map(D.WTREGEN||[],T),  yfmt:v=>'$'+v+'T'};
+    case 'RRP':      return {desc:map(D.RRPONTSYD||[],B),yfmt:v=>'$'+v+'T'};
+    case 'CPIYOY':   return {desc:yoySeries(D.CPIAUCSL||[]), yfmt:v=>v+'%'};
+    case 'PCEYOY':   return {desc:yoySeries(D.PCEPILFE||[]), yfmt:v=>v+'%'};
+    case 'INDPRO':   return {desc:yoySeries(D.INDPRO||[]),   yfmt:v=>v+'%'};
+    case 'NFP':      { const p=D.PAYEMS||[], d=[]; for(let i=0;i+1<p.length;i++) d.push({date:p[i].date, v:p[i].v-p[i+1].v}); return {desc:d, yfmt:v=>Math.round(v)+'K'}; }
+    case 'DXY':      return {desc:map(D.DTWEXBGS||[]),   yfmt:v=>v};
+    case 'OIL':      return {desc:map(D.DCOILWTICO||[]), yfmt:v=>'$'+v};
+    case 'ICSA':     return {desc:map(D.ICSA||[],v=>v/1000), yfmt:v=>v+'K'};
     default:
-      if(LEVEL[key]){ const u=LEVEL[key].u; return {data:rev(D[key]||[]), yfmt:(u==='%'||u==='%p')?(v=>v+u):(v=>v)}; }
+      if(LEVEL[key]){ const u=LEVEL[key].u; return {desc:map(D[key]||[]), yfmt:(u==='%'||u==='%p')?(v=>v+u):(v=>v)}; }
       return null;
   }
 }
 function drawModalChart(key, tone){
   const wrap=$('m-chartWrap'), ms=modalSeries(key);
-  if(!ms || !ms.data || ms.data.length<2){ wrap.style.display='none'; if(charts['m-chart']){ charts['m-chart'].destroy(); delete charts['m-chart']; } return; }
+  const disp=ms?prepDisplay(ms.desc):[];
+  if(!ms || disp.length<2){ wrap.style.display='none'; if(charts['m-chart']){ charts['m-chart'].destroy(); delete charts['m-chart']; } return; }
   wrap.style.display='block';
-  const asc=ms.data, st=Math.max(1,Math.floor(asc.length/120));
-  const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
   const col=TONE[tone]||C.teal;
-  drawLine('m-chart', sm.map(x=>x.date.slice(2,7)),
-    [{label:'',data:sm.map(x=>x.v),borderColor:col,backgroundColor:hexA(col,.12),fill:true,borderWidth:2,pointRadius:0,tension:.2}],
+  drawLine('m-chart', disp.map(x=>x.date.slice(2,7)),
+    [{label:'',data:disp.map(x=>x.v),borderColor:col,backgroundColor:hexA(col,.12),fill:true,borderWidth:2,pointRadius:0,tension:.2}],
     {yfmt:ms.yfmt});
-  $('m-chartCap').textContent = `최근 추이 · ${asc[0].date} → ${asc[asc.length-1].date} (${asc.length}점)`;
+  $('m-chartCap').textContent = `${GRANLABEL[GRAN]}봉 · ${disp[0].date} → ${disp[disp.length-1].date} (${disp.length}점)`;
 }
 
 // ── 로딩 ──
@@ -568,6 +600,18 @@ async function loadAll(){
   else $('updInfo').textContent = `갱신 ${new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${ok}/${ids.length}`;
   $('refreshBtn').disabled=false; loading=false;
 }
+
+// 차트만 다시 그리기 (데이터 재요청 없이 일/주/월 전환)
+function redrawAll(){
+  if(!Object.keys(D).length) return;
+  try{ renderRates(); renderLiquidity(); renderInfl(); renderCredit(); renderFX(); renderReal(); }catch(e){ console.error(e); }
+  if($('modal').style.display==='flex' && curModalKey) drawModalChart(curModalKey, curModalTone);
+}
+document.querySelectorAll('#granSeg button').forEach(b=>{
+  b.onclick=()=>{ GRAN=b.dataset.g;
+    document.querySelectorAll('#granSeg button').forEach(x=>x.classList.toggle('on',x===b));
+    redrawAll(); };
+});
 
 $('refreshBtn').onclick = loadAll;
 loadAll();
