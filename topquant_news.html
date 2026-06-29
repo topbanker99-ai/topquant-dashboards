@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 시장 영향 인물 브리핑</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1240px;margin:0 auto;padding:30px 26px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:16px;margin-bottom:8px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.btn{background:var(--teal);color:#0d1320;border:none;border-radius:9px;padding:8px 15px;font-weight:600;cursor:pointer;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+.banner{background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);border-radius:11px;
+padding:11px 15px;margin:14px 0 20px;font-size:12px;color:#a6e8df;line-height:1.6}
+.banner b{color:var(--teal)}
+.region{font-size:12px;font-weight:600;color:var(--ink);letter-spacing:.4px;margin:22px 0 11px;display:flex;align-items:center;gap:10px;text-transform:uppercase}
+.region::before{content:"";width:20px;height:1px;background:var(--teal)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.fhead{display:flex;align-items:center;gap:9px;padding:13px 16px 11px;border-bottom:1px solid var(--line);position:relative}
+.fhead .bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.fhead .nm{font-weight:600;font-size:14px}
+.fhead .ro{font-size:11px;color:var(--mute);margin-left:auto;font-family:'IBM Plex Mono',monospace}
+.cardbody{flex:1}
+.items{padding:6px 8px 8px}
+.item{display:block;padding:9px 9px;border-radius:9px;text-decoration:none;color:inherit;transition:.12s}
+.item:hover{background:var(--panel2)}
+.item+.item{border-top:1px solid #1c2538}
+.item .t{font-size:12.5px;line-height:1.45;color:var(--ink)}
+.item .m{font-size:10.5px;color:var(--faint);margin-top:5px;font-family:'IBM Plex Mono',monospace;display:flex;gap:8px}
+.item .m .src{color:var(--mute)}
+.state{padding:16px;font-size:11.5px;color:var(--faint);text-align:center;font-family:'IBM Plex Mono',monospace}
+.state.load::after{content:"";display:inline-block;width:10px;height:10px;margin-left:7px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px}
+.state.queue{color:var(--faint);opacity:.7}
+@keyframes sp{to{transform:rotate(360deg)}}
+.stale{font-size:10px;color:var(--amber);padding:0 16px 11px;font-family:'IBM Plex Mono',monospace}
+.disc{margin-top:26px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+@media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 시장 영향 인물 브리핑</h1>
+    <div class="sub">트럼프·연준·중앙은행·빅테크·정상들의 최근 발언을 한 페이지에 — 구글 뉴스 기반</div>
+  </div>
+  <div class="ctrl">
+    <span class="badge" id="updInfo">불러오는 중…</span>
+    <button class="btn" id="refreshBtn">새로고침</button>
+  </div>
+</header>
+
+<div class="banner">
+  <b>● 갱신: 인물별 약 2시간 주기로 순차 자동 갱신</b>(국가 번갈아 분산) — 한 번에 몰아치지 않아 공개 프록시가 안 막힙니다.
+  첫 로딩도 한 명씩 순서대로 채워집니다(약 20초). <b>새로고침</b> 버튼은 즉시 다시 받습니다. 카드를 누르면 원문으로 이동합니다.
+</div>
+
+<div id="board"></div>
+
+<div class="disc">
+  ※ 출처: Google 뉴스 RSS(공개 CORS 프록시 경유). 인물별 검색이라 동명이인·무관한 기사가 섞일 수 있습니다.
+  투자 참고용이며 수익을 보장하지 않습니다. 마지막 수신 내용은 이 브라우저에만 저장됩니다.
+  더 빠르고 안정적인 갱신이 필요하면 Vercel <code>/api/news</code> 프록시로 확장할 수 있습니다.
+</div>
+
+<script>
+const FIGURES = [
+  {r:'미국 · 정책', n:'도널드 트럼프', role:'미국 대통령',    q:'트럼프 대통령',       c:'#EF4444'},
+  {r:'미국 · 정책', n:'케빈 워시',     role:'연준(Fed) 의장', q:'케빈 워시 연준',      c:'#F5B53F'},
+  {r:'미국 · 정책', n:'스콧 베선트',   role:'미 재무장관',     q:'베선트 재무장관',     c:'#FB923C'},
+  {r:'한국',       n:'이재명',         role:'대한민국 대통령', q:'이재명 대통령',       c:'#5B8DEF'},
+  {r:'한국',       n:'신현송',         role:'한국은행 총재',   q:'신현송 한국은행',     c:'#38BDF8'},
+  {r:'한국',       n:'이억원',         role:'금융위원장',      q:'이억원 금융위원장',   c:'#22D3EE'},
+  {r:'일본',       n:'다카이치 사나에', role:'일본 총리',       q:'다카이치 총리',       c:'#F472B6'},
+  {r:'일본',       n:'우에다 가즈오',  role:'일본은행 총재',   q:'우에다 일본은행',     c:'#FB7185'},
+  {r:'일본',       n:'손정의',         role:'소프트뱅크',      q:'손정의 소프트뱅크',   c:'#E879A6'},
+  {r:'중국',       n:'시진핑',         role:'국가주석',        q:'시진핑',              c:'#DC2626'},
+  {r:'중국',       n:'리창',           role:'국무원 총리',     q:'리창 중국 총리',      c:'#F87171'},
+  {r:'중국',       n:'허리펑',         role:'부총리·무역협상', q:'허리펑 무역',         c:'#FCA5A5'},
+  {r:'중국',       n:'판궁성',         role:'인민은행장',      q:'판궁성 인민은행',     c:'#FBBF24'},
+  {r:'빅테크 · AI', n:'일론 머스크',    role:'테슬라·xAI',      q:'일론 머스크',         c:'#A78BFA'},
+  {r:'빅테크 · AI', n:'젠슨 황',        role:'엔비디아 CEO',    q:'젠슨 황 엔비디아',    c:'#84CC16'},
+  {r:'빅테크 · AI', n:'샘 올트먼',      role:'OpenAI CEO',     q:'샘 올트먼 오픈AI',    c:'#2DD4BF'},
+  {r:'투자 · 크립토', n:'워런 버핏',    role:'버크셔 해서웨이', q:'워런 버핏',           c:'#94A3B8'},
+  {r:'투자 · 크립토', n:'마이클 세일러', role:'비트코인·MSTR',  q:'마이클 세일러 비트코인', c:'#F7931A'},
+];
+const REGIONS = ['미국 · 정책','한국','일본','중국','빅테크 · AI','투자 · 크립토'];
+
+// ── 갱신 타이밍(여기서 조절) ─────────────────────────────
+const INITIAL_GAP_MS  = 800;          // 첫 로딩: 인물 간 간격(프록시 보호)
+const RETRY_GAP_MS    = 2000;         // 실패분 재시도 간격
+const ROTATION_GAP_MS = 7 * 60 * 1000;// 자동 갱신: 7분마다 1명 → 18명 ≈ 2.1시간 주기
+
+const PROXIES = [
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+];
+const newsUrl = q => 'https://news.google.com/rss/search?q=' +
+  encodeURIComponent(q + ' when:2d') + '&hl=ko&gl=KR&ceid=KR:ko';
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const slug = s => s.replace(/[^a-zA-Z0-9가-힣]/g,'');
+const esc = s => (s||'').replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+function ago(ms){ if(!ms) return ''; const s=(Date.now()-ms)/1000;
+  if(s<3600) return Math.max(1,Math.floor(s/60))+'분 전';
+  if(s<86400) return Math.floor(s/3600)+'시간 전';
+  return Math.floor(s/86400)+'일 전'; }
+
+async function fetchRSS(url){
+  for(const make of PROXIES){
+    try{
+      const r = await fetch(make(url), {cache:'no-store'});
+      if(!r.ok) continue;
+      let text = await r.text();
+      if(text.trim().startsWith('{') && text.includes('"contents"')){
+        try{ text = JSON.parse(text).contents; }catch(_){}
+      }
+      // 유효한 피드면(기사 있거나 빈 피드라도) 채택, 에러페이지는 다음 프록시로
+      if(text && (text.includes('<item') || text.includes('<rss') ||
+                  text.includes('<feed') || text.includes('<channel'))) return text;
+    }catch(_){ /* 다음 프록시 */ }
+  }
+  throw new Error('proxy-fail');
+}
+function parseItems(xml, max=4){
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
+  return [...doc.querySelectorAll('item')].slice(0,max).map(it=>{
+    let title = (it.querySelector('title')?.textContent || '').trim();
+    const link = it.querySelector('link')?.textContent || '';
+    const pub  = it.querySelector('pubDate')?.textContent || '';
+    let source = it.querySelector('source')?.textContent || '';
+    if(!source && title.includes(' - ')){ const p=title.split(' - '); source=p[p.length-1]; title=p.slice(0,-1).join(' - '); }
+    return {title, link, source, time: pub ? new Date(pub).getTime() : 0};
+  });
+}
+function itemsHTML(items){
+  if(!items.length) return '<div class="state">최근 48시간 내 새 소식 없음</div>';
+  return '<div class="items">' + items.map(it =>
+    `<a class="item" href="${esc(it.link)}" target="_blank" rel="noopener">
+       <div class="t">${esc(it.title)}</div>
+       <div class="m"><span class="src">${esc(it.source||'뉴스')}</span><span>${ago(it.time)}</span></div>
+     </a>`).join('') + '</div>';
+}
+const setBody = (f, html) => { const b=$('body-'+slug(f.n)); if(b) b.innerHTML = html; };
+
+// 캐시
+const ckey = f => 'news_'+slug(f.n);
+function loadCache(f){ try{ const v=localStorage.getItem(ckey(f)); return v?JSON.parse(v):null; }catch(_){ return null; } }
+function saveCache(f, items){ try{ localStorage.setItem(ckey(f), JSON.stringify({items, ts:Date.now()})); }catch(_){} }
+
+const counts = {};
+function updateTotal(){
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  const now = new Date();
+  $('updInfo').textContent =
+    `갱신 ${now.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${total}건 · 순차 자동갱신`;
+}
+
+function buildBoard(){
+  const board = $('board'); board.innerHTML='';
+  REGIONS.forEach(region=>{
+    const h=document.createElement('div'); h.className='region'; h.textContent=region; board.appendChild(h);
+    const grid=document.createElement('div'); grid.className='grid';
+    FIGURES.filter(f=>f.r===region).forEach(f=>{
+      const card=document.createElement('div'); card.className='fig'; card.id='fig-'+slug(f.n);
+      card.innerHTML = `<div class="fhead"><span class="bar" style="background:${f.c}"></span>
+        <span style="width:9px;height:9px;border-radius:50%;background:${f.c};display:inline-block"></span>
+        <span class="nm">${f.n}</span><span class="ro">${f.role}</span></div>
+        <div class="cardbody" id="body-${slug(f.n)}"><div class="state queue">대기 중</div></div>`;
+      grid.appendChild(card);
+    });
+    board.appendChild(grid);
+  });
+}
+
+// 한 인물 받아오기. ok=true면 신선 수신 성공(0건이어도 성공), false면 실패(캐시 표시)
+async function populate(f, {spinner=false}={}){
+  if(spinner) setBody(f, '<div class="state load">불러오는 중</div>');
+  try{
+    const items = parseItems(await fetchRSS(newsUrl(f.q)), 4);
+    saveCache(f, items); counts[f.n]=items.length;
+    setBody(f, itemsHTML(items));
+    return true;
+  }catch(e){
+    const c = loadCache(f);
+    if(c && c.items?.length){
+      counts[f.n]=c.items.length;
+      setBody(f, itemsHTML(c.items) + `<div class="stale">⚠ 갱신 실패 — ${ago(c.ts)} 받은 내용</div>`);
+    }else{
+      counts[f.n]=0;
+      setBody(f, '<div class="state">불러오지 못함 — 다음 갱신에 재시도</div>');
+    }
+    return false;
+  }
+}
+
+// 첫 로딩: 한 명씩 순차(분산) + 실패분 1회 재시도
+let loading=false;
+async function staggeredLoad(){
+  if(loading) return; loading=true;
+  $('refreshBtn').disabled=true; $('updInfo').textContent='수집 중…';
+  buildBoard();
+  const failed=[];
+  for(const f of FIGURES){
+    const ok = await populate(f, {spinner:true});
+    if(!ok) failed.push(f);
+    updateTotal();
+    await sleep(INITIAL_GAP_MS);
+  }
+  for(const f of failed){           // 실패분만 천천히 재시도
+    await populate(f, {spinner:true});
+    updateTotal();
+    await sleep(RETRY_GAP_MS);
+  }
+  $('refreshBtn').disabled=false; loading=false;
+}
+
+// 자동 갱신: 국가 번갈아 7분에 1명씩(조용히)
+function interleave(){
+  const by={}; REGIONS.forEach(r=>by[r]=FIGURES.filter(f=>f.r===r));
+  const out=[]; let go=true;
+  while(go){ go=false; for(const r of REGIONS){ if(by[r].length){ out.push(by[r].shift()); go=true; } } }
+  return out;
+}
+const ROTATION = interleave();
+let rotIdx=0;
+function startRotation(){
+  setInterval(async ()=>{
+    if(loading) return;
+    const f = ROTATION[rotIdx % ROTATION.length]; rotIdx++;
+    await populate(f, {spinner:false});   // 깜빡임 없이 조용히 교체
+    updateTotal();
+  }, ROTATION_GAP_MS);
+}
+
+$('refreshBtn').onclick = staggeredLoad;
+staggeredLoad().then(startRotation);
+</script>
+</body>
+</html>

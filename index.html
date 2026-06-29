@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 대시보드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--blue:#5b8def;--amber:#f5b53f;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;max-width:1000px;margin:0 auto;padding:48px 26px 60px}
+h1{font-size:28px;font-weight:700;letter-spacing:-.5px}
+h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:13.5px;margin-top:8px;margin-bottom:34px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;transition:.14s;position:relative;overflow:hidden}
+a.card:hover{border-color:var(--teal);transform:translateY(-2px)}
+a.card .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.card .t{font-size:17px;font-weight:600;display:flex;align-items:center;gap:9px}
+.card .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.card .d{font-size:12.5px;color:var(--mute);margin-top:9px;line-height:1.55}
+.card .meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);margin-top:13px}
+.card .go{position:absolute;top:20px;right:22px;color:var(--faint);font-size:18px}
+.foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);line-height:1.6}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <h1>탑퀀트 <span class="dot">·</span> 대시보드</h1>
+  <div class="sub">금융 시장 모니터링 보드 모음 — 카드를 눌러 이동</div>
+
+  <div class="grid">
+    <a class="card" href="topquant_macro.html">
+      <span class="bar" style="background:var(--teal)"></span><span class="go">→</span>
+      <div class="t"><span class="dot" style="background:var(--teal)"></span>매크로 · 유동성</div>
+      <div class="d">금리·수익률곡선·연준 유동성·인플레·고용·신용·통화·실물 — FRED 30개 지표. 타일을 누르면 현재 상황 해석.</div>
+      <div class="meta">FRED · Vercel 프록시 연동</div>
+    </a>
+
+    <a class="card" href="topquant_treasury.html">
+      <span class="bar" style="background:var(--blue)"></span><span class="go">→</span>
+      <div class="t"><span class="dot" style="background:var(--blue)"></span>미국채 발행 · 소화</div>
+      <div class="d">장단기 국채 발행량·응찰배율(시장 소화력)·간접입찰 + 미 국가부채 추이.</div>
+      <div class="meta">TreasuryDirect · FiscalData</div>
+    </a>
+
+    <a class="card" href="topquant_news.html">
+      <span class="bar" style="background:var(--amber)"></span><span class="go">→</span>
+      <div class="t"><span class="dot" style="background:var(--amber)"></span>인물 뉴스 브리핑</div>
+      <div class="d">트럼프·연준·중앙은행·정상·빅테크 등 시장 영향 인물 18인의 최근 발언을 한 화면에.</div>
+      <div class="meta">Google News RSS</div>
+    </a>
+
+    <a class="card" href="topquant_realtime.html">
+      <span class="bar" style="background:var(--violet)"></span><span class="go">→</span>
+      <div class="t"><span class="dot" style="background:var(--violet)"></span>실시간 가격 보드</div>
+      <div class="d">암호화폐(업비트) + 주식(KIS) 실시간 시세와 차트.</div>
+      <div class="meta">Upbit · KIS</div>
+    </a>
+  </div>
+
+  <div class="foot">
+    ※ 각 보드는 단일 HTML로 독립 작동합니다. 매크로 보드는 회장님 Vercel 프록시(fred-proxy)를 통해 FRED 데이터를 받아옵니다.
+    투자 참고용이며 수익을 보장하지 않습니다.
+  </div>
+</body>
+</html>

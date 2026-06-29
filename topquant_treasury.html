@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 미국채 발행·소화 모니터</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1200px;margin:0 auto;padding:30px 26px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:16px;margin-bottom:8px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.btn{background:var(--teal);color:#0d1320;border:none;border-radius:9px;padding:8px 15px;font-weight:600;cursor:pointer;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+.banner{background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);border-radius:11px;
+padding:11px 15px;margin:14px 0 20px;font-size:12px;color:#a6e8df;line-height:1.6}
+.banner b{color:var(--teal)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 16px}
+.kpi .k{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px}
+.kpi .v{font-family:'IBM Plex Mono',monospace;font-size:23px;font-weight:600;margin-top:7px;letter-spacing:-.5px}
+.kpi .d{font-size:10.5px;color:var(--faint);margin-top:5px;line-height:1.4}
+.v.teal{color:var(--teal)}.v.amber{color:var(--amber)}.v.rose{color:var(--rose)}.v.blue{color:var(--blue)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card.hero{background:linear-gradient(180deg,#16203455,#151d2e)}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:6px;letter-spacing:.2px}
+.secttl::before{content:"";width:22px;height:1px;background:var(--teal)}
+.secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.note{font-size:11px;color:var(--faint);margin:6px 0 12px;line-height:1.6}
+.cw{position:relative;width:100%}
+.grpttl{font-size:12px;font-weight:600;color:var(--ink);margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.grpttl .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#0d1320;padding:2px 8px;border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{text-align:right;color:var(--faint);font-weight:500;font-size:10.5px;padding:7px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.3px}
+th:first-child{text-align:left}
+td{padding:8px;border-bottom:1px solid #1f2942;text-align:right}
+td.tk{text-align:left;color:var(--ink);font-family:'IBM Plex Mono',monospace}
+.mono-c{font-family:'IBM Plex Mono',monospace}
+.pos{color:var(--teal)}.neg{color:var(--rose)}.amber{color:var(--amber)}.blue{color:var(--blue)}.mute{color:var(--mute)}
+.chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 7px;border-radius:6px;font-weight:600}
+.upc{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.ucard{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.ucard .d{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)}
+.ucard .t{font-size:13px;font-weight:600;margin-top:3px}
+.ucard .a{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--mute);margin-top:3px}
+.state{padding:24px;text-align:center;color:var(--faint);font-family:'IBM Plex Mono',monospace;font-size:12px}
+.state.load::after{content:"";display:inline-block;width:11px;height:11px;margin-left:8px;border:2px solid var(--line);border-top-color:var(--teal);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+@media(max-width:880px){.cards{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 미국채 발행 · 소화 모니터</h1>
+    <div class="sub">장단기 국채 발행량과 시장 소화력(응찰배율·간접입찰)을 한눈에 — 美 재무부 공식 데이터</div>
+  </div>
+  <div class="ctrl">
+    <span class="badge" id="updInfo">불러오는 중…</span>
+    <button class="btn" id="refreshBtn">새로고침</button>
+  </div>
+</header>
+
+<div class="banner">
+  <b>● 시장 소화력 읽는 법:</b> <b>응찰배율(Bid-to-Cover)</b>이 높을수록 수요가 강해 잘 소화된 것이고,
+  <b>간접입찰 비중</b>이 높으면 외국 중앙은행·기관 수요가 견조하다는 신호입니다. 반대로 <b>프라이머리딜러 비중</b>이 크면
+  딜러가 떠안은 것(수요 부진)으로 봅니다. 출처: TreasuryDirect 공식 API(무료·무인증).
+</div>
+
+<div class="cards" id="kpis">
+  <div class="kpi"><div class="k">최근 30일 발행액</div><div class="v" id="k-iss">—</div><div class="d" id="k-iss-d">집계 중</div></div>
+  <div class="kpi"><div class="k">평균 응찰배율</div><div class="v blue" id="k-btc">—</div><div class="d" id="k-btc-d">수요 강도</div></div>
+  <div class="kpi"><div class="k">평균 간접입찰</div><div class="v teal" id="k-ind">—</div><div class="d" id="k-ind-d">외국·기관 수요</div></div>
+  <div class="kpi"><div class="k">다음 경매</div><div class="v amber" id="k-next">—</div><div class="d" id="k-next-d">예정</div></div>
+</div>
+
+<div class="card">
+  <div class="secttl">미 국가부채 추이 — 발행의 결과<span class="r" id="debtDate"></span></div>
+  <div class="note">발행이 누적되며 쌓이는 총 공공부채(TPDO). 공공 보유 = 시장·외국인이 들고 있는 분 · 정부간 보유 = 사회보장 등 정부 내 보유분.</div>
+  <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+    <div><div style="font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px">총 공공부채</div>
+      <div class="mono" id="debtTotal" style="font-size:27px;font-weight:600;color:var(--ink);letter-spacing:-.5px">—</div></div>
+    <div><div style="font-size:10px;color:var(--mute)">공공 보유</div><div class="mono blue" id="debtPublic" style="font-size:15px">—</div></div>
+    <div><div style="font-size:10px;color:var(--mute)">정부간 보유</div><div class="mono mute" id="debtIntra" style="font-size:15px">—</div></div>
+    <div><div style="font-size:10px;color:var(--mute)">1년 전 대비</div><div class="mono" id="debtYoY" style="font-size:15px">—</div></div>
+  </div>
+  <div class="cw"><canvas id="debtChart" height="100"></canvas></div>
+</div>
+
+<div class="card hero">
+  <div class="secttl">응찰배율 추이 — 만기별 시장 소화 강도<span class="r">최근 ~3개월</span></div>
+  <div class="note">선이 위로 갈수록 수요 강함(잘 소화). 단기 13주 · 중기 2년 · 벨리 10년 · 장기 30년.</div>
+  <div class="cw"><canvas id="btcChart" height="115"></canvas></div>
+</div>
+
+<div class="card">
+  <div class="secttl">최근 경매 결과 — 만기별 최신<span class="r" id="tblNote"></span></div>
+  <div class="note">발행액 = 발행 규모 · 응찰배율 = 수요 강도 · 간접% = 외국·기관 낙찰 비중 · 딜러% = 프라이머리딜러 낙찰 비중(클수록 수요 부진).</div>
+  <div id="tables"><div class="state load">불러오는 중</div></div>
+</div>
+
+<div class="card">
+  <div class="secttl">예정 경매 — 발행 일정<span class="r">TreasuryDirect</span></div>
+  <div id="upcoming"><div class="state load">불러오는 중</div></div>
+</div>
+
+<div class="disc">
+  ※ 출처: TreasuryDirect (treasurydirect.gov/TA_WS) 공식 경매 데이터. 일부 항목(간접/딜러 비중)은 2008년 4월 이후 경매부터 제공됩니다.
+  값은 발표 시점 기준이며, 브라우저에서 직접 또는 공개 프록시를 거쳐 받아옵니다. 투자 참고용이며 수익을 보장하지 않습니다.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const TD = 'https://www.treasurydirect.gov/TA_WS/securities';
+const FD = 'https://api.fiscaldata.treasury.gov/services/api/fiscal_service';
+const PROXIES = [
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+];
+const $ = id => document.getElementById(id);
+const C = {grid:'#1b2438', line:'#27324a', teal:'#2dd4bf', blue:'#5b8def', violet:'#a78bfa', rose:'#f2706e', amber:'#f5b53f', mute:'#8593ab'};
+const num = s => { const v = parseFloat(s); return isNaN(v)?0:v; };
+const fmtB = n => n>=1e12 ? '$'+(n/1e12).toFixed(2)+'T' : '$'+(n/1e9).toFixed(1)+'B';
+const fmtT = n => '$'+(n/1e12).toFixed(2)+'T';
+const pct = x => x==null ? '—' : x.toFixed(1)+'%';
+const mmdd = iso => iso ? iso.slice(5,10).replace('-','/') : '';
+
+function tryParse(t){ try{ return JSON.parse(t); }catch(_){ return null; } }
+async function fetchJSON(url){
+  try{ const r=await fetch(url,{cache:'no-store'}); if(r.ok){ const j=tryParse(await r.text()); if(j) return j; } }catch(_){}
+  for(const make of PROXIES){
+    try{
+      const r=await fetch(make(url),{cache:'no-store'}); if(!r.ok) continue;
+      let t=await r.text();
+      if(t.trim().startsWith('{') && t.includes('"contents"')){ try{ t=JSON.parse(t).contents; }catch(_){} }
+      const j=tryParse(t); if(j) return j;
+    }catch(_){}
+  }
+  throw new Error('fetch-fail');
+}
+
+function tenorWeeks(term){
+  const m=(term||'').match(/(\d+)\s*-?\s*(Day|Week|Month|Year)/i);
+  if(!m) return 9999;
+  const n=+m[1], u=m[2].toLowerCase();
+  return u[0]==='d'?n/7 : u[0]==='w'?n : u[0]==='m'?n*4.345 : n*52;
+}
+function bucket(type){
+  if(type==='Bill'||type==='CMB') return '단기';
+  if(type==='Note'||type==='FRN') return '중기';
+  return '장기'; // Bond, TIPS
+}
+const BUCKETS = {'단기':{tag:'Bills · 4주~1년', c:'#2dd4bf'}, '중기':{tag:'Notes · 2~10년', c:'#5b8def'}, '장기':{tag:'Bonds·TIPS · 20~30년', c:'#a78bfa'}};
+
+function enrich(a){
+  const accepted = num(a.totalAccepted);
+  const indirect = num(a.indirectBidderAccepted);
+  const primary  = num(a.primaryDealerAccepted);
+  const direct   = num(a.directBidderAccepted);
+  const base = accepted || (indirect+primary+direct);
+  const yld = a.highYield || a.highInvestmentRate || a.highDiscountRate || '';
+  return {
+    type:a.securityType, term:a.securityTerm, date:(a.auctionDate||'').slice(0,10),
+    offered:num(a.offeringAmount), accepted, btc:num(a.bidToCoverRatio),
+    indirectPct: base ? indirect/base*100 : null,
+    primaryPct:  base ? primary/base*100 : null,
+    yield: yld ? parseFloat(yld) : null,
+  };
+}
+function btcClass(v){ if(!v) return 'mute'; if(v>=2.6) return 'pos'; if(v>=2.3) return 'blue'; if(v>=2.0) return 'amber'; return 'neg'; }
+function btcChip(v){
+  const cls=btcClass(v); const col={pos:'#2dd4bf',blue:'#5b8def',amber:'#f5b53f',neg:'#f2706e',mute:'#5d6b85'}[cls];
+  return `<span class="chip" style="background:${col}22;color:${col}">${v?v.toFixed(2):'—'}</span>`;
+}
+
+function renderTables(latest){
+  const wrap=$('tables'); wrap.innerHTML='';
+  ['단기','중기','장기'].forEach(b=>{
+    const rows = latest.filter(a=>bucket(a.type)===b).sort((x,y)=>tenorWeeks(x.term)-tenorWeeks(y.term));
+    if(!rows.length) return;
+    const meta=BUCKETS[b];
+    const h=document.createElement('div'); h.className='grpttl';
+    h.innerHTML=`${b} <span class="tag" style="background:${meta.c}">${meta.tag}</span>`;
+    wrap.appendChild(h);
+    const tbl=document.createElement('table');
+    tbl.innerHTML = `<thead><tr><th>만기</th><th>경매일</th><th>발행액</th><th>응찰배율</th><th>낙찰금리</th><th>간접%</th><th>딜러%</th></tr></thead><tbody>`+
+      rows.map(a=>`<tr>
+        <td class="tk">${a.term}</td>
+        <td class="mono-c mute">${mmdd(a.date)}</td>
+        <td class="mono-c">${a.offered?fmtB(a.offered):'—'}</td>
+        <td>${btcChip(a.btc)}</td>
+        <td class="mono-c">${a.yield!=null?a.yield.toFixed(3)+'%':'—'}</td>
+        <td class="mono-c ${a.indirectPct!=null&&a.indirectPct>=60?'pos':''}">${pct(a.indirectPct)}</td>
+        <td class="mono-c ${a.primaryPct!=null&&a.primaryPct>=50?'neg':'mute'}">${pct(a.primaryPct)}</td>
+      </tr>`).join('')+`</tbody>`;
+    wrap.appendChild(tbl);
+  });
+  if(!wrap.children.length) wrap.innerHTML='<div class="state">데이터 없음</div>';
+}
+
+let chart=null;
+let debtChart=null;
+function renderChart(enriched){
+  const tenors=[{t:'13-Week',c:C.teal},{t:'2-Year',c:C.blue},{t:'10-Year',c:C.violet},{t:'30-Year',c:C.rose}];
+  const rel = enriched.filter(a=>tenors.some(x=>x.t===a.term) && a.btc>0 && a.date);
+  const dates=[...new Set(rel.map(a=>a.date))].sort();
+  const labels=dates.map(mmdd);
+  const datasets=tenors.map(x=>{
+    const map={}; rel.filter(a=>a.term===x.t).forEach(a=>map[a.date]=a.btc);
+    return {label:x.t, data:dates.map(d=> d in map ? map[d] : null), borderColor:x.c,
+      backgroundColor:'transparent', borderWidth:2, pointRadius:2.5, pointBackgroundColor:x.c, tension:.2, spanGaps:true};
+  });
+  if(chart) chart.destroy();
+  chart=new Chart($('btcChart'),{type:'line',
+    data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{boxWidth:11,font:{size:10.5},color:C.mute}},
+               tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:10,color:'#8593ab'}},
+              y:{grid:{color:C.grid},ticks:{color:'#8593ab'},title:{display:true,text:'응찰배율',color:'#5d6b85',font:{size:10}}}}}});
+}
+
+function renderUpcoming(list){
+  const wrap=$('upcoming');
+  const now=new Date(); now.setHours(0,0,0,0);
+  const fut=list.map(u=>({type:u.securityType,term:u.securityTerm,date:(u.auctionDate||'').slice(0,10),
+                          offered:num(u.offeringAmount), reopen:u.reopening}))
+    .filter(u=>u.date && new Date(u.date)>=now)
+    .sort((a,b)=>a.date.localeCompare(b.date)).slice(0,10);
+  if(!fut.length){ wrap.innerHTML='<div class="state">예정 경매 정보 없음</div>'; return; }
+  wrap.innerHTML='<div class="upc">'+fut.map(u=>`<div class="ucard">
+     <div class="d">${u.date.slice(5).replace('-','/')} ${['일','월','화','수','목','금','토'][new Date(u.date).getDay()]}</div>
+     <div class="t">${u.term} ${u.type}${u.reopen==='Yes'?' <span style="color:#5d6b85;font-size:10px">재발행</span>':''}</div>
+     <div class="a">${u.offered?fmtB(u.offered):'발행액 미정'}</div></div>`).join('')+'</div>';
+  // KPI: 다음 경매
+  const n=fut[0];
+  $('k-next').textContent=n.date.slice(5).replace('-','/');
+  $('k-next-d').textContent=`${n.term} ${n.type}`;
+}
+
+function renderDebt(rows){
+  if(!rows || !rows.length) return;
+  const num2 = s => { const v=parseFloat(s); return isNaN(v)?0:v; };
+  rows = rows.filter(r=>r.record_date && r.tot_pub_debt_out_amt);
+  rows.sort((a,b)=> b.record_date.localeCompare(a.record_date)); // 최신순
+  const cur = rows[0];
+  const total = num2(cur.tot_pub_debt_out_amt);
+  const pub = num2(cur.debt_held_public_amt);
+  const intra = num2(cur.intragov_hold_amt);
+  $('debtTotal').textContent = fmtT(total);
+  $('debtPublic').textContent = pub ? fmtT(pub) : '—';
+  $('debtIntra').textContent = intra ? fmtT(intra) : '—';
+  $('debtDate').textContent = cur.record_date;
+  // 1년 전 대비
+  const curD = new Date(cur.record_date);
+  const target = new Date(curD.getTime()-365*864e5);
+  let yoyRow=null, best=Infinity;
+  rows.forEach(r=>{ const d=Math.abs(new Date(r.record_date)-target); if(d<best){best=d;yoyRow=r;} });
+  if(yoyRow){
+    const prev=num2(yoyRow.tot_pub_debt_out_amt);
+    const chg=total-prev, pctc=prev?chg/prev*100:0;
+    const up=chg>=0;
+    $('debtYoY').innerHTML = `<span style="color:${up?'#f2706e':'#2dd4bf'}">${up?'+':''}${fmtT(chg).replace('$','$')} (${up?'+':''}${pctc.toFixed(1)}%)</span>`;
+  }
+  // 차트(오래된→최신 샘플링)
+  const asc=[...rows].reverse();
+  const step=Math.max(1, Math.floor(asc.length/52));
+  const samp=asc.filter((_,i)=> i%step===0 || i===asc.length-1);
+  const labels=samp.map(r=>r.record_date.slice(2,7));
+  const data=samp.map(r=>num2(r.tot_pub_debt_out_amt)/1e12);
+  if(debtChart) debtChart.destroy();
+  debtChart=new Chart($('debtChart'),{type:'line',
+    data:{labels,datasets:[{label:'총 공공부채($T)',data,borderColor:C.amber,
+      backgroundColor:'rgba(245,181,63,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.25}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1,
+        callbacks:{label:c=>'$'+c.parsed.y.toFixed(2)+'T'}}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:9,color:'#8593ab'}},
+              y:{grid:{color:C.grid},ticks:{color:'#8593ab',callback:v=>'$'+v+'T'}}}}});
+}
+
+async function loadAll(){
+  $('refreshBtn').disabled=true; $('updInfo').textContent='수집 중…';
+  $('tables').innerHTML='<div class="state load">불러오는 중</div>';
+  $('upcoming').innerHTML='<div class="state load">불러오는 중</div>';
+  try{
+    const [auctioned, upcoming, debtResp] = await Promise.all([
+      fetchJSON(`${TD}/auctioned?format=json&days=120`),
+      fetchJSON(`${TD}/upcoming?format=json`).catch(()=>[]),
+      fetchJSON(`${FD}/v2/accounting/od/debt_to_penny?fields=record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt&sort=-record_date&page[size]=520&format=json`).catch(()=>null),
+    ]);
+    renderDebt(debtResp && debtResp.data ? debtResp.data : null);
+    const enriched = (auctioned||[]).map(enrich).filter(a=>a.term);
+    // 최신순 정렬
+    enriched.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+
+    // 만기별 최신만
+    const byTerm={}; enriched.forEach(a=>{ if(!byTerm[a.term] || a.date>byTerm[a.term].date) byTerm[a.term]=a; });
+    const latest=Object.values(byTerm);
+
+    // KPI
+    const now=new Date(); const d30=new Date(now.getTime()-30*864e5);
+    const last30 = enriched.filter(a=>a.date && new Date(a.date)>=d30);
+    const issued = last30.reduce((s,a)=>s+a.offered,0);
+    $('k-iss').textContent = issued?fmtB(issued):'—';
+    $('k-iss-d').textContent = `${last30.length}건 경매`;
+    const btcVals=last30.filter(a=>a.btc>0).map(a=>a.btc);
+    const avgBtc = btcVals.length? btcVals.reduce((a,b)=>a+b,0)/btcVals.length : 0;
+    $('k-btc').textContent = avgBtc?avgBtc.toFixed(2):'—';
+    $('k-btc').className='v '+btcClass(avgBtc);
+    const indVals=last30.filter(a=>a.indirectPct!=null).map(a=>a.indirectPct);
+    const avgInd = indVals.length? indVals.reduce((a,b)=>a+b,0)/indVals.length : null;
+    $('k-ind').textContent = avgInd!=null?avgInd.toFixed(0)+'%':'—';
+
+    renderChart(enriched);
+    renderTables(latest);
+    renderUpcoming(upcoming||[]);
+    $('tblNote').textContent = `${enriched.length}건 분석`;
+    $('updInfo').textContent = `갱신 ${new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}`;
+  }catch(e){
+    $('tables').innerHTML='<div class="state">불러오지 못함 — 잠시 후 새로고침 (재무부 서버/프록시 일시 지연)</div>';
+    $('upcoming').innerHTML='';
+    $('updInfo').textContent='수신 실패';
+  }
+  $('refreshBtn').disabled=false;
+}
+
+$('refreshBtn').onclick=loadAll;
+loadAll();
+setInterval(loadAll, 60*60*1000); // 1시간마다(경매는 하루 단위라 충분)
+</script>
+</body>
+</html>

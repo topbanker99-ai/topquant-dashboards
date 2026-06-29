@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 매크로 · 유동성 대시보드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1240px;margin:0 auto;padding:28px 26px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:15px;margin-bottom:8px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.ctrl{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.btn{background:var(--teal);color:#0d1320;border:none;border-radius:9px;padding:8px 15px;font-weight:600;cursor:pointer;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+.keybar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+border-radius:11px;padding:10px 14px;margin:14px 0 6px}
+.keybar input{background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);
+padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:300px;max-width:60vw}
+.keybar .lab{font-size:12px;color:var(--mute);font-weight:600}
+.keybar .help{font-size:11px;color:var(--faint)}
+.keybar a{color:var(--teal);text-decoration:none}
+.regime{background:linear-gradient(180deg,#17223666,#151d2e);border:1px solid var(--line);border-radius:14px;padding:15px 18px;margin-top:14px}
+.regime .rt{font-size:12px;font-weight:600;margin-bottom:11px;display:flex;align-items:center;gap:8px;letter-spacing:.2px}
+.regime .rt::before{content:"";width:20px;height:1px;background:var(--teal)}
+.regime .rt .hint{margin-left:auto;font-weight:400;font-size:10.5px;color:var(--faint)}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+.rchip{flex:1;min-width:155px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;transition:.12s}
+.rchip:hover{border-color:var(--teal)}
+.rchip .l{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.rchip .s{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;margin-top:3px}
+.regime .headline{font-size:12.5px;color:var(--ink);line-height:1.6}
+.regime .headline b{color:var(--teal)}
+.sect{margin-top:22px}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:11px;letter-spacing:.2px}
+.secttl::before{content:"";width:22px;height:1px;background:var(--teal)}
+.secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.grid{display:grid;gap:12px}
+.g5{grid-template-columns:repeat(5,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g2{grid-template-columns:1fr 1fr}
+.gauto{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.tile{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px 15px;cursor:pointer;transition:.12s}
+.tile:hover{border-color:var(--teal);transform:translateY(-1px)}
+.tile::after{content:"›";position:absolute;top:9px;right:12px;color:var(--faint);font-size:14px;line-height:1}
+.tile .k{font-size:10.5px;color:var(--mute);letter-spacing:.3px;line-height:1.3;min-height:26px;padding-right:12px}
+.tile .v{font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;margin-top:6px;letter-spacing:-.4px}
+.tile .d{font-size:10.5px;margin-top:4px;font-family:'IBM Plex Mono',monospace;color:var(--faint)}
+.tile.hl{background:linear-gradient(180deg,#16203455,#151d2e)}
+.tile .v.big{font-size:25px}
+.pos{color:var(--teal)}.neg{color:var(--rose)}.amber{color:var(--amber)}.blue{color:var(--blue)}.violet{color:var(--violet)}.mute{color:var(--mute)}.ink{color:var(--ink)}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:1px 7px;border-radius:5px;font-weight:600;margin-left:6px;vertical-align:1px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:12px}
+.card .ct{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.card .cn{font-size:10.5px;color:var(--faint);margin-bottom:10px}
+.cw{position:relative;width:100%}
+.state{padding:18px;text-align:center;color:var(--faint);font-family:'IBM Plex Mono',monospace;font-size:12px}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.disc code{color:var(--mute)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(5,9,16,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:470px;width:100%;padding:20px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:var(--ink)}
+.modal-head button{background:transparent;border:none;color:var(--mute);font-size:15px;cursor:pointer}
+.modal-val{display:flex;align-items:center;gap:11px;margin:13px 0 14px}
+.modal-val #m-val{font-family:'IBM Plex Mono',monospace;font-size:29px;font-weight:600;letter-spacing:-.5px}
+.mbadge{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:7px;font-weight:600}
+.modal-body{font-size:12.5px;color:var(--mute);line-height:1.65}
+.modal-body p{margin-bottom:8px}
+.modal-body b{color:var(--ink)}
+.modal-foot{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+@media(max-width:980px){.g5,.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 매크로 · 유동성 대시보드</h1>
+    <div class="sub">금리·곡선·유동성·인플레·고용·신용·통화·실물을 한 화면에 — FRED 데이터 · 타일을 누르면 해석</div>
+  </div>
+  <div class="ctrl">
+    <span class="badge" id="updInfo">대기 중</span>
+    <button class="btn" id="refreshBtn">새로고침</button>
+  </div>
+</header>
+
+<div id="dash">
+
+  <div class="regime">
+    <div class="rt">현재 국면 읽기 <span class="hint">데이터 기반 자동 해석 · 각 항목 클릭</span></div>
+    <div class="chips" id="regimeChips"></div>
+    <div class="headline" id="regimeHeadline"></div>
+  </div>
+
+  <div class="sect">
+    <div class="secttl">금리 &amp; 수익률곡선<span class="r">일간</span></div>
+    <div class="grid g5" id="rateTiles"></div>
+    <div class="grid g2" style="margin-top:12px">
+      <div class="tile hl" onclick="explain('SP_2_10')"><div class="k">장단기 금리차 — 10년 − 2년 <span id="sp2-tag"></span></div><div class="v big" id="sp2-v">—</div><div class="d" id="sp2-d">국채 2/10 스프레드</div></div>
+      <div class="tile hl" onclick="explain('SP_3M_10')"><div class="k">장단기 금리차 — 10년 − 3개월 <span id="sp3-tag"></span></div><div class="v big" id="sp3-v">—</div><div class="d" id="sp3-d">경기침체 선행 신호</div></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><div class="ct">현재 수익률곡선</div><div class="cn">만기별 국채금리 — 우하향(역전)이면 경기둔화 신호</div><div class="cw"><canvas id="curveChart" height="150"></canvas></div></div>
+      <div class="card"><div class="ct">10년 − 2년 금리차 추이</div><div class="cn">0선 아래 = 역전 구간(과거 침체 선행)</div><div class="cw"><canvas id="spreadChart" height="150"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <div class="secttl">연준 유동성<span class="r">QT/QE 추적</span></div>
+    <div class="grid g4" id="liqTiles"></div>
+    <div class="card"><div class="ct">순유동성 추이 (WALCL − TGA − RRP)</div><div class="cn">연준 자산에서 두 흡수처(재무부 계좌·역레포)를 뺀 시중 순유동성. 위험자산과 상관 높음.</div><div class="cw"><canvas id="netliqChart" height="105"></canvas></div></div>
+  </div>
+
+  <div class="sect">
+    <div class="secttl">인플레 &amp; 고용<span class="r">월간</span></div>
+    <div class="grid g4" id="inflTiles"></div>
+    <div class="card"><div class="ct">물가 추이 — CPI vs 근원 PCE (전년比)</div><div class="cn">연준 목표 2%. 근원 PCE가 연준이 정책에 쓰는 핵심 지표.</div><div class="cw"><canvas id="inflChart" height="105"></canvas></div></div>
+  </div>
+
+  <div class="sect">
+    <div class="secttl">신용 &amp; 변동성<span class="r">위험 선호</span></div>
+    <div class="grid g4" id="creditTiles"></div>
+    <div class="card"><div class="ct">하이일드 스프레드 추이</div><div class="cn">급등 = 신용경색·위험회피. 침체·증시 급락 국면에서 먼저 벌어짐.</div><div class="cw"><canvas id="hyChart" height="105"></canvas></div></div>
+  </div>
+
+  <div class="sect">
+    <div class="secttl">통화 · 실질금리 · 인플레기대<span class="r">밸류에이션 동인</span></div>
+    <div class="grid gauto" id="fxTiles"></div>
+    <div class="card"><div class="ct">10년 실질금리(TIPS) 추이</div><div class="cn">명목 − 기대인플레. 오르면 금·성장주·밸류에이션에 부담.</div><div class="cw"><canvas id="realChart" height="105"></canvas></div></div>
+  </div>
+
+  <div class="sect">
+    <div class="secttl">실물 · 주택 · 소비<span class="r">경기 체력</span></div>
+    <div class="grid gauto" id="realTiles"></div>
+    <div class="card"><div class="ct">WTI 유가 추이</div><div class="cn">인플레·에너지 비용. 급등 시 물가 압력, 급락 시 수요 둔화 신호.</div><div class="cw"><canvas id="oilChart" height="105"></canvas></div></div>
+  </div>
+
+</div>
+
+<div id="prompt" class="state load" style="padding:50px 20px">데이터를 불러오는 중…</div>
+
+<div class="disc">
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis), 회장님 전용 Vercel 프록시 경유(<code>fred-proxy-nine.vercel.app</code>). 순유동성 = WALCL − TGA − RRP×1000(단위 보정).
+  해석은 일반적 기준선에 따른 참고용이며, 임계값은 국면에 따라 달라질 수 있습니다. 투자 참고용이며 수익을 보장하지 않습니다.
+</div>
+
+<!-- modal -->
+<div id="modal" class="modal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-head"><span id="m-title"></span><button id="m-close">✕</button></div>
+    <div class="modal-val"><span id="m-val"></span><span id="m-badge" class="mbadge"></span></div>
+    <div id="m-body" class="modal-body"></div>
+    <div class="modal-foot" id="m-foot"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// 회장님 전용 Vercel 프록시 (키는 서버에 보관, CORS 해결됨)
+const PROXY = 'https://fred-proxy-nine.vercel.app/api/fred';
+const $ = id => document.getElementById(id);
+const C = {grid:'#1b2438', line:'#27324a', teal:'#2dd4bf', blue:'#5b8def', violet:'#a78bfa', rose:'#f2706e', amber:'#f5b53f', mute:'#8593ab', ink:'#e9eef7'};
+const TONE = {pos:'#2dd4bf', blue:'#5b8def', amber:'#f5b53f', neg:'#f2706e', mute:'#5d6b85'};
+
+async function fredGet(id, limit){
+  const url = `${PROXY}?series_id=${id}&limit=${limit}&sort_order=desc`;
+  const r = await fetch(url, {cache:'no-store'});
+  if(!r.ok) throw new Error('http-'+r.status);
+  const j = await r.json();
+  if(j && j.error_code) throw new Error('fred-'+j.error_code);
+  return ((j&&j.observations)||[]).map(o=>({date:o.date, v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
+}
+
+const SPEC = {
+  DFF:5, SOFR:5, DGS3MO:5, DGS1:5, DGS2:5, DGS5:5, DGS10:5, DGS30:5,
+  T10Y2Y:520, T10Y3M:5,
+  WALCL:170, WTREGEN:170, RRPONTSYD:820,
+  CPIAUCSL:40, PCEPILFE:40, UNRATE:14, PAYEMS:14,
+  BAMLH0A0HYM2:300, VIXCLS:5, T5YIE:5, NFCI:5,
+  DTWEXBGS:260, DFII10:260, T10YIE:5, BAMLC0A0CM:300,
+  DCOILWTICO:300, MORTGAGE30US:120, ICSA:60, INDPRO:24, UMCSENT:24,
+};
+const D = {};
+
+async function runLimited(items, limit, fn){
+  const q=items.slice();
+  await Promise.all(Array.from({length:Math.min(limit,items.length)}, async()=>{
+    while(q.length){ await fn(q.shift()); }
+  }));
+}
+
+// 포맷
+const f2 = v => (v==null?'—':v.toFixed(2));
+const pctv = v => (v==null?'—':v.toFixed(2)+'%');
+const T_M = m => '$'+(m/1e6).toFixed(2)+'T';
+const T_B = b => '$'+(b/1e3).toFixed(2)+'T';
+const sgn = (v,d=2,suf='') => (v>=0?'+':'')+v.toFixed(d)+suf;
+const Kf = v => (v>=0?'':'')+Math.round(v).toLocaleString()+'K';
+function chgBps(obs){ if(!obs||obs.length<2) return ''; const d=(obs[0].v-obs[1].v)*100; return `<span class="${d>=0?'pos':'neg'}">${d>=0?'+':''}${d.toFixed(0)}bp</span>`; }
+function last(id){ const o=D[id]; return o&&o.length?o[0].v:null; }
+function trend(obs,n){ if(!obs||obs.length<=n) return null; return obs[0].v-obs[n].v; }
+function yoySeries(obs){ const out=[]; for(let i=0;i+12<obs.length;i++){ out.push({date:obs[i].date, v:(obs[i].v/obs[i+12].v-1)*100}); } return out; }
+function nearestLE(arr,date){ for(const o of arr){ if(o.date<=date) return o; } return arr.length?arr[arr.length-1]:null; }
+function netLiqSeries(){
+  const w=D.WALCL||[], t=D.WTREGEN||[], r=D.RRPONTSYD||[];
+  return w.map(x=>{ const tt=nearestLE(t,x.date), rr=nearestLE(r,x.date); if(!tt||!rr) return null; return {date:x.date, v:(x.v-tt.v-rr.v*1000)/1e6}; }).filter(Boolean);
+}
+
+function tile(key,label,valHTML,descHTML,vcls){
+  return `<div class="tile" onclick="explain('${key}')"><div class="k">${label}</div><div class="v ${vcls||''}">${valHTML}</div><div class="d">${descHTML||''}</div></div>`;
+}
+
+// ── 렌더 ──
+function renderRates(){
+  const rt=[['DFF','연방기금금리(실효)'],['SOFR','SOFR(담보 1일물)'],['DGS2','2년 국채'],['DGS10','10년 국채'],['DGS30','30년 국채']];
+  $('rateTiles').innerHTML = rt.map(([id,lab])=>tile(id,lab,pctv(last(id)),D[id]&&D[id].length?chgBps(D[id])+' vs 전일':'')).join('');
+  const sp=(id,tagEl,vEl)=>{ const v=last(id);
+    $(vEl).textContent = v==null?'—':sgn(v,2,'%p'); $(vEl).className='v big '+(v==null?'':(v<0?'neg':'pos'));
+    const inv=v!=null&&v<0; $(tagEl).innerHTML = v==null?'':`<span class="tag" style="background:${inv?'#f2706e':'#2dd4bf'}22;color:${inv?'#f2706e':'#2dd4bf'}">${inv?'역전':'정상'}</span>`; };
+  sp('T10Y2Y','sp2-tag','sp2-v'); sp('T10Y3M','sp3-tag','sp3-v');
+  const cv=[['DGS3MO','3M'],['DGS1','1Y'],['DGS2','2Y'],['DGS5','5Y'],['DGS10','10Y'],['DGS30','30Y']];
+  const labels=[],vals=[]; cv.forEach(([id,lb])=>{ if(D[id]&&D[id].length){ labels.push(lb); vals.push(D[id][0].v); } });
+  drawLine('curveChart',labels,[{label:'국채금리',data:vals,borderColor:C.teal,backgroundColor:'rgba(45,212,191,.10)',fill:true,borderWidth:2,pointRadius:3,pointBackgroundColor:C.teal,tension:.25}],{yfmt:v=>v+'%'});
+  const asc=[...(D.T10Y2Y||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
+  drawLine('spreadChart',sm.map(x=>x.date.slice(2,7)),[{label:'10Y-2Y',data:sm.map(x=>x.v),borderColor:C.blue,backgroundColor:'rgba(91,141,239,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
+}
+function renderLiquidity(){
+  const wl=last('WALCL'),tg=last('WTREGEN'),rp=last('RRPONTSYD');
+  const net=(wl!=null&&tg!=null&&rp!=null)?(wl-tg-rp*1000):null;
+  let html = tile('WALCL','연준 총자산 (WALCL)',wl!=null?T_M(wl):'—','주간 · 대차대조표')
+           + tile('TGA','재무부 계좌 (TGA)',tg!=null?T_M(tg):'—','오르면 유동성 흡수')
+           + tile('RRP','역레포 (RRP)',rp!=null?T_B(rp):'—','오르면 유동성 흡수');
+  const s=netLiqSeries(); let tnd='';
+  if(s.length>8){ const d=s[0].v-s[8].v; tnd=`<span class="${d>=0?'pos':'neg'}">${d>=0?'▲':'▼'} ${sgn(d,2)}T vs 8주전</span>`; }
+  html += `<div class="tile hl" onclick="explain('NETLIQ')"><div class="k">순유동성 (WALCL−TGA−RRP)</div><div class="v ${net>=0?'ink':'neg'}">${net!=null?T_M(net):'—'}</div><div class="d">${tnd||'시중 순유동성'}</div></div>`;
+  $('liqTiles').innerHTML = html;
+  const asc=[...s].reverse();
+  drawLine('netliqChart',asc.map(x=>x.date.slice(2,7)),[{label:'순유동성($T)',data:asc.map(x=>x.v),borderColor:C.teal,backgroundColor:'rgba(45,212,191,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.25}],{yfmt:v=>'$'+v+'T'});
+}
+function renderInfl(){
+  const cpiY=yoySeries(D.CPIAUCSL||[]), pceY=yoySeries(D.PCEPILFE||[]);
+  const cpiV=cpiY.length?cpiY[0].v:null, pceV=pceY.length?pceY[0].v:null, unV=last('UNRATE');
+  const pay=D.PAYEMS||[]; const nfp=pay.length>1?(pay[0].v-pay[1].v):null;
+  const ic=v=>v==null?'':(v<=2.2?'pos':v<=3?'amber':'neg');
+  $('inflTiles').innerHTML =
+    tile('CPIYOY','CPI (소비자물가, 전년比)',cpiV==null?'—':cpiV.toFixed(1)+'%','헤드라인',ic(cpiV))
+   +tile('PCEYOY','근원 PCE (연준 핵심지표, 전년比)',pceV==null?'—':pceV.toFixed(1)+'%','목표 2%',ic(pceV))
+   +tile('UNRATE','실업률',unV==null?'—':unV.toFixed(1)+'%','월간','ink')
+   +tile('NFP','비농업고용 증감 (MoM)',nfp==null?'—':(nfp>=0?'+':'')+Math.round(nfp).toLocaleString()+'K','전월 대비 순증',nfp==null?'':(nfp>=0?'pos':'neg'));
+  const a=[...cpiY].reverse().slice(-30), b=[...pceY].reverse().slice(-30);
+  drawLine('inflChart',a.map(x=>x.date.slice(2,7)),[
+    {label:'CPI(전년比)',data:a.map(x=>x.v),borderColor:C.amber,backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.25},
+    {label:'근원 PCE(전년比)',data:b.map(x=>x.v),borderColor:C.teal,backgroundColor:'transparent',borderWidth:2,pointRadius:0,tension:.25},
+  ],{yfmt:v=>v+'%',legend:true});
+}
+function renderCredit(){
+  const hyV=last('BAMLH0A0HYM2'),vixV=last('VIXCLS'),t5V=last('T5YIE'),nV=last('NFCI');
+  $('creditTiles').innerHTML =
+    tile('BAMLH0A0HYM2','하이일드 스프레드 (OAS)',hyV==null?'—':hyV.toFixed(2)+'%p','신용 위험',hyV==null?'':(hyV<3.5?'pos':hyV<5?'amber':'neg'))
+   +tile('VIXCLS','VIX (변동성)',f2(vixV),'공포지수',vixV==null?'':(vixV<16?'pos':vixV<25?'amber':'neg'))
+   +tile('T5YIE','5년 기대인플레',t5V==null?'—':t5V.toFixed(2)+'%','시장 반영','ink')
+   +tile('NFCI','금융상황지수 (NFCI)',nV==null?'—':sgn(nV,2),'+긴축 / −완화',nV==null?'':(nV<0?'pos':'neg'));
+  const asc=[...(D.BAMLH0A0HYM2||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
+  drawLine('hyChart',sm.map(x=>x.date.slice(2,7)),[{label:'HY OAS',data:sm.map(x=>x.v),borderColor:C.rose,backgroundColor:'rgba(242,112,110,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
+}
+function renderFX(){
+  const dx=last('DTWEXBGS'),rr=last('DFII10'),t10=last('T10YIE'),ig=last('BAMLC0A0CM');
+  const dxT=trend(D.DTWEXBGS,63);
+  $('fxTiles').innerHTML =
+    tile('DXY','달러 인덱스 (광범위)',dx==null?'—':dx.toFixed(1),dxT==null?'통화 강약':(dxT>=0?'▲ 강세':'▼ 약세')+' 3M',dxT==null?'':(dxT>=0?'amber':'pos'))
+   +tile('DFII10','10년 실질금리 (TIPS)',rr==null?'—':rr.toFixed(2)+'%','밸류에이션 동인',rr==null?'':(rr<1?'pos':rr<2?'blue':'amber'))
+   +tile('T10YIE','10년 기대인플레',t10==null?'—':t10.toFixed(2)+'%','장기 인플레 기대','ink')
+   +tile('BAMLC0A0CM','투자등급 회사채 스프레드',ig==null?'—':ig.toFixed(2)+'%p','우량 신용',ig==null?'':(ig<1.2?'pos':ig<1.6?'amber':'neg'));
+  const asc=[...(D.DFII10||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
+  drawLine('realChart',sm.map(x=>x.date.slice(2,7)),[{label:'10Y 실질금리',data:sm.map(x=>x.v),borderColor:C.violet,backgroundColor:'rgba(167,139,250,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>v+'%'});
+}
+function renderReal(){
+  const oil=last('DCOILWTICO'),mor=last('MORTGAGE30US'),ic=last('ICSA');
+  const indY=yoySeries(D.INDPRO||[]); const ind=indY.length?indY[0].v:null; const um=last('UMCSENT');
+  $('realTiles').innerHTML =
+    tile('OIL','WTI 유가',oil==null?'—':'$'+oil.toFixed(1),oil==null?'원유':'배럴당',oil==null?'':(oil<70?'blue':oil<85?'pos':'amber'))
+   +tile('MORTGAGE30US','30년 모기지 금리',mor==null?'—':mor.toFixed(2)+'%','주택·소비',mor==null?'':(mor<6?'pos':mor<7?'amber':'neg'))
+   +tile('ICSA','신규 실업수당 청구',ic==null?'—':Math.round(ic/1000)+'K','주간 · 노동 선행',ic==null?'':(ic<250000?'pos':ic<300000?'amber':'neg'))
+   +tile('INDPRO','산업생산 (전년比)',ind==null?'—':sgn(ind,1,'%'),'실물 경기',ind==null?'':(ind>0?'pos':'neg'))
+   +tile('UMCSENT','소비자심리 (미시간대)',um==null?'—':um.toFixed(0),'소비 선행',um==null?'':(um<70?'neg':um<85?'amber':'pos'));
+  const asc=[...(D.DCOILWTICO||[])].reverse(); const st=Math.max(1,Math.floor(asc.length/120)); const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
+  drawLine('oilChart',sm.map(x=>x.date.slice(2,7)),[{label:'WTI($)',data:sm.map(x=>x.v),borderColor:C.amber,backgroundColor:'rgba(245,181,63,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>'$'+v});
+}
+
+// ── 해석 엔진 ──
+function band(v,bands){ for(const b of bands){ if(v<=b.max) return b; } return bands[bands.length-1]; }
+const P = (...a)=>a.map(x=>`<p>${x}</p>`).join('');
+
+const LEVEL = {
+  DFF:{name:'연방기금금리(실효)',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:1,tone:'pos',s:'완화적',t:'경기 부양 구간의 저금리.'},
+    {max:3,tone:'blue',s:'중립 부근',t:'중립금리(약 2.5~3%) 근처 — 자극도 억제도 아님.'},
+    {max:99,tone:'amber',s:'긴축적',t:'중립 위 — 경기·물가를 누르는 제약적 수준.'}],
+    why:'모든 자산 가격의 출발점. 인하는 위험자산·채권에 우호적, 인상은 부담.'},
+  SOFR:{name:'SOFR (담보 1일물)',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:99,tone:'blue',s:'정상',t:'단기 자금조달 비용. 기준금리와 거의 동행합니다.'}],
+    why:'레포 시장 기준금리. 기준금리 위로 급등하면 자금시장 경색 신호.'},
+  DGS2:{name:'2년 국채금리',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:99,tone:'blue',s:'정책 기대 반영',t:'향후 2년 정책금리 경로를 반영. 기준금리보다 낮으면 시장이 인하를 기대하는 것.'}],
+    why:'단기 구간의 핵심. 기준금리 대비 위치로 인하/인상 기대를 읽습니다.'},
+  DGS10:{name:'10년 국채금리',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:3.5,tone:'pos',s:'낮음',t:'성장주·채권에 우호적.'},
+    {max:4.5,tone:'blue',s:'보통',t:'중립적 범위.'},
+    {max:99,tone:'amber',s:'높음',t:'모기지·밸류에이션 부담, 성장주 압박.'}],
+    why:'모기지·기업 차입·주식 밸류에이션의 기준금리. 글로벌 자산의 앵커.'},
+  DGS30:{name:'30년 국채금리',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:99,tone:'blue',s:'초장기',t:'재정 지속가능성·장기 인플레 기대를 반영합니다.'}],
+    why:'장기 금리. 급등은 재정 우려나 인플레 기대 상승을 시사.'},
+  DFII10:{name:'10년 실질금리 (TIPS)',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:0,tone:'pos',s:'마이너스',t:'금·위험자산에 강한 우호. 실질적으로 돈을 빌리면 이득.'},
+    {max:1,tone:'pos',s:'낮음',t:'위험자산·성장주에 우호적.'},
+    {max:2,tone:'blue',s:'중립',t:'역사적 평균 부근.'},
+    {max:99,tone:'amber',s:'높음',t:'금·성장주·고밸류 자산에 부담. 할인율 상승.'}],
+    why:'명목금리−기대인플레. 금값·성장주 밸류에이션의 가장 강력한 동인.'},
+  BAMLH0A0HYM2:{name:'하이일드 스프레드 (OAS)',u:'%p',f:v=>v.toFixed(2)+'%p',bands:[
+    {max:3.5,tone:'pos',s:'안정',t:'신용 양호 — 위험선호 ON.'},
+    {max:5,tone:'amber',s:'주의',t:'경계 구간 — 신용 우려가 스며들기 시작.'},
+    {max:99,tone:'neg',s:'경색',t:'신용 스트레스 — 위험회피·침체 경고.'}],
+    why:'투기등급 회사채의 추가 금리. 증시 급락·침체 국면에서 먼저 벌어집니다.'},
+  BAMLC0A0CM:{name:'투자등급 회사채 스프레드',u:'%p',f:v=>v.toFixed(2)+'%p',bands:[
+    {max:1.2,tone:'pos',s:'안정',t:'우량 신용 양호.'},
+    {max:1.6,tone:'amber',s:'주의',t:'우량 신용에도 경계감.'},
+    {max:99,tone:'neg',s:'스트레스',t:'우량 회사채까지 벌어짐 — 광범위한 신용 경색.'}],
+    why:'우량 신용. 하이일드와 함께 보면 신용 스트레스의 범위를 가늠.'},
+  VIXCLS:{name:'VIX (변동성)',u:'',f:v=>v.toFixed(2),bands:[
+    {max:16,tone:'pos',s:'안정',t:'낙관·저변동 — 위험선호.'},
+    {max:25,tone:'amber',s:'경계',t:'불안 고조.'},
+    {max:99,tone:'neg',s:'공포',t:'패닉 구간 — 급락·헤지 수요 폭증.'}],
+    why:'S&P500 옵션 내재변동성. 시장의 공포·안도를 한 숫자로.'},
+  T5YIE:{name:'5년 기대인플레',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:2,tone:'blue',s:'목표 이하',t:'기대 안정 또는 디스인플레.'},
+    {max:2.5,tone:'pos',s:'안정',t:'기대가 2% 부근에 고정(anchored) — 연준이 가장 원하는 상태.'},
+    {max:99,tone:'amber',s:'상승',t:'인플레 기대 과열 주의 — 연준 매파 압력.'}],
+    why:'시장이 보는 향후 5년 평균 인플레. 기대가 풀리면 연준이 강하게 대응.'},
+  T10YIE:{name:'10년 기대인플레',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:2,tone:'blue',s:'목표 이하',t:'장기 기대 안정/낮음.'},
+    {max:2.5,tone:'pos',s:'안정',t:'장기 인플레 기대가 잘 고정됨.'},
+    {max:99,tone:'amber',s:'상승',t:'장기 기대 상승 — 구조적 인플레 우려.'}],
+    why:'10년 평균 기대인플레. 5년과 함께 기대의 단기/장기 구조를 봄.'},
+  NFCI:{name:'금융상황지수 (NFCI)',u:'',f:v=>(v>=0?'+':'')+v.toFixed(2),bands:[
+    {max:0,tone:'pos',s:'완화적',t:'금융여건이 평균보다 느슨 — 자금조달 원활.'},
+    {max:99,tone:'neg',s:'긴축적',t:'평균보다 빡빡 — 신용·레버리지·자금조달 압박.'}],
+    why:'시카고 연준이 105개 지표로 합성한 금융여건. 0 기준 +긴축/−완화.'},
+  UNRATE:{name:'실업률',u:'%',f:v=>v.toFixed(1)+'%',bands:[
+    {max:4,tone:'pos',s:'완전고용',t:'노동시장 견조.'},
+    {max:5,tone:'blue',s:'정상',t:'양호한 범위.'},
+    {max:99,tone:'amber',s:'둔화',t:'실업 상승 — 경기 약화 신호.'}],
+    why:'후행 지표지만, 저점 대비 0.5%p 이상 오르면(삼의 법칙) 침체 신호.'},
+  MORTGAGE30US:{name:'30년 모기지 금리',u:'%',f:v=>v.toFixed(2)+'%',bands:[
+    {max:6,tone:'pos',s:'완화',t:'주택 수요 회복 여지.'},
+    {max:7,tone:'amber',s:'부담',t:'주택 구매력 압박.'},
+    {max:99,tone:'neg',s:'위축',t:'주택 수요 냉각 — 건설·소비 둔화.'}],
+    why:'미국 가계의 가장 큰 지출. 주택·건설·소비 경기의 큰 축.'},
+  UMCSENT:{name:'소비자심리 (미시간대)',u:'',f:v=>v.toFixed(0),bands:[
+    {max:70,tone:'neg',s:'위축',t:'소비 위축 우려.'},
+    {max:85,tone:'amber',s:'보통',t:'중립적.'},
+    {max:999,tone:'pos',s:'양호',t:'소비 견조 — 경기 우호.'}],
+    why:'설문 기반 소비 선행 신호. 미국 GDP의 ~70%인 소비를 가늠.'},
+};
+
+function explain(key){
+  let title, valStr='—', tone='mute', status='', lines='', foot='';
+  const showBand=(id)=>{ const m=LEVEL[id]; const v=last(id); title=m.name;
+    if(v==null){ status='데이터 없음'; lines=P(m.why); foot='FRED: '+id; return; }
+    const b=band(v,m.bands); valStr=m.f(v); tone=b.tone; status=b.s;
+    const tr=trend(D[id],5); const trw = tr==null?'':(Math.abs(tr)<1e-6?'최근 보합':(tr>0?'최근 상승':'최근 하락'));
+    lines=P(`<b>${b.s}.</b> ${b.t}`, m.why, trw?`추세: ${trw}.`:''); foot='FRED: '+id; };
+
+  switch(key){
+    case 'SP_2_10': case 'SP_3M_10': {
+      const id = key==='SP_2_10'?'T10Y2Y':'T10Y3M';
+      const nm = key==='SP_2_10'?'장단기 금리차 (10년 − 2년)':'장단기 금리차 (10년 − 3개월)';
+      const v=last(id); title=nm;
+      if(v==null){ status='데이터 없음'; foot='FRED: '+id; break; }
+      valStr=sgn(v,2,'%p');
+      if(v<0){ tone='neg'; status='역전'; lines=P('<b>수익률곡선 역전.</b> 단기금리가 장기보다 높은 비정상 상태로, 과거 거의 모든 침체를 12~18개월 선행한 강력한 경고 신호입니다.','다만 실제 침체는 역전이 <b>해소되며 다시 가팔라질 때</b> 닥친 경우가 많아, 역전 그 자체보다 정상화 시점을 함께 봐야 합니다.'); }
+      else if(v<0.2){ tone='amber'; status='평탄'; lines=P('<b>곡선이 매우 평탄.</b> 역전과 정상의 경계 — 경기 전환 국면일 수 있습니다.'); }
+      else { tone='pos'; status='정상'; lines=P('<b>정상(우상향) 곡선.</b> 장기금리가 단기보다 높은 건강한 상태로, 경기 확장에 우호적입니다.'); }
+      foot='FRED: '+id+(key==='SP_3M_10'?' · 연준이 가장 신뢰하는 침체 지표':''); break;
+    }
+    case 'NETLIQ': {
+      title='순유동성 (WALCL − TGA − RRP)'; const s=netLiqSeries();
+      if(!s.length){ status='데이터 없음'; foot='WALCL−WTREGEN−RRPONTSYD'; break; }
+      valStr=T_M(s[0].v*1e6); const d=s.length>8?s[0].v-s[8].v:0; tone=d>=0?'pos':'neg'; status=d>=0?'증가':'감소';
+      lines=P(`<b>최근 8주 ${d>=0?'증가':'감소'} (${sgn(d,2)}T).</b> 연준 자산에서 재무부 계좌(TGA)와 역레포(RRP)를 뺀, 실제로 시중에 도는 유동성입니다.`,
+        d>=0?'유동성 유입 — 주식·코인 등 위험자산에 우호적인 환경.':'유동성 흡수 — 위험자산에 역풍. QT 또는 TGA 적립의 영향.',
+        'TGA 상승(국채 발행·세금)·RRP 상승은 유동성을 빨아들이고, 하락은 방출합니다.');
+      foot='WALCL − TGA − RRP×1000 (단위 보정)'; break;
+    }
+    case 'WALCL': { title='연준 총자산 (WALCL)'; const v=last('WALCL'); const tr=trend(D.WALCL,8);
+      if(v==null){ status='데이터 없음'; break; } valStr=T_M(v); tone=tr<=0?'amber':'pos'; status=tr<=0?'축소(QT)':'확대';
+      lines=P(`<b>${tr<=0?'대차대조표 축소 중(QT)':'확대 중'}.</b> 연준이 보유한 채권 등 총자산.`,'축소(QT)는 시중 유동성을 회수해 위험자산에 역풍, 확대(QE)는 반대입니다.'); foot='FRED: WALCL · 주간'; break; }
+    case 'TGA': { title='재무부 일반계좌 (TGA)'; const v=last('WTREGEN'); const tr=trend(D.WTREGEN,8);
+      if(v==null){ status='데이터 없음'; break; } valStr=T_M(v); tone=tr>=0?'amber':'pos'; status=tr>=0?'적립(흡수)':'방출';
+      lines=P('<b>정부의 예금계좌.</b> 국채 발행·세금으로 잔고가 늘면 시중 유동성을 흡수하고, 정부가 지출해 줄면 유동성이 방출됩니다.', tr>=0?'최근 적립 추세 — 유동성 흡수 방향.':'최근 감소 추세 — 유동성 방출 방향.'); foot='FRED: WTREGEN'; break; }
+    case 'RRP': { title='역레포 (ON RRP)'; const v=last('RRPONTSYD'); const tr=trend(D.RRPONTSYD,20);
+      if(v==null){ status='데이터 없음'; break; } valStr=T_B(v); tone=tr>0?'amber':'pos'; status=tr>0?'증가(흡수)':'감소(유입)';
+      lines=P('<b>MMF가 연준에 하루씩 맡긴 돈.</b> 감소하면 그 돈이 국채·시중으로 흘러 유동성에 우호적, 증가하면 흡수.', tr>0?'최근 증가 — 유동성 흡수.':'최근 감소 — 시중으로 유입.'); foot='FRED: RRPONTSYD · 십억$'; break; }
+    case 'CPIYOY': case 'PCEYOY': {
+      const isC=key==='CPIYOY'; const ser=yoySeries(D[isC?'CPIAUCSL':'PCEPILFE']||[]);
+      title=isC?'CPI 소비자물가 (전년比)':'근원 PCE (전년比)';
+      if(!ser.length){ status='데이터 없음'; break; } const v=ser[0].v; valStr=v.toFixed(1)+'%';
+      const b=band(v,[{max:2.2,tone:'pos',s:'목표 부근'},{max:3,tone:'amber',s:'다소 높음'},{max:99,tone:'neg',s:'높음'}]); tone=b.tone; status=b.s;
+      const fall=ser.length>3 && ser[0].v<ser[3].v;
+      lines=P(`<b>${b.s} (${v.toFixed(1)}%).</b> 연준 목표는 2%입니다.`, isC?'헤드라인 물가 — 에너지·식품 포함해 변동이 큽니다.':'<b>연준이 정책에 쓰는 핵심 지표</b> — 변동 큰 항목을 뺀 근원 물가.', fall?'최근 둔화(디스인플레) 흐름 — 인하 명분 강화.':'최근 둔화가 더딤/재가속 — 인하 지연 요인.');
+      foot=isC?'FRED: CPIAUCSL (YoY 계산)':'FRED: PCEPILFE (YoY 계산)'; break;
+    }
+    case 'NFP': { title='비농업고용 증감 (MoM)'; const p=D.PAYEMS||[]; if(p.length<2){ status='데이터 없음'; break; }
+      const v=p[0].v-p[1].v; valStr=(v>=0?'+':'')+Math.round(v).toLocaleString()+'K';
+      const b = v<0?{tone:'neg',s:'감소'}:v<100?{tone:'amber',s:'둔화'}:v<250?{tone:'pos',s:'견조'}:{tone:'pos',s:'강함'}; tone=b.tone; status=b.s;
+      lines=P(`<b>전월 대비 ${Math.round(v).toLocaleString()}천 명 ${v>=0?'증가':'감소'}.</b> 매월 첫 금요일 발표되는 최대 고용 지표.`,'월 +15만 안팎이 인구증가를 흡수하는 균형선. 그 아래로 둔화되면 노동시장 약화, 음수면 수축.','연준의 이중책무(물가+고용) 중 고용 축 — 시장을 크게 움직입니다.'); foot='FRED: PAYEMS (MoM 차분)'; break; }
+    case 'DXY': { title='달러 인덱스 (광범위)'; const v=last('DTWEXBGS'); const tr=trend(D.DTWEXBGS,63);
+      if(v==null){ status='데이터 없음'; break; } valStr=v.toFixed(1); tone=tr>=0?'amber':'pos'; status=tr>=0?'강세':'약세';
+      lines=P(`<b>최근 3개월 달러 ${tr>=0?'강세':'약세'}.</b> 주요 교역상대 통화 대비 달러 가치(광범위 지수).`, tr>=0?'달러 강세 → 원화·신흥국 통화 약세 압력, 원자재 하락 압력, 수입물가 부담.':'달러 약세 → 신흥국·원자재·위험자산에 우호적, 원화 강세 압력.','한국 투자자에겐 환율·수출주·외국인 수급과 직결됩니다.'); foot='FRED: DTWEXBGS'; break; }
+    case 'OIL': { title='WTI 유가'; const v=last('DCOILWTICO'); const tr=trend(D.DCOILWTICO,63);
+      if(v==null){ status='데이터 없음'; break; } valStr='$'+v.toFixed(1);
+      const b=band(v,[{max:70,tone:'blue',s:'약세'},{max:85,tone:'pos',s:'중립'},{max:999,tone:'amber',s:'강세'}]); tone=b.tone; status=b.s;
+      lines=P(`<b>배럴당 $${v.toFixed(1)} (${b.s}).</b> ${tr>=0?'최근 상승':'최근 하락'} 추세.`,'$85 위로 오르면 인플레·에너지비용 압력(연준 매파 요인), $70 아래는 수요 둔화/디스인플레 신호일 수 있음.','에너지주·항공·운송·물가에 직접 영향.'); foot='FRED: DCOILWTICO'; break; }
+    case 'ICSA': { title='신규 실업수당 청구 (주간)'; const v=last('ICSA'); if(v==null){ status='데이터 없음'; break; }
+      valStr=Math.round(v/1000)+'K'; const b=band(v,[{max:250000,tone:'pos',s:'견조'},{max:300000,tone:'amber',s:'주의'},{max:9e9,tone:'neg',s:'약화'}]); tone=b.tone; status=b.s;
+      lines=P(`<b>주간 ${Math.round(v/1000)}천 건 (${b.s}).</b> 매주 발표되는 가장 빠른 노동시장 지표.`,'25만 아래는 해고가 적은 견조한 상태, 30만을 지속 상회하면 노동시장 둔화가 빨라지는 신호.','월간 고용보다 선행 — 경기 전환을 먼저 포착합니다.'); foot='FRED: ICSA · 주간'; break; }
+    case 'INDPRO': { title='산업생산 (전년比)'; const ser=yoySeries(D.INDPRO||[]); if(!ser.length){ status='데이터 없음'; break; }
+      const v=ser[0].v; valStr=sgn(v,1,'%'); tone=v>0?'pos':'neg'; status=v>0?'확장':'수축';
+      lines=P(`<b>전년比 ${sgn(v,1)}% — 실물 ${v>0?'확장':'수축'}.</b> 공장·광업·전력 생산량.`,'플러스면 실물경기 확장, 마이너스로 돌아서면 제조업 둔화·침체 위험.','설문지표(ISM)의 실측 버전 — 실물 활동의 체력을 봅니다.'); foot='FRED: INDPRO (YoY 계산)'; break; }
+    default:
+      if(LEVEL[key]) showBand(key);
+      else { title=key; lines=P('해석 정보가 준비되지 않은 지표입니다.'); }
+  }
+  // 모달 표시
+  $('m-title').textContent = title||key;
+  $('m-val').textContent = valStr;
+  $('m-val').style.color = TONE[tone]||C.ink;
+  const badge=$('m-badge'); badge.textContent = status||''; 
+  badge.style.background = (TONE[tone]||'#5d6b85')+'22'; badge.style.color = TONE[tone]||'#5d6b85';
+  badge.style.display = status?'inline-block':'none';
+  $('m-body').innerHTML = lines||'';
+  $('m-foot').textContent = foot||'';
+  $('modal').style.display='flex';
+}
+$('m-close').onclick = ()=>{ $('modal').style.display='none'; };
+$('modal').onclick = e=>{ if(e.target===$('modal')) $('modal').style.display='none'; };
+
+// ── 국면 요약 ──
+function renderRegime(){
+  const chips=[];
+  // 경기
+  const c2=last('T10Y2Y'), c3=last('T10Y3M'); const icsa=last('ICSA');
+  let g={s:'중립',tone:'blue',key:'SP_2_10'};
+  if((c2!=null&&c2<0)||(c3!=null&&c3<0)) g={s:'곡선 역전 · 주의',tone:'neg',key:'SP_2_10'};
+  else if(icsa!=null&&icsa>300000) g={s:'노동 둔화 조짐',tone:'amber',key:'ICSA'};
+  else g={s:'확장 우호',tone:'pos',key:'SP_2_10'};
+  chips.push({l:'경기',...g});
+  // 물가
+  const pceY=yoySeries(D.PCEPILFE||[]); const pce=pceY.length?pceY[0].v:null; const fall=pceY.length>3&&pceY[0].v<pceY[3].v;
+  let inf={s:'데이터 대기',tone:'mute',key:'PCEYOY'};
+  if(pce!=null){ if(pce<=2.3) inf={s:'목표 부근 · 안정',tone:'pos',key:'PCEYOY'}; else if(fall) inf={s:`둔화 중 (${pce.toFixed(1)}%)`,tone:'amber',key:'PCEYOY'}; else inf={s:`높음 (${pce.toFixed(1)}%)`,tone:'neg',key:'PCEYOY'}; }
+  chips.push({l:'물가(근원PCE)',...inf});
+  // 유동성
+  const s=netLiqSeries(); let liq={s:'데이터 대기',tone:'mute',key:'NETLIQ'};
+  if(s.length>8){ const d=s[0].v-s[8].v; liq = d>=0?{s:'증가 · 우호',tone:'pos',key:'NETLIQ'}:{s:'감소 · 역풍',tone:'neg',key:'NETLIQ'}; }
+  chips.push({l:'유동성',...liq});
+  // 리스크
+  const hy=last('BAMLH0A0HYM2'), vix=last('VIXCLS'); let rk={s:'안정',tone:'pos',key:'VIXCLS'};
+  if((hy!=null&&hy>5)||(vix!=null&&vix>25)) rk={s:'위험회피 ON',tone:'neg',key:'BAMLH0A0HYM2'};
+  else if((hy!=null&&hy>3.5)||(vix!=null&&vix>20)) rk={s:'경계',tone:'amber',key:'VIXCLS'};
+  chips.push({l:'리스크',...rk});
+
+  $('regimeChips').innerHTML = chips.map(c=>`<div class="rchip" onclick="explain('${c.key}')"><div class="l">${c.l}</div><div class="s" style="color:${TONE[c.tone]}">${c.s}</div></div>`).join('');
+
+  // 한 줄 종합
+  const inv=(c2!=null&&c2<0)||(c3!=null&&c3<0);
+  const liqUp = s.length>8 && (s[0].v-s[8].v)>=0;
+  const riskOff = (hy!=null&&hy>5)||(vix!=null&&vix>25);
+  const hot = pce!=null&&pce>3;
+  let head;
+  if(riskOff) head='시장이 <b>위험회피</b> 모드입니다 — 신용 스프레드·변동성이 높아 방어적 접근이 우선.';
+  else if(inv && hot) head='<b>스태그플레이션 경계</b> — 곡선 역전(둔화 신호)과 높은 물가가 겹친 까다로운 국면.';
+  else if(inv && !hot) head='<b>둔화 경계 + 디스인플레</b> — 곡선은 침체를 경고하나 물가는 잡혀가는 중. 연준 인하 기대가 관건.';
+  else if(!inv && (pce!=null&&pce<=2.3) && liqUp && !riskOff) head='<b>골디락스 우호</b> — 물가 안정 + 유동성 유입 + 정상 곡선. 위험자산에 우호적 조합.';
+  else head='<b>혼재 국면</b> — 신호가 엇갈립니다. 위 네 축을 각각 눌러 세부 해석을 확인하세요.';
+  $('regimeHeadline').innerHTML = head + ' <span style="color:var(--faint)">· 일반적 기준선 기반 참고용</span>';
+}
+
+// ── 차트 ──
+const charts={};
+function drawLine(id, labels, datasets, opt={}){
+  if(charts[id]) charts[id].destroy();
+  const ds = datasets.map(d=>Object.assign({spanGaps:true}, d));
+  charts[id]=new Chart($(id),{type:'line',data:{labels,datasets:ds},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:!!opt.legend,labels:{boxWidth:11,font:{size:10},color:C.mute}},
+        tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:9,color:'#8593ab',font:{size:10}}},
+        y:{grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:10},callback:opt.yfmt?(v=>opt.yfmt(Math.round(v*100)/100)):undefined}}}}});
+}
+
+// ── 로딩 ──
+let loading=false;
+async function loadAll(){
+  if(loading) return; loading=true;
+  $('prompt').style.display='none'; $('dash').style.display='block';
+  $('refreshBtn').disabled=true; $('updInfo').textContent='수집 중…';
+  let ok=0; const ids=Object.keys(SPEC);
+  await runLimited(ids, 4, async id=>{
+    try{ D[id]=await fredGet(id, SPEC[id]); ok++; }
+    catch(e){ D[id]=D[id]||[]; }
+  });
+  try{ renderRates(); renderLiquidity(); renderInfl(); renderCredit(); renderFX(); renderReal(); renderRegime(); }catch(e){ console.error(e); }
+  if(ok===0) $('updInfo').textContent='수신 실패 — 새로고침 해보세요';
+  else $('updInfo').textContent = `갱신 ${new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${ok}/${ids.length}`;
+  $('refreshBtn').disabled=false; loading=false;
+}
+
+$('refreshBtn').onclick = loadAll;
+loadAll();
+setInterval(loadAll, 60*60*1000);
+</script>
+</body>
+</html>
