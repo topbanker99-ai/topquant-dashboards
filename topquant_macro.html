@@ -76,6 +76,9 @@ padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:300p
 .modal-body{font-size:12.5px;color:var(--mute);line-height:1.65}
 .modal-body p{margin-bottom:8px}
 .modal-body b{color:var(--ink)}
+#m-chartWrap{margin:4px 0 12px}
+.modal-chart{position:relative;height:128px;margin-bottom:5px}
+.m-chartcap{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--faint);text-align:right}
 .modal-foot{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
 @media(max-width:980px){.g5,.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
 </style>
@@ -157,6 +160,10 @@ padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:300p
   <div class="modal-card">
     <div class="modal-head"><span id="m-title"></span><button id="m-close">✕</button></div>
     <div class="modal-val"><span id="m-val"></span><span id="m-badge" class="mbadge"></span></div>
+    <div id="m-chartWrap" style="display:none">
+      <div class="modal-chart"><canvas id="m-chart"></canvas></div>
+      <div class="m-chartcap" id="m-chartCap"></div>
+    </div>
     <div id="m-body" class="modal-body"></div>
     <div class="modal-foot" id="m-foot"></div>
   </div>
@@ -180,13 +187,13 @@ async function fredGet(id, limit){
 }
 
 const SPEC = {
-  DFF:5, SOFR:5, DGS3MO:5, DGS1:5, DGS2:5, DGS5:5, DGS10:5, DGS30:5,
-  T10Y2Y:520, T10Y3M:5,
+  DFF:260, SOFR:260, DGS3MO:60, DGS1:60, DGS2:260, DGS5:60, DGS10:260, DGS30:260,
+  T10Y2Y:520, T10Y3M:520,
   WALCL:170, WTREGEN:170, RRPONTSYD:820,
-  CPIAUCSL:40, PCEPILFE:40, UNRATE:14, PAYEMS:14,
-  BAMLH0A0HYM2:300, VIXCLS:5, T5YIE:5, NFCI:5,
-  DTWEXBGS:260, DFII10:260, T10YIE:5, BAMLC0A0CM:300,
-  DCOILWTICO:300, MORTGAGE30US:120, ICSA:60, INDPRO:24, UMCSENT:24,
+  CPIAUCSL:60, PCEPILFE:60, UNRATE:36, PAYEMS:36,
+  BAMLH0A0HYM2:300, VIXCLS:260, T5YIE:260, NFCI:104,
+  DTWEXBGS:260, DFII10:260, T10YIE:260, BAMLC0A0CM:300,
+  DCOILWTICO:300, MORTGAGE30US:120, ICSA:104, INDPRO:36, UMCSENT:36,
 };
 const D = {};
 
@@ -449,6 +456,7 @@ function explain(key){
   $('m-body').innerHTML = lines||'';
   $('m-foot').textContent = foot||'';
   $('modal').style.display='flex';
+  requestAnimationFrame(()=>drawModalChart(key, tone));
 }
 $('m-close').onclick = ()=>{ $('modal').style.display='none'; };
 $('modal').onclick = e=>{ if(e.target===$('modal')) $('modal').style.display='none'; };
@@ -505,6 +513,43 @@ function drawLine(id, labels, datasets, opt={}){
         tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1}},
       scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:9,color:'#8593ab',font:{size:10}}},
         y:{grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:10},callback:opt.yfmt?(v=>opt.yfmt(Math.round(v*100)/100)):undefined}}}}});
+}
+
+// ── 모달 미니 추이 차트 ──
+function hexA(h,a){ const n=parseInt(h.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+function modalSeries(key){
+  const T=v=>v/1e6, B=v=>v/1e3;
+  const rev=(arr,tf)=>[...arr].reverse().map(o=>({date:o.date, v:tf?tf(o.v):o.v}));
+  switch(key){
+    case 'SP_2_10':  return {data:rev(D.T10Y2Y||[]), yfmt:v=>v+'%p'};
+    case 'SP_3M_10': return {data:rev(D.T10Y3M||[]), yfmt:v=>v+'%p'};
+    case 'NETLIQ':   return {data:[...netLiqSeries()].reverse(), yfmt:v=>'$'+v+'T'};
+    case 'WALCL':    return {data:rev(D.WALCL||[],T),    yfmt:v=>'$'+v+'T'};
+    case 'TGA':      return {data:rev(D.WTREGEN||[],T),  yfmt:v=>'$'+v+'T'};
+    case 'RRP':      return {data:rev(D.RRPONTSYD||[],B),yfmt:v=>'$'+v+'T'};
+    case 'CPIYOY':   return {data:[...yoySeries(D.CPIAUCSL||[])].reverse(), yfmt:v=>v+'%'};
+    case 'PCEYOY':   return {data:[...yoySeries(D.PCEPILFE||[])].reverse(), yfmt:v=>v+'%'};
+    case 'INDPRO':   return {data:[...yoySeries(D.INDPRO||[])].reverse(),   yfmt:v=>v+'%'};
+    case 'NFP':      { const p=D.PAYEMS||[], d=[]; for(let i=0;i+1<p.length;i++) d.push({date:p[i].date, v:p[i].v-p[i+1].v}); return {data:d.reverse(), yfmt:v=>Math.round(v)+'K'}; }
+    case 'DXY':      return {data:rev(D.DTWEXBGS||[]),   yfmt:v=>v};
+    case 'OIL':      return {data:rev(D.DCOILWTICO||[]), yfmt:v=>'$'+v};
+    case 'ICSA':     return {data:rev(D.ICSA||[],v=>v/1000), yfmt:v=>v+'K'};
+    default:
+      if(LEVEL[key]){ const u=LEVEL[key].u; return {data:rev(D[key]||[]), yfmt:(u==='%'||u==='%p')?(v=>v+u):(v=>v)}; }
+      return null;
+  }
+}
+function drawModalChart(key, tone){
+  const wrap=$('m-chartWrap'), ms=modalSeries(key);
+  if(!ms || !ms.data || ms.data.length<2){ wrap.style.display='none'; if(charts['m-chart']){ charts['m-chart'].destroy(); delete charts['m-chart']; } return; }
+  wrap.style.display='block';
+  const asc=ms.data, st=Math.max(1,Math.floor(asc.length/120));
+  const sm=asc.filter((_,i)=>i%st===0||i===asc.length-1);
+  const col=TONE[tone]||C.teal;
+  drawLine('m-chart', sm.map(x=>x.date.slice(2,7)),
+    [{label:'',data:sm.map(x=>x.v),borderColor:col,backgroundColor:hexA(col,.12),fill:true,borderWidth:2,pointRadius:0,tension:.2}],
+    {yfmt:ms.yfmt});
+  $('m-chartCap').textContent = `최근 추이 · ${asc[0].date} → ${asc[asc.length-1].date} (${asc.length}점)`;
 }
 
 // ── 로딩 ──
