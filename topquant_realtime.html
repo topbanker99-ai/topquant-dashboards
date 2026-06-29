@@ -81,7 +81,7 @@ padding:9px 12px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-siz
 </header>
 
 <div class="banner">
-  <b>● 실시간입니다.</b> 암호화폐는 업비트에서 <b id="ivLabel">5초</b>마다, 주식은 프록시를 연결하면 KIS에서 받아옵니다.
+  <b>● 실시간입니다.</b> 암호화폐는 업비트에서 <b id="ivLabel">5초</b>마다, 주식은 KIS 프록시에서 자동으로 받아옵니다.
   아래 3개월 차트로 실제 추세(예: 이더리움 하락)를 바로 확인하세요. 업비트가 막히면 자동으로 바이낸스(달러)로 전환됩니다.
 </div>
 
@@ -108,7 +108,7 @@ padding:9px 12px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-siz
     <button class="btn" id="proxySave">연결</button>
     <button class="btn ghost" id="proxyClear">해제</button>
   </div>
-  <div class="pstat" id="proxyStat">프록시를 연결하면 코스피·미국 종목이 실시간으로 표시됩니다.</div>
+  <div class="pstat" id="proxyStat">KIS 프록시에 자동 연결됨 · 코스피·미국 종목이 실시간으로 표시됩니다. (주소 변경/해제 가능)</div>
   <div class="grid" id="stockGrid"></div>
   <div class="help" id="stockHelp" style="margin-top:14px">
     아직 프록시가 없다면: Vercel에 <code>api/quote.js</code>를 올리고 환경변수 <code>KIS_APPKEY</code>·<code>KIS_APPSECRET</code>를
@@ -146,7 +146,9 @@ const STOCKS = [
 ];
 const CRYPTO_MS = 5000, STOCK_MS = 12000;
 let cryptoSource = 'upbit';
-let PROXY = '';
+// 운영 KIS 프록시 — 기본 연결됨(사용자가 직접 입력/해제 가능)
+const DEFAULT_PROXY = 'https://fred-proxy-nine.vercel.app';
+let PROXY = DEFAULT_PROXY;
 let sel = {kind:'crypto', id:'KRW-ETH'};
 let mainChart = null;
 const C = {grid:'#1b2438', line:'#27324a'};
@@ -158,7 +160,8 @@ const fmtUSD = v => v>=1000 ? v.toLocaleString('en-US',{maximumFractionDigits:0}
 const money = (v,cur) => (cur==='USD'?'$':'₩') + (cur==='USD'?fmtUSD(v):fmtKRW(v));
 function dlt(el,pct,suffix){ el.className='delta '+(pct>=0?'up':'down'); el.textContent=(pct>=0?'▲ +':'▼ ')+Math.abs(pct).toFixed(suffix?1:2)+'%'+(suffix||''); }
 
-try{ PROXY = localStorage.getItem('kisProxy')||''; }catch(_){}
+// 저장된 값이 있으면 우선(빈 문자열=사용자가 명시적으로 해제). 없으면 기본 운영 프록시.
+try{ const saved = localStorage.getItem('kisProxy'); if(saved!==null) PROXY = saved; }catch(_){}
 const norm = u => (u||'').trim().replace(/\/+$/,'');
 
 function setLive(ok,txt){ const b=$('liveBadge'); b.className=ok?'live':'live err'; $('liveText').textContent=txt; }
@@ -306,7 +309,7 @@ async function stockTick(){
 
 $('proxySave').onclick=()=>{ PROXY=norm($('proxyInput').value); try{localStorage.setItem('kisProxy',PROXY);}catch(_){}
   if(PROXY){ $('proxyStat').className='pstat'; $('proxyStat').textContent='연결 시도 중…'; stockTick(); if(sel.kind==='stock') drawMain(); } };
-$('proxyClear').onclick=()=>{ PROXY=''; try{localStorage.removeItem('kisProxy');}catch(_){} $('proxyInput').value='';
+$('proxyClear').onclick=()=>{ PROXY=''; try{localStorage.setItem('kisProxy','');}catch(_){} $('proxyInput').value='';
   $('stockSrc').textContent='프록시 미연결'; $('stockSrc').style.color=''; $('proxyStat').className='pstat';
   $('proxyStat').textContent='프록시를 연결하면 코스피·미국 종목이 실시간으로 표시됩니다.'; $('stockHelp').style.display='block';
   STOCKS.forEach(s=>{ const p=$('px-stock-'+s.sym),c=$('chg-stock-'+s.sym); if(p)p.textContent='—'; if(c){c.textContent='—';c.className='chg';} }); };
