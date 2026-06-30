@@ -236,7 +236,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·장단기금리차 T10Y2Y·NFCI·금융스트레스 STLFSI4·평균임금·CPI), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance(회장님 Vercel 프록시 경유).
+  ※ 출처: FRED(DFF·VIX·하이일드·금리차 T10Y2Y·NFCI·STLFSI4·평균임금·CPI), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수) — 모두 회장님 Vercel 프록시 경유.
   <b>6개 신호는 닷컴 붐 패턴을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
@@ -320,8 +320,8 @@ const EXPLAIN={
  ENGINE:{title:'⑤ 주도주 이익 엔진 (닷컴과의 결정적 차이)', body:`
    <p>박사가 꼽은 닷컴과 지금의 <b>가장 큰 차이</b> — 닷컴 땐 적자·비전 기업(펫닷컴·팜)이 '닷컴'만 붙이면 상장했지만, 지금 주도주(엔비디아·삼성전자·SK하이닉스)는 <b>막대한 실이익</b>을 냅니다(1~2년 새 ~10배).</p>
    <p>그래서 <b>이 이익 엔진이 받쳐주는 한 붐은 이어지고</b>, 반대로 <b>이익이 둔화되는 순간이 진짜 매도 트리거</b>입니다(1편에서도 "이익 둔화만 해도 터진다").</p>
-   <p>대용 지표로 반도체·AI 리더 복합체(필라델피아 반도체·엔비디아·삼성전자·SK하이닉스)의 <b>추세(200일선)와 3개월 수익률</b>을 봅니다.</p>
-   <p><b>정상</b>: 대부분 200일선 위(엔진 가동). <b>경고</b>: 복합체가 추세 이탈(둔화 조기경보).</p>`},
+   <p>두 가지로 이중확인합니다 — ① 리더 복합체(필라델피아 반도체·엔비디아·삼성전자·SK하이닉스)의 <b>주가 추세(200일선)</b>, ② 한국은행 ECOS의 <b>반도체 수출금액지수 YoY</b>(=삼성·하이닉스 이익의 선행 실수요).</p>
+   <p><b>정상</b>: 주가 추세 위 + 수출 증가. <b>경고</b>: 주가 추세 이탈 또는 <b>반도체 수출 역성장</b>(가격이 멀쩡해도 수출이 꺾이면 이익 둔화 선행 신호).</p>`},
  FUEL:{title:'버블 연료 — 실질임금 (포모는 합리적)', body:`
    <p>팬데믹 이후 <b>처음으로 임금 상승률 &lt; 물가 상승률</b>이 됐습니다(실질임금 마이너스). 월급만으로 생활이 빠듯해지니 <b>투자를 늘리는 게 합리적·절박한 선택</b>이 된 거죠.</p>
    <p>박사는 "AI가 없었어도 포모는 있었을 것"이라며, 이 매크로 환경이 <b>버블의 구조적 연료</b>라고 봅니다.</p>
@@ -355,6 +355,20 @@ async function fred(id,limit){
   return ((j&&j.observations)||[]).map(o=>({date:o.date,v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
 }
 function retAsc(a,n){ if(!a||a.length<=n)return null; const last=a[a.length-1].c,past=a[a.length-1-n].c; if(!past)return null; return (last/past-1)*100; }
+
+// 한국은행 ECOS — 반도체 수출금액지수(403Y001/30911AA, 월) YoY. 키 미설정/오류 시 null.
+async function semiExport(){
+  try{
+    const y=new Date().getFullYear();
+    const url=PROXY+'/api/kr?path=StatisticSearch/json/kr/1/60/403Y001/M/'+(y-2)+'01/'+y+'12/30911AA';
+    const r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null;
+    const j=await r.json(); const rows=(j&&j.StatisticSearch&&j.StatisticSearch.row)||[];
+    const a=rows.map(x=>({t:x.TIME,v:parseFloat(x.DATA_VALUE)})).filter(x=>!isNaN(x.v));
+    if(a.length<13) return null;
+    const last=a[a.length-1], p12=a[a.length-13];
+    return {t:last.t, v:last.v, yoy:p12.v?(last.v/p12.v-1)*100:null};
+  }catch(e){ return null; }
+}
 
 // ── 신호 1: 미국 주도주 쏠림 ──
 function renderConcentration(nq,sp,dj){
@@ -472,7 +486,7 @@ function renderOverheat(data){
 }
 
 // ── 신호 5: 주도주 이익 엔진 ──
-function renderEngine(data){
+function renderEngine(data,exp){
   const items=LEADERS.map(l=>{
     const a=data[l.s]; const ok=Array.isArray(a)&&a.length>200;
     const r3=ok?retAsc(a,63):null;
@@ -485,11 +499,16 @@ function renderEngine(data){
   const aboveN=valid.filter(i=>i.above).length;
   let st='green';
   if(valid.length){ if(aboveN<=1) st='red'; else if(aboveN<valid.length) st='amber'; }
-  SIG.engine={st,aboveN,total:valid.length};
+  // 반도체 수출(실수요) 오버레이 — 가격이 멀쩡해도 수출이 꺾이면 '이익 둔화' 선행 경보
+  const ey=exp?exp.yoy:null;
+  if(ey!=null){ if(ey<0 && st!=='green') st='red'; else if(ey<0) st='amber'; }
+  SIG.engine={st,aboveN,total:valid.length,ey};
   $('eng-metrics').innerHTML=items.map(i=>
-    `<span class="m ${ccls(i.r3)}">${i.n} ${pct(i.r3)} <span>${i.above==null?'—':(i.above?'200일선 위':'200일선 아래')}</span></span>`).join('');
-  $('eng-big').textContent = st==='red'?'리더 복합체 추세 이탈 — 이익 둔화 조기경보(핵심 매도 트리거)'
-    : st==='amber'?'리더 복합체 혼조 — 둔화 조짐 관찰' : '주도주 이익 엔진 가동 — 닷컴과 달리 실적이 받침';
+    `<span class="m ${ccls(i.r3)}">${i.n} ${pct(i.r3)} <span>${i.above==null?'—':(i.above?'200일선 위':'200일선 아래')}</span></span>`).join('')
+    + `<span class="m ${ey==null?'flat':(ey<0?'down':'up')}">반도체 수출 ${ey==null?'—':pct(ey)} <span>${exp?exp.t+' YoY':'YoY'}</span></span>`;
+  $('eng-big').textContent = st==='red'?'리더 추세 이탈/반도체 수출 둔화 — 이익 둔화 조기경보(핵심 매도 트리거)'
+    : st==='amber'?'리더 복합체 혼조 — 둔화 조짐 관찰'
+    : '주도주 이익 엔진 가동 — 주가 + 반도체 수출(실수요) 동반 확인';
   setPill('eng-pill',st);
 }
 
@@ -547,11 +566,12 @@ async function load(){
   setLive(true,'불러오는 중…');
   try{
     const OVH=['^GSPC','^IXIC'];
-    const [data,leadOvh,dff,vix,hy,wage,cpi,curve,nfci,stress]=await Promise.all([
+    const [data,leadOvh,dff,vix,hy,wage,cpi,curve,nfci,stress,exp]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
       fred('CES0500000003',14), fred('CPIAUCSL',14),
-      fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5)
+      fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5),
+      semiExport()
     ]);
     const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
       return Object.assign({},m,{r2w:ok?retAsc(a,10):null,r1:ok?retAsc(a,21):null,r2m:ok?retAsc(a,42):null,r3:ok?retAsc(a,63):null});});
@@ -560,7 +580,7 @@ async function load(){
     renderBreadth(rows);
     renderRate(dff);
     renderRisk(vix,hy,curve,nfci,stress);
-    renderEngine(leadOvh);
+    renderEngine(leadOvh,exp);
     renderOverheat(leadOvh);
     renderFuel(wage,cpi);
     renderComposite();
