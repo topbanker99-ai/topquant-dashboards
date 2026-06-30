@@ -234,7 +234,7 @@ const C={grid:'#1b2438',line:'#27324a'};
 // dir:+1 → 이 지표가 오르면 '원화 약세(달러 강세)' 압력. w=가중치(합=1). dead=중립 데드밴드(20일 %변화 기준).
 const DRIVERS=[
  {id:'DTWEXBGS',    name:'달러지수(광의)',   sub:'달러 강세 → 원화 약세',  w:0.30, dir:+1, dead:0.5, unit:''},
- {id:'DGS2',        name:'미 2년 국채금리',  sub:'미 금리↑ → 달러 매수',   w:0.20, dir:+1, dead:2.0, unit:'%'},
+ {id:'CARRY',       name:'미-한 금리차(캐리)', sub:'미 금리>한국 → 달러 매수', w:0.20, dir:+1, dead:0.08, unit:'%p'},
  {id:'DEXCHUS',     name:'위안화 CNY/USD',   sub:'위안 약세에 원화 동조',  w:0.20, dir:+1, dead:0.5, unit:''},
  {id:'VIXCLS',      name:'변동성 VIX',       sub:'위험회피 → 원화 약세',   w:0.15, dir:+1, dead:5.0, unit:''},
  {id:'BAMLH0A0HYM2',name:'하이일드 스프레드',sub:'신용경계 → 원화 약세',   w:0.15, dir:+1, dead:3.0, unit:'%p'},
@@ -275,10 +275,11 @@ const EXPLAIN={
    <p>달러가 여러 주요 통화 대비 <b>얼마나 센지</b> 보여주는 종합 점수입니다.</p>
    <p><b>오르면(달러 강세):</b> 보통 원화 약세 압력 → 원/달러 상승.</p>
    <p style="color:var(--faint)">비유: 달러가 '인기'가 많아지면 원화로 사려면 더 비싸집니다. 환율을 움직이는 가장 큰 힘이라 가중 30%.</p>`},
- DGS2:{title:'미 2년 국채금리 (DGS2)', body:`
-   <p>미국 2년 만기 국채의 이자율. <b>연준(미국 중앙은행) 금리 기대</b>를 가장 잘 반영합니다.</p>
-   <p><b>오르면:</b> 미국에 돈 넣으면 이자를 더 주니 달러 수요↑ → 원화 약세 압력.</p>
-   <p style="color:var(--faint)">기억법: "미국 금리 오르면 달러로 돈이 몰린다."</p>`},
+ CARRY:{title:'미-한 금리차 (캐리)', body:`
+   <p>미국 2년 국채금리 − 한국 2년 국고채금리. <b>환율을 움직이는 가장 큰 힘</b>(캐리)입니다.</p>
+   <p><b>미국이 한국보다 금리가 높고 그 격차가 더 벌어지면:</b> 돈이 이자 더 주는 달러로 몰려 → 원화 약세 압력(원/달러 상승).</p>
+   <p>지금 값은 현재 금리차(%p), 변화는 최근 20일간 금리차가 벌어졌는지(+)·좁혀졌는지(−)입니다.</p>
+   <p style="color:var(--faint)">데이터: 美 FRED DGS2 + 韓 한국은행 ECOS 국고채(2년). 기억법: "금리차 벌어지면 달러로 돈이 몰린다."</p>`},
  DEXCHUS:{title:'위안화 (CNY/USD)', body:`
    <p>1달러당 <b>중국 위안화</b> 값. 오르면 위안 약세입니다.</p>
    <p><b>관계:</b> 한국 수출·경제가 중국과 엮여 있어 <b>원화는 위안화와 같이 움직이는 경향</b>이 큽니다.</p>
@@ -301,6 +302,26 @@ async function fred(id,limit=160){
   if(!r.ok) throw new Error('HTTP '+r.status+' ('+id+')');
   const j=await r.json();
   return ((j&&j.observations)||[]).map(o=>({date:o.date,v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
+}
+
+// 한국은행 ECOS 일별 시계열 → fred와 동일하게 최신순(desc) {date,v} 반환
+const ECOS_BASE='https://fred-proxy-nine.vercel.app/api/kr';
+async function ecosSeries(stat,cycle,item,startd,endd){
+  const url=`${ECOS_BASE}?path=StatisticSearch/json/kr/1/400/${stat}/${cycle}/${startd}/${endd}/${item}`;
+  const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error('ECOS '+r.status);
+  const j=await r.json(); const rows=(j&&j.StatisticSearch&&j.StatisticSearch.row)||[];
+  const a=rows.map(x=>({date:x.TIME,v:parseFloat(x.DATA_VALUE)})).filter(x=>!isNaN(x.v));
+  a.reverse(); return a; // 최신순
+}
+// 미-한 금리차(캐리) = 美 2년(DGS2) − 韓 국고채 2년(ECOS 817Y002/010195000). +=美 우위(원화 약세 압력)
+async function carryData(d){
+  const y=new Date().getFullYear();
+  const [us,kr]=await Promise.all([ fred('DGS2',160), ecosSeries('817Y002','D','010195000',(y-1)+'0601',y+'1231') ]);
+  if(!us.length||!kr.length) return {d,data:null,now:null,mom:null};
+  const sNow=us[0].v-kr[0].v;
+  const usP=us[Math.min(MOM,us.length-1)].v, krP=kr[Math.min(MOM,kr.length-1)].v;
+  const sPast=usP-krP;
+  return {d, data:[{v:sNow}], now:sNow, mom:sNow-sPast}; // mom: 20일간 금리차 변화(%p)
 }
 
 // data는 최신순(desc). win 거래일 전 대비 %변화
@@ -335,7 +356,10 @@ async function loadHero(days){
 async function loadSignal(){
   // 모든 동인 병렬 로드
   const results=await Promise.all(DRIVERS.map(async d=>{
-    try{ const data=await fred(d.id); return {d, data, now:data[0].v, mom:pctChange(data,MOM)}; }
+    try{
+      if(d.id==='CARRY') return await carryData(d);
+      const data=await fred(d.id); return {d, data, now:data[0].v, mom:pctChange(data,MOM)};
+    }
     catch(e){ return {d, data:null, now:null, mom:null, err:e.message}; }
   }));
   let score=0, used=0;
