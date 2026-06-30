@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 매도 시점 보드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1180px;margin:0 auto;padding:30px 28px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:16px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--rose)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.status{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.live{display:inline-flex;align-items:center;gap:7px;color:#7ee7da;font-size:12px;
+background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.4);border-radius:8px;padding:4px 11px}
+.live .pulse{width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:p 1.6s infinite}
+.live.err{color:#f2a3a2;background:rgba(242,112,110,.12);border-color:rgba(242,112,110,.4)}
+.live.err .pulse{background:#f2706e;animation:none}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)}70%{box-shadow:0 0 0 7px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
+.banner{background:rgba(242,112,110,.07);border:1px solid rgba(242,112,110,.28);border-radius:11px;
+padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:1.6}
+.banner b{color:var(--rose)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card.hero{background:linear-gradient(180deg,#1e1620,#151d2e)}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:14px;letter-spacing:.2px}
+.secttl::before{content:"";width:22px;height:1px;background:var(--rose)}
+.secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.clk{cursor:pointer}
+/* composite */
+.comptop{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:stretch}
+@media(max-width:760px){.comptop{grid-template-columns:1fr}}
+.gauge{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:18px;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.gauge .lvl{font-size:24px;font-weight:800;letter-spacing:-.4px}
+.gauge .sc{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--mute);margin-top:7px}
+.gbar{height:12px;border-radius:7px;margin:14px 0 5px;background:linear-gradient(90deg,#2dd4bf 0%,#5b8def 28%,#f5b53f 60%,#f2706e 100%);position:relative}
+.gbar .mk{position:absolute;top:-5px;width:4px;height:22px;border-radius:2px;background:#e9eef7;box-shadow:0 0 0 2px #1b2438}
+.gends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.narr{background:rgba(91,141,239,.07);border:1px solid rgba(91,141,239,.28);border-radius:11px;padding:13px 15px;font-size:13px;color:#cfe0ff;line-height:1.7}
+.narr-h{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px}
+.narr b{color:#eaf1ff}.narr .g{color:#2dd4bf}.narr .a{color:#f5b53f}.narr .r{color:#f2706e}
+.narr-foot{display:block;margin-top:7px;font-size:11px;color:var(--faint)}
+/* signal card */
+.sig{display:flex;align-items:flex-start;gap:14px}
+.sig .main{flex:1}
+.sig .big{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;margin-bottom:3px}
+.sig .desc{font-size:12px;color:var(--mute);line-height:1.6}
+.pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.pill.green{background:rgba(45,212,191,.15);color:#7ee7da}
+.pill.amber{background:rgba(245,181,63,.16);color:#f5cd7e}
+.pill.red{background:rgba(242,112,110,.16);color:#f2a3a2}
+.metrics{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.metrics .m span{color:var(--faint);font-size:11px}
+.up{color:#2dd4bf}.down{color:#f2706e}.flat{color:var(--mute)}
+/* breadth table */
+.mtable{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:7px;margin-top:12px}
+.mrow{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:12px}
+.mrow .nm{color:var(--mute)}.mrow .nm b{color:var(--ink);font-weight:600}
+.mrow.neg{border-color:rgba(242,112,110,.4)}
+.mrow.bastion{border-color:rgba(245,181,63,.5)}
+.mrow .rr{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.note{background:var(--panel2);border:1px dashed var(--line);border-radius:11px;padding:13px 15px;font-size:12.5px;color:var(--mute);line-height:1.65}
+.note b{color:var(--ink)}
+.btn{background:var(--panel2);color:var(--mute);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:600;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace}
+.btn:hover{color:var(--ink)}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.disc b{color:var(--mute)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(5,9,16,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:470px;width:100%;padding:20px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:var(--ink)}
+.modal-head button{background:transparent;border:none;color:var(--mute);font-size:16px;cursor:pointer}
+.modal-body{font-size:13px;color:var(--mute);line-height:1.7;margin-top:12px}
+.modal-body p{margin-bottom:9px}.modal-body b{color:var(--ink)}
+.modal-foot{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint)}
+</style>
+</head>
+<body>
+<style>
+.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:22px}
+.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
+.topnav a:hover{color:var(--ink);background:var(--panel2)}
+.topnav a.on{background:var(--teal);color:#0d1320}
+.topnav .brand{color:var(--ink);font-weight:700}
+.topnav .brand .dot{color:var(--teal)}
+.topnav .sp{flex:1 1 8px}
+</style>
+<nav class="topnav">
+  <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
+  <a href="topquant_macro.html">매크로</a>
+  <a href="topquant_treasury.html">국채</a>
+  <a href="topquant_news.html">뉴스</a>
+  <a href="topquant_realtime.html">실시간</a>
+  <a href="topquant_fx.html">원/달러</a>
+  <a href="topquant_sell.html">매도</a>
+  <span class="sp"></span>
+</nav>
+<script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  document.querySelectorAll('.topnav a').forEach(function(a){
+    var h=(a.getAttribute('href')||'').toLowerCase();
+    if(h===f||(f===''&&h==='index.html'))a.classList.add('on');});})();</script>
+
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 매도 시점 보드</h1>
+    <div class="sub">"버블의 끝은 변두리에서 먼저 온다" — 신영증권 박사 인터뷰 분석을 데이터로 추적 · FRED·글로벌지수(프록시 경유)</div>
+  </div>
+  <div class="status">
+    <div id="liveBadge" class="live"><span class="pulse"></span><span id="liveText">불러오는 중…</span></div>
+    <div id="lastUpd" style="margin-top:6px">—</div>
+  </div>
+</header>
+
+<div class="banner">
+  <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 이 보드는 닷컴 고점에서 실제로 나타났던
+  <b>4가지 신호</b>가 지금 얼마나 켜졌는지 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
+</div>
+
+<!-- COMPOSITE -->
+<div class="card hero">
+  <div class="secttl"><span class="clk" onclick="openExplain('TIER')" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">종합 — 매도 경계 단계 ⓘ</span>
+    <span class="r"><button class="btn" id="refreshBtn">새로고침</button></span></div>
+  <div class="comptop">
+    <div class="gauge clk" id="gauge" onclick="openExplain('TIER')" title="누르면 설명">
+      <div class="lvl" id="lvl">—</div>
+      <div class="sc" id="score">—</div>
+      <div class="gbar"><div class="mk" id="mk" style="left:6%"></div></div>
+      <div class="gends"><span>관망</span><span>주의</span><span>경계</span><span>매도검토</span></div>
+    </div>
+    <div class="narr" id="narr">불러오는 중…</div>
+  </div>
+</div>
+
+<!-- SIGNAL 1: 미국 주도주 쏠림 -->
+<div class="card clk" onclick="openExplain('CONC')" title="누르면 쉬운 설명">
+  <div class="secttl">① 미국 주도주 쏠림 (나스닥 vs 다우·S&P) ⓘ <span class="r">최근 3개월 수익률</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="conc-big">—</div><div class="desc" id="conc-desc">닷컴 고점 땐 나스닥만 +40%, 다우·S&P는 이미 마이너스였습니다(쏠림).</div>
+      <div class="metrics" id="conc-metrics"></div></div>
+    <span class="pill" id="conc-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 2: 글로벌 시장 폭 -->
+<div class="card">
+  <div class="secttl clk" onclick="openExplain('BREADTH')" title="누르면 쉬운 설명">② 글로벌 시장 폭 — 마이너스 국가 ⓘ <span class="r">14개국 · 1·3개월</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="br-big">—</div><div class="desc" id="br-desc">변두리(주변국)부터 마이너스가 늘고, 대만·유럽 같은 보루까지 무너지면 끝에 가깝습니다.</div></div>
+    <span class="pill" id="br-pill">—</span>
+  </div>
+  <div class="mtable" id="br-table"></div>
+</div>
+
+<!-- SIGNAL 3: 금리 -->
+<div class="card clk" onclick="openExplain('RATE')" title="누르면 쉬운 설명">
+  <div class="secttl">③ 금리 — 직전 고점 대비 ("마지막 한 방울") ⓘ <span class="r">미 기준금리 DFF</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="rate-big">—</div><div class="desc" id="rate-desc">첫 인상이 아니라 <b>직전 고점을 다시 넘는 순간</b> 무너졌습니다.</div>
+      <div class="metrics" id="rate-metrics"></div></div>
+    <span class="pill" id="rate-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 4: 위험선호 -->
+<div class="card clk" onclick="openExplain('RISK')" title="누르면 쉬운 설명">
+  <div class="secttl">④ 위험선호 — 변동성·신용 ⓘ <span class="r">VIX · 하이일드 스프레드</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="risk-big">—</div><div class="desc" id="risk-desc">공포(VIX)·신용경계(스프레드)가 같이 치솟으면 위험회피가 본격화된 것입니다.</div>
+      <div class="metrics" id="risk-metrics"></div></div>
+    <span class="pill" id="risk-pill">—</span>
+  </div>
+</div>
+
+<!-- 교육 노트 -->
+<div class="card">
+  <div class="secttl clk" onclick="openExplain('CAPFLIP')" title="누르면 설명">참고 — 삼성·하이닉스 시총 역전은 '매도 신호'가 아님 ⓘ</div>
+  <div class="note">
+    닷컴 때 시스코가 시총 1위가 된 직후 폭락한 '1등의 저주'가 회자되지만, 그땐 시스코 영업이익이 MS·GE의 <b>약 1/13</b>(체급 차이)이었습니다.
+    삼성전자·하이닉스는 <b>시총도 이익도 비슷한 헤비급끼리의 손바뀜</b>이라, 시총 역전 자체는 시장 꼭지의 유의미한 신호로 보기 어렵습니다.
+  </div>
+</div>
+
+<div class="disc">
+  ※ 출처: FRED(미 기준금리 DFF·VIX·하이일드 스프레드), 글로벌 주가지수 Yahoo Finance(회장님 Vercel 프록시 경유).
+  <b>4개 신호는 닷컴 고점 패턴을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
+</div>
+
+<!-- 모달 -->
+<div id="modal" class="modal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-head"><span id="m-title"></span><button id="m-close" type="button">✕</button></div>
+    <div id="m-body" class="modal-body"></div>
+    <div class="modal-foot">신영증권 박사 인터뷰 분석 기반의 일반 설명 · 시장 상황에 따라 예외가 있을 수 있어요 · 투자 판단은 본인 책임</div>
+  </div>
+</div>
+
+<script>
+const PROXY='https://fred-proxy-nine.vercel.app';
+const $=id=>document.getElementById(id);
+
+const MKT=[
+ {s:'^GSPC',n:'미국 S&P500',g:'US'},
+ {s:'^IXIC',n:'미국 나스닥',g:'US'},
+ {s:'^DJI', n:'미국 다우',  g:'US'},
+ {s:'^N225',n:'일본 닛케이',g:'AS'},
+ {s:'^KS11',n:'한국 코스피',g:'AS'},
+ {s:'^TWII',n:'대만 가권',  g:'AS',bastion:1},
+ {s:'^HSI', n:'홍콩 항셍',  g:'AS'},
+ {s:'^GDAXI',n:'독일 DAX',  g:'EU'},
+ {s:'^FCHI',n:'프랑스 CAC', g:'EU'},
+ {s:'^FTSE',n:'영국 FTSE',  g:'EU'},
+ {s:'^STOXX50E',n:'유로 STOXX50',g:'EU'},
+ {s:'^BSESN',n:'인도 SENSEX',g:'EM'},
+ {s:'^MXX', n:'멕시코 IPC', g:'EM'},
+ {s:'^BVSP',n:'브라질 보베스파',g:'EM'},
+];
+const SIG={}; // 각 신호 상태 저장
+
+const EXPLAIN={
+ TIER:{title:'매도 경계 단계란?', body:`
+   <p>아래 <b>4개 신호</b>(미국 쏠림·글로벌 폭·금리·위험선호)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
+   <p><b>관망 → 주의 → 경계 → 매도검토</b> 순으로 올라갑니다. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
+   <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
+   <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
+ CONC:{title:'① 미국 주도주 쏠림', body:`
+   <p>같은 미국 안에서도 <b>나스닥(주도주)만 오르고 다우·S&P는 빠지는</b> 현상입니다.</p>
+   <p>닷컴 고점(2000년) 마지막 3개월에 나스닥은 +40%였는데 <b>다우·S&P500은 이미 마이너스</b>였어요. 돈이 주도주로만 몰리며 나머지를 판 것이죠.</p>
+   <p><b>경고</b>: 나스닥은 +인데 다우나 S&P가 −. <b>주의</b>: 나스닥이 다우보다 너무 크게 앞섬(격차 과대).</p>`},
+ BREADTH:{title:'② 글로벌 시장 폭', body:`
+   <p>전 세계 14개국 지수 중 <b>최근 마이너스인 나라가 몇 개인지</b>를 봅니다. "변두리부터 마이너스가 먼저 온다"는 박사의 핵심 신호예요.</p>
+   <p>닷컴 때는 마이너스 국가가 <b>계단식으로</b> 늘었고, 전기전자 강국 <b>대만</b>마저 마이너스로 돌아선 게 마지막 신호였습니다.</p>
+   <p>지금처럼 <b>유럽·인도가 아직 플러스</b>면 보루가 건재 → 끝은 아직. <b>경고</b>: 마이너스 국가 60%↑ + 대만·유럽까지 마이너스.</p>
+   <p style="color:var(--faint)">최근 1개월 마이너스 수가 3개월보다 많으면 '최근 악화' 신호.</p>`},
+ RATE:{title:'③ 금리 — 직전 고점 대비', body:`
+   <p>금리는 미래 이익을 현재가치로 당겨올 때의 <b>할인율</b>이자 실물경제 비용이라 주식에 전방위로 작동합니다("마지막 한 방울").</p>
+   <p>닷컴 때 핵심은 <b>첫 인상이 아니라 직전 고점을 다시 넘은 순간</b> 무너졌다는 점. 인상 초반엔 오히려 주가가 더 올랐어요.</p>
+   <p><b>경고</b>: 금리가 인상 방향 + 직전 고점 도달/돌파. <b>주의</b>: 인상으로 방향 전환. <b>정상</b>: 인하·동결.</p>`},
+ RISK:{title:'④ 위험선호 — 변동성·신용', body:`
+   <p><b>VIX(공포지수)</b>와 <b>하이일드 스프레드(신용 위험 체온계)</b>가 같이 치솟으면 투자자들이 위험을 피하기 시작한 것입니다.</p>
+   <p><b>경고</b>: VIX 30↑ 또는 (VIX 급등 + 스프레드 확대). <b>주의</b>: 둘 중 하나가 빠르게 상승.</p>
+   <p style="color:var(--faint)">고점 직전엔 의외로 잠잠하다가 꺾일 때 함께 튀는 경우가 많아 보조로만 봅니다.</p>`},
+ CAPFLIP:{title:'시총 역전이 신호가 아닌 이유', body:`
+   <p>닷컴 때 <b>시스코</b>가 시총 1위에 오른 직후 폭락한 '1등의 저주'가 유명하지만, 그땐 시스코 영업이익이 MS·GE의 <b>약 1/13</b>이었어요(헤비급 vs 페더급).</p>
+   <p>반면 <b>삼성전자·하이닉스</b>는 시총도, 이익도 비슷한 <b>헤비급끼리의 손바뀜</b>입니다.</p>
+   <p>그래서 시총 역전 자체는 "꼭지"의 유의미한 시그널로 보기 어렵다는 게 박사의 결론입니다.</p>`},
+};
+function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
+function closeModal(){$('modal').style.display='none';}
+
+function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
+const pct=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(1)+'%';
+const ccls=v=>v==null?'flat':(v>0.05?'up':(v<-0.05?'down':'flat'));
+const PILL={green:'정상',amber:'주의',red:'경고'};
+function setPill(id,st){const e=$(id);e.className='pill '+st;e.textContent=PILL[st];}
+
+async function indices(syms){
+  const r=await fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range=4mo',{cache:'no-store'});
+  if(!r.ok)throw new Error('지수 HTTP '+r.status); const j=await r.json(); if(!j.ok)throw new Error(j.error||'index err'); return j.data;
+}
+async function fred(id,limit){
+  const r=await fetch(PROXY+'/api/fred?series_id='+id+'&limit='+limit+'&sort_order=desc',{cache:'no-store'});
+  if(!r.ok)throw new Error('FRED HTTP '+r.status); const j=await r.json();
+  return ((j&&j.observations)||[]).map(o=>({date:o.date,v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
+}
+function retAsc(a,n){ if(!a||a.length<=n)return null; const last=a[a.length-1].c,past=a[a.length-1-n].c; if(!past)return null; return (last/past-1)*100; }
+
+// ── 신호 1: 미국 주도주 쏠림 ──
+function renderConcentration(nq,sp,dj){
+  const a=nq&&nq.r3, b=sp&&sp.r3, c=dj&&dj.r3;
+  let st='green';
+  if(a!=null&&a>0&&((b!=null&&b<0)||(c!=null&&c<0))) st='red';
+  else if((a!=null&&c!=null&&a-c>=8)||(a!=null&&b!=null&&a-b>=6)) st='amber';
+  SIG.conc={st};
+  $('conc-metrics').innerHTML=
+    `<span class="m ${ccls(a)}">나스닥 ${pct(a)} <span>3M</span></span>
+     <span class="m ${ccls(b)}">S&P500 ${pct(b)} <span>3M</span></span>
+     <span class="m ${ccls(c)}">다우 ${pct(c)} <span>3M</span></span>`;
+  $('conc-big').textContent = st==='red'?'나스닥만 상승, 다우·S&P 하락 — 쏠림 경고'
+    : st==='amber'?'주도주 격차 확대 — 쏠림 주의' : '미국 내부 분화 뚜렷하지 않음';
+  setPill('conc-pill',st);
+}
+
+// ── 신호 2: 글로벌 시장 폭 ──
+function renderBreadth(rows){
+  const valid=rows.filter(r=>r.r3!=null);
+  const neg3=valid.filter(r=>r.r3<0), neg1=rows.filter(r=>r.r1!=null&&r.r1<0);
+  const ratio=valid.length?neg3.length/valid.length:0;
+  const tw=rows.find(r=>r.s==='^TWII');
+  const eu=rows.filter(r=>r.g==='EU'&&r.r3!=null); const euNeg=eu.length>0&&eu.every(r=>r.r3<0);
+  const india=rows.find(r=>r.s==='^BSESN');
+  let st='green';
+  if(ratio>=0.6 && tw&&tw.r3!=null&&tw.r3<0 && euNeg) st='red';
+  else if(ratio>=0.45 || neg1.length>neg3.length) st='amber';
+  SIG.breadth={st,ratio,neg3:neg3.length,neg1:neg1.length,total:valid.length,euNeg,twNeg:!!(tw&&tw.r3<0),indiaPos:!!(india&&india.r3>0)};
+  $('br-big').textContent='3개월 마이너스 '+neg3.length+'/'+valid.length+'개국 · 1개월 '+neg1.length+'개국'
+    +(neg1.length>neg3.length?' (최근 악화)':'');
+  const bast=[];
+  if(eu.length){bast.push('유럽 '+(euNeg?'마이너스':'플러스(보루 건재)'));}
+  if(india&&india.r3!=null){bast.push('인도 '+(india.r3>=0?'플러스':'마이너스'));}
+  if(tw&&tw.r3!=null){bast.push('대만 '+(tw.r3>=0?'플러스':'마이너스'));}
+  $('br-desc').innerHTML='마지막 보루 점검 — '+bast.join(' · ')+'. 보루가 플러스면 글로벌 연쇄 매도는 아직.';
+  setPill('br-pill',st);
+  // 국가별 표
+  $('br-table').innerHTML=rows.map(r=>{
+    const neg=r.r3!=null&&r.r3<0;
+    return `<div class="mrow${neg?' neg':''}${r.bastion?' bastion':''}">
+      <span class="nm"><b>${r.n}</b>${r.bastion?' ⚑':''}</span>
+      <span class="rr ${ccls(r.r3)}">${pct(r.r3)}<span style="color:var(--faint);font-weight:400"> 3M</span></span></div>`;
+  }).join('');
+}
+
+// ── 신호 3: 금리 ──
+function renderRate(dff){
+  if(!dff.length){SIG.rate={st:'green'};return;}
+  const cur=dff[0].v; let peak=-Infinity; dff.forEach(o=>{if(o.v>peak)peak=o.v;});
+  const past=dff[Math.min(63,dff.length-1)].v; const chg=cur-past;
+  const rising=chg>0.1, falling=chg<-0.1; const dist=peak-cur;
+  let st='green';
+  if(rising&&dist<=0.05) st='red'; else if(rising) st='amber';
+  SIG.rate={st,cur,peak,dist,dir:rising?'인상':(falling?'인하':'동결')};
+  $('rate-metrics').innerHTML=
+    `<span class="m">현재 ${cur.toFixed(2)}% <span>DFF</span></span>
+     <span class="m">직전 고점 ${peak.toFixed(2)}%</span>
+     <span class="m ${rising?'down':(falling?'up':'flat')}">방향 ${rising?'인상↑':(falling?'인하↓':'동결')}</span>
+     <span class="m">고점까지 ${dist.toFixed(2)}%p</span>`;
+  $('rate-big').textContent = st==='red'?'인상 + 직전 고점 도달/돌파 — 마지막 한 방울 경고'
+    : st==='amber'?'금리 인상 방향 전환 — 주의' : '인하·동결 흐름 — 직전 고점 한참 아래';
+  setPill('rate-pill',st);
+}
+
+// ── 신호 4: 위험선호 ──
+function renderRisk(vix,hy){
+  const vc=vix[0]?vix[0].v:null, vp=vix.length?vix[Math.min(20,vix.length-1)].v:null;
+  const hc=hy[0]?hy[0].v:null, hp=hy.length?hy[Math.min(20,hy.length-1)].v:null;
+  const vchg=(vc!=null&&vp)?(vc/vp-1)*100:null, hchg=(hc!=null&&hp)?(hc/hp-1)*100:null;
+  let st='green';
+  if((vc!=null&&vc>30)||(vchg!=null&&vchg>30&&hchg!=null&&hchg>0)) st='red';
+  else if((vchg!=null&&vchg>15)||(hchg!=null&&hchg>10)) st='amber';
+  SIG.risk={st,vc,vchg,hc,hchg};
+  $('risk-metrics').innerHTML=
+    `<span class="m">VIX ${vc!=null?vc.toFixed(1):'—'} <span class="${ccls(vchg)}">${vchg!=null?pct(vchg):''} 20일</span></span>
+     <span class="m">하이일드 ${hc!=null?hc.toFixed(2):'—'}%p <span class="${ccls(hchg)}">${hchg!=null?pct(hchg):''} 20일</span></span>`;
+  $('risk-big').textContent = st==='red'?'공포·신용경계 동반 상승 — 위험회피 경고'
+    : st==='amber'?'변동성/신용 한쪽 상승 — 주의' : '변동성·신용 안정적';
+  setPill('risk-pill',st);
+}
+
+// ── 종합 ──
+function renderComposite(){
+  const v={green:0,amber:1,red:2};
+  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk].filter(Boolean);
+  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..8
+  let lvl,col,posPct;
+  const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
+  if(combo){lvl='매도 검토';col='#f2706e';posPct=94;}
+  else if(score>=5){lvl='경계';col='#f2706e';posPct=78;}
+  else if(score>=3){lvl='주의';col='#f5b53f';posPct=52;}
+  else if(score>=1){lvl='관찰';col='#5b8def';posPct=28;}
+  else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
+  $('lvl').textContent=lvl; $('lvl').style.color=col;
+  $('score').textContent='경계 점수 '+score+'/8 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/4';
+  $('mk').style.left=posPct+'%';
+  renderNarrative(lvl,score,combo);
+}
+function renderNarrative(lvl,score,combo){
+  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'위험선호'};
+  const fired=Object.keys(names).filter(k=>SIG[k]&&SIG[k].st!=='green').map(k=>names[k]+'('+PILL[SIG[k].st]+')');
+  const b=SIG.breadth||{}, r=SIG.rate||{};
+  let line1, line2;
+  if(combo){
+    line1=`<b class="r">결정적 조합 점등</b> — 글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파가 동시에 왔습니다. 박사 기준 가장 위험한 신호.`;
+    line2=`냉정하게 비중 축소(1/3~절반)를 검토할 구간이라는 게 분석의 결론입니다.`;
+  } else if(lvl==='관망 (정상)'){
+    line1=`현재는 <b class="g">관망(정상)</b> 단계. 닷컴식 고점 신호가 뚜렷하게 켜지지 않았습니다.`;
+    line2=`${(b.euNeg===false?'유럽':'주요국')}·인도 등 보루가 ${b.indiaPos?'아직 플러스':'관찰 필요'}이고, 금리는 직전 고점(${r.peak?r.peak.toFixed(2)+'%':'—'})보다 ${r.dist!=null?r.dist.toFixed(2)+'%p 아래':'아래'}. "신호는 일부 나왔지만 무르익지 않았다"에 가깝습니다.`;
+  } else {
+    line1=`현재 <b class="a">${lvl}</b> 단계 — 켜진 신호: <b>${fired.join(' · ')||'없음'}</b>.`;
+    line2=`끝이 가까워지는 흐름일 수 있으나, 박사가 말한 결정적 조합(글로벌 폭 붕괴 + 금리 직전 고점 돌파)은 아직 동시 점등은 아닙니다. 보루(대만·유럽)와 금리 방향을 집중 관찰하세요.`;
+  }
+  $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}
+    <span class="narr-foot">4개 신호를 합친 보조 판단 · 점 예측 아님 · 각 카드를 누르면 쉬운 설명</span>`;
+}
+
+async function load(){
+  setLive(true,'불러오는 중…');
+  try{
+    const [data,dff,vix,hy]=await Promise.all([
+      indices(MKT.map(m=>m.s)), fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60)
+    ]);
+    const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
+      return Object.assign({},m,{r1:ok?retAsc(a,21):null,r3:ok?retAsc(a,63):null});});
+    const find=k=>rows.find(x=>x.s===k);
+    renderConcentration(find('^IXIC'),find('^GSPC'),find('^DJI'));
+    renderBreadth(rows);
+    renderRate(dff);
+    renderRisk(vix,hy);
+    renderComposite();
+    setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
+  }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
+}
+
+$('refreshBtn').onclick=load;
+$('m-close').onclick=closeModal;
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+load();
+setInterval(load, 15*60*1000);
+</script>
+</body>
+</html>
