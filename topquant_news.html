@@ -51,6 +51,31 @@ padding:11px 15px;margin:14px 0 20px;font-size:12px;color:#a6e8df;line-height:1.
 </style>
 </head>
 <body>
+<style>
+.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:22px}
+.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
+.topnav a:hover{color:var(--ink);background:var(--panel2)}
+.topnav a.on{background:var(--teal);color:#0d1320}
+.topnav .brand{color:var(--ink);font-weight:700}
+.topnav .brand .dot{color:var(--teal)}
+.topnav .sp{flex:1 1 8px}
+</style>
+<nav class="topnav">
+  <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
+  <a href="topquant_macro.html">매크로</a>
+  <a href="topquant_treasury.html">국채</a>
+  <a href="topquant_news.html">뉴스</a>
+  <a href="topquant_realtime.html">실시간</a>
+  <a href="topquant_fx.html">원/달러</a>
+  <span class="sp"></span>
+</nav>
+<script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  document.querySelectorAll('.topnav a').forEach(function(a){
+    var h=(a.getAttribute('href')||'').toLowerCase();
+    if(h===f||(f===''&&h==='index.html'))a.classList.add('on');});})();</script>
 <header>
   <div>
     <h1>탑퀀트 <span class="dot">·</span> 시장 영향 인물 브리핑</h1>
