@@ -171,10 +171,10 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 4: 위험선호 -->
-<div class="card clk" onclick="openExplain('RISK')" title="누르면 쉬운 설명">
-  <div class="secttl">④ 위험선호 — 변동성·신용 ⓘ <span class="r">VIX · 하이일드 스프레드</span></div>
+<div class="card clk" onclick="openExplain('FINENV')" title="누르면 쉬운 설명">
+  <div class="secttl">④ 금융환경 — 위험선호 종합 ⓘ <span class="r">VIX·신용·금리차·NFCI·스트레스</span></div>
   <div class="sig">
-    <div class="main"><div class="big" id="risk-big">—</div><div class="desc" id="risk-desc">공포(VIX)·신용경계(스프레드)가 같이 치솟으면 위험회피가 본격화된 것입니다.</div>
+    <div class="main"><div class="big" id="risk-big">—</div><div class="desc" id="risk-desc">공포(VIX)·신용(스프레드)·금리차 역전·금융환경(NFCI)·스트레스를 종합. 여러 축이 함께 나빠질 때가 위험.</div>
       <div class="metrics" id="risk-metrics"></div></div>
     <span class="pill" id="risk-pill">—</span>
   </div>
@@ -187,6 +187,16 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
     <div class="main"><div class="big" id="eng-big">—</div><div class="desc" id="eng-desc">닷컴은 적자 비전기업, 지금은 막대한 실이익. <b>이익 엔진이 받치는 한 붐 지속, 둔화되면 그게 진짜 매도 트리거.</b></div>
       <div class="metrics" id="eng-metrics"></div></div>
     <span class="pill" id="eng-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 6: 과열도 (장기추세 괴리) -->
+<div class="card clk" onclick="openExplain('OVERHEAT')" title="누르면 쉬운 설명">
+  <div class="secttl">⑥ 과열도 — 장기추세(200일선) 대비 괴리 ⓘ <span class="r">버블의 정의 = 추세 초과분</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="ovh-big">—</div><div class="desc">가격이 200일 이동평균보다 너무 멀리 올라와 있을수록 단기 되돌림 위험이 큽니다.</div>
+      <div class="metrics" id="ovh-metrics"></div></div>
+    <span class="pill" id="ovh-pill">—</span>
   </div>
 </div>
 
@@ -226,8 +236,8 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(미 기준금리 DFF·VIX·하이일드 스프레드·평균임금·소비자물가), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance(회장님 Vercel 프록시 경유).
-  <b>5개 신호는 닷컴 붐 패턴을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  ※ 출처: FRED(DFF·VIX·하이일드·장단기금리차 T10Y2Y·NFCI·금융스트레스 STLFSI4·평균임금·CPI), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance(회장님 Vercel 프록시 경유).
+  <b>6개 신호는 닷컴 붐 패턴을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -271,10 +281,21 @@ const SIG={}; // 각 신호 상태 저장
 
 const EXPLAIN={
  TIER:{title:'매도 경계 단계란?', body:`
-   <p>아래 <b>5개 신호</b>(미국 쏠림·글로벌 폭·금리·위험선호·주도주 이익 엔진)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
+   <p>아래 <b>6개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
    <p><b>관망 → 관찰 → 주의 → 경계 → 매도검토</b> 순으로 올라갑니다. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
    <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
+ OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
+   <p>버블의 정의는 "가격이 펀더멘탈(추세)을 얼마나 앞섰나"입니다. 이를 <b>S&P500·나스닥이 200일 이동평균선보다 얼마나 위에 있는지</b>(괴리율)로 측정합니다.</p>
+   <p>장기추세보다 너무 멀리 올라와 있을수록 <b>단기 되돌림(조정) 위험</b>이 커집니다.</p>
+   <p><b>경고</b>: S&P/나스닥이 200일선 대비 +20% 이상 과도하게 이격. <b>주의</b>: +12% 이상. <b>정상</b>: 그 아래.</p>
+   <p style="color:var(--faint)">정밀 밸류에이션(버핏지수·Shiller PE)은 별도 데이터가 필요해 추후 추가 예정.</p>`},
+ FINENV:{title:'④ 금융환경 — 위험선호 종합', body:`
+   <p>"돈줄·스트레스" 환경을 종합으로 봅니다. 한 가지만이 아니라 <b>여러 축이 함께</b> 나빠질 때가 위험합니다.</p>
+   <p>· <b>VIX</b>(공포)·<b>하이일드 스프레드</b>(신용위험) — 같이 치솟으면 위험회피.</p>
+   <p>· <b>장단기 금리차</b>(10년−2년): 마이너스면 '역전'(침체 선행). 역전 후 다시 정상화될 때가 고비.</p>
+   <p>· <b>시카고 금융환경지수(NFCI)</b>: 0보다 크면 '긴축'(돈줄 조임). · <b>금융스트레스(STLFSI4)</b>: 0보다 크면 스트레스 고조.</p>
+   <p><b>경고</b>: VIX 30↑ 또는 스트레스 고조 또는 (긴축+금리차 역전). <b>주의</b>: 한 축이라도 빠르게 악화.</p>`},
  CONC:{title:'① 미국 주도주 쏠림', body:`
    <p>같은 미국 안에서도 <b>나스닥(주도주)만 오르고 다우·S&P는 빠지는</b> 현상입니다.</p>
    <p>닷컴 고점(2000년) 마지막 3개월에 나스닥은 +40%였는데 <b>다우·S&P500은 이미 마이너스</b>였어요. 돈이 주도주로만 몰리며 나머지를 판 것이죠.</p>
@@ -359,12 +380,17 @@ function renderBreadth(rows){
   const tw=rows.find(r=>r.s==='^TWII');
   const eu=rows.filter(r=>r.g==='EU'&&r.r3!=null); const euNeg=eu.length>0&&eu.every(r=>r.r3<0);
   const india=rows.find(r=>r.s==='^BSESN');
+  // 계단식: 3개월→2개월→1개월→2주 마이너스 국가 수 진행
+  const negAt=w=>rows.filter(r=>r[w]!=null&&r[w]<0).length;
+  const prog={m3:negAt('r3'),m2:negAt('r2m'),m1:negAt('r1'),w2:negAt('r2w')};
+  const worsening=(prog.w2-prog.m3)>=3;
   let st='green';
   if(ratio>=0.6 && tw&&tw.r3!=null&&tw.r3<0 && euNeg) st='red';
-  else if(ratio>=0.45 || neg1.length>neg3.length) st='amber';
+  else if(ratio>=0.45 || neg1.length>neg3.length || worsening) st='amber';
   SIG.breadth={st,ratio,neg3:neg3.length,neg1:neg1.length,total:valid.length,euNeg,twNeg:!!(tw&&tw.r3<0),indiaPos:!!(india&&india.r3>0)};
-  $('br-big').textContent='3개월 마이너스 '+neg3.length+'/'+valid.length+'개국 · 1개월 '+neg1.length+'개국'
-    +(neg1.length>neg3.length?' (최근 악화)':'');
+  $('br-big').textContent='3개월 마이너스 '+neg3.length+'/'+valid.length+'개국'
+    +' · 계단(3M·2M·1M·2W) '+prog.m3+'·'+prog.m2+'·'+prog.m1+'·'+prog.w2+'개국'
+    +(worsening?' (최근 악화↑)':'');
   const bast=[];
   if(eu.length){bast.push('유럽 '+(euNeg?'마이너스':'플러스(보루 건재)'));}
   if(india&&india.r3!=null){bast.push('인도 '+(india.r3>=0?'플러스':'마이너스'));}
@@ -399,21 +425,50 @@ function renderRate(dff){
   setPill('rate-pill',st);
 }
 
-// ── 신호 4: 위험선호 ──
-function renderRisk(vix,hy){
+// ── 신호 4: 금융환경 (VIX·신용·금리차·NFCI·스트레스 종합) ──
+function renderRisk(vix,hy,curve,nfci,stress){
   const vc=vix[0]?vix[0].v:null, vp=vix.length?vix[Math.min(20,vix.length-1)].v:null;
   const hc=hy[0]?hy[0].v:null, hp=hy.length?hy[Math.min(20,hy.length-1)].v:null;
   const vchg=(vc!=null&&vp)?(vc/vp-1)*100:null, hchg=(hc!=null&&hp)?(hc/hp-1)*100:null;
+  const cv=curve&&curve[0]?curve[0].v:null;     // T10Y2Y (음수=역전)
+  const nf=nfci&&nfci[0]?nfci[0].v:null;         // NFCI (>0 긴축)
+  const ss=stress&&stress[0]?stress[0].v:null;   // STLFSI4 (>0 스트레스)
+  const inv=cv!=null&&cv<0, tight=nf!=null&&nf>0, stressed=ss!=null&&ss>0;
+  let flags=0;
+  if(vc!=null&&vc>20)flags++; if(hchg!=null&&hchg>10)flags++; if(inv)flags++; if(tight)flags++; if(stressed)flags++;
   let st='green';
-  if((vc!=null&&vc>30)||(vchg!=null&&vchg>30&&hchg!=null&&hchg>0)) st='red';
-  else if((vchg!=null&&vchg>15)||(hchg!=null&&hchg>10)) st='amber';
-  SIG.risk={st,vc,vchg,hc,hchg};
+  if((vc!=null&&vc>30)||(ss!=null&&ss>0.5)||(tight&&inv)) st='red'; else if(flags>=1) st='amber';
+  SIG.risk={st,vc,cv,nf,ss};
   $('risk-metrics').innerHTML=
-    `<span class="m">VIX ${vc!=null?vc.toFixed(1):'—'} <span class="${ccls(vchg)}">${vchg!=null?pct(vchg):''} 20일</span></span>
-     <span class="m">하이일드 ${hc!=null?hc.toFixed(2):'—'}%p <span class="${ccls(hchg)}">${hchg!=null?pct(hchg):''} 20일</span></span>`;
-  $('risk-big').textContent = st==='red'?'공포·신용경계 동반 상승 — 위험회피 경고'
-    : st==='amber'?'변동성/신용 한쪽 상승 — 주의' : '변동성·신용 안정적';
+    `<span class="m">VIX ${vc!=null?vc.toFixed(1):'—'} <span class="${ccls(vchg)}">${vchg!=null?pct(vchg):''}</span></span>
+     <span class="m">하이일드 ${hc!=null?hc.toFixed(2):'—'}%p <span class="${ccls(hchg)}">${hchg!=null?pct(hchg):''}</span></span>
+     <span class="m ${inv?'down':'flat'}">금리차 ${cv!=null?cv.toFixed(2):'—'}%p ${cv!=null?(inv?'역전':'정상'):''}</span>
+     <span class="m ${tight?'down':'up'}">NFCI ${nf!=null?nf.toFixed(2):'—'} ${nf!=null?(tight?'긴축':'완화'):''}</span>
+     <span class="m ${stressed?'down':'up'}">스트레스 ${ss!=null?ss.toFixed(2):'—'}</span>`;
+  $('risk-big').textContent = st==='red'?'금융환경 경고 — 위험회피·긴축·스트레스'
+    : st==='amber'?'금융환경 일부 악화 — 주의' : '금융환경 안정적 (완화·저스트레스)';
   setPill('risk-pill',st);
+}
+
+// ── 신호 6: 과열도 (장기추세 200일선 대비 괴리) ──
+function renderOverheat(data){
+  const items=[{s:'^GSPC',n:'S&P500'},{s:'^IXIC',n:'나스닥'}].map(o=>{
+    const a=data[o.s]; const ok=Array.isArray(a)&&a.length>200;
+    const sma=ok?(a.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+    const last=ok?a[a.length-1].c:null;
+    const gap=(last!=null&&sma)?(last/sma-1)*100:null;
+    return Object.assign({},o,{gap});
+  });
+  const gaps=items.map(i=>i.gap).filter(g=>g!=null);
+  const mx=gaps.length?Math.max.apply(null,gaps):null;
+  let st='green';
+  if(mx!=null){ if(mx>=20)st='red'; else if(mx>=12)st='amber'; }
+  SIG.overheat={st,mx};
+  $('ovh-metrics').innerHTML=items.map(i=>
+    `<span class="m ${i.gap>=12?'down':(i.gap<0?'up':'flat')}">${i.n} 200일선 ${i.gap!=null?pct(i.gap):'—'}</span>`).join('');
+  $('ovh-big').textContent = st==='red'?'장기추세 대비 과도한 이격 — 과열 경고(되돌림 위험)'
+    : st==='amber'?'추세 대비 다소 과열 — 주의' : '추세 대비 과열 아님';
+  setPill('ovh-pill',st);
 }
 
 // ── 신호 5: 주도주 이익 엔진 ──
@@ -455,22 +510,22 @@ function renderFuel(wage,cpi){
 // ── 종합 ──
 function renderComposite(){
   const v={green:0,amber:1,red:2};
-  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine].filter(Boolean);
-  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..10
+  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat].filter(Boolean);
+  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..12
   let lvl,col,posPct;
   const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
-  if(combo||score>=9){lvl='매도 검토';col='#f2706e';posPct=94;}
+  if(combo||score>=10){lvl='매도 검토';col='#f2706e';posPct=94;}
   else if(score>=7){lvl='경계';col='#f2706e';posPct=76;}
   else if(score>=4){lvl='주의';col='#f5b53f';posPct=52;}
   else if(score>=1){lvl='관찰';col='#5b8def';posPct=26;}
   else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
   $('lvl').textContent=lvl; $('lvl').style.color=col;
-  $('score').textContent='경계 점수 '+score+'/10 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/5';
+  $('score').textContent='경계 점수 '+score+'/12 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/6';
   $('mk').style.left=posPct+'%';
   renderNarrative(lvl,score,combo);
 }
 function renderNarrative(lvl,score,combo){
-  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'위험선호',engine:'이익 엔진'};
+  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도'};
   const fired=Object.keys(names).filter(k=>SIG[k]&&SIG[k].st!=='green').map(k=>names[k]+'('+PILL[SIG[k].st]+')');
   const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, f=SIG.fuel||{};
   let line1, line2;
@@ -491,19 +546,22 @@ function renderNarrative(lvl,score,combo){
 async function load(){
   setLive(true,'불러오는 중…');
   try{
-    const [data,leaders,dff,vix,hy,wage,cpi]=await Promise.all([
-      indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s),'1y'),
+    const OVH=['^GSPC','^IXIC'];
+    const [data,leadOvh,dff,vix,hy,wage,cpi,curve,nfci,stress]=await Promise.all([
+      indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
-      fred('CES0500000003',14), fred('CPIAUCSL',14)
+      fred('CES0500000003',14), fred('CPIAUCSL',14),
+      fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5)
     ]);
     const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
-      return Object.assign({},m,{r1:ok?retAsc(a,21):null,r3:ok?retAsc(a,63):null});});
+      return Object.assign({},m,{r2w:ok?retAsc(a,10):null,r1:ok?retAsc(a,21):null,r2m:ok?retAsc(a,42):null,r3:ok?retAsc(a,63):null});});
     const find=k=>rows.find(x=>x.s===k);
     renderConcentration(find('^IXIC'),find('^GSPC'),find('^DJI'));
     renderBreadth(rows);
     renderRate(dff);
-    renderRisk(vix,hy);
-    renderEngine(leaders);
+    renderRisk(vix,hy,curve,nfci,stress);
+    renderEngine(leadOvh);
+    renderOverheat(leadOvh);
     renderFuel(wage,cpi);
     renderComposite();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
