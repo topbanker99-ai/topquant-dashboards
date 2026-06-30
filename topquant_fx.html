@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 원/달러 방향 보드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1180px;margin:0 auto;padding:30px 28px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:16px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.status{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.live{display:inline-flex;align-items:center;gap:7px;color:#7ee7da;font-size:12px;
+background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.4);border-radius:8px;padding:4px 11px}
+.live .pulse{width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:p 1.6s infinite}
+.live.err{color:#f2a3a2;background:rgba(242,112,110,.12);border-color:rgba(242,112,110,.4)}
+.live.err .pulse{background:#f2706e;animation:none}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)}70%{box-shadow:0 0 0 7px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
+.banner{background:rgba(245,181,63,.08);border:1px solid rgba(245,181,63,.3);border-radius:11px;
+padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0d9a8;line-height:1.6}
+.banner b{color:var(--amber)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card.hero{background:linear-gradient(180deg,#16203455,#151d2e)}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:14px;letter-spacing:.2px}
+.secttl::before{content:"";width:22px;height:1px;background:var(--teal)}
+.secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{background:transparent;border:none;color:var(--mute);padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'IBM Plex Mono',monospace}
+.seg button.on{background:var(--panel2);color:var(--teal)}
+.hrow{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.hrow .big{font-family:'IBM Plex Mono',monospace;font-size:34px;font-weight:600;letter-spacing:-.6px}
+.hrow .d{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600}
+.deltas{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0 4px;font-size:12.5px;color:var(--mute)}
+.deltas .mono{font-size:13px}
+.chartwrap{position:relative;width:100%;margin-top:8px}
+.up{color:#2dd4bf}.down{color:#f2706e}.flat{color:var(--mute)}
+/* signal */
+.sigwrap{display:grid;grid-template-columns:340px 1fr;gap:22px}
+@media(max-width:820px){.sigwrap{grid-template-columns:1fr}}
+.gaugebox{text-align:center}
+.glabel{font-size:12px;color:var(--mute);margin-bottom:8px}
+.score{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:700;letter-spacing:-.5px}
+.verdict{font-size:15px;font-weight:700;margin-top:6px}
+.strength{font-size:12px;color:var(--faint);margin-top:3px}
+.bar{position:relative;height:14px;border-radius:8px;margin:16px 0 6px;
+background:linear-gradient(90deg,#2dd4bf 0%,#27324a 50%,#f2706e 100%)}
+.bar .mk{position:absolute;top:-5px;width:4px;height:24px;border-radius:2px;background:#e9eef7;box-shadow:0 0 0 2px #0d1320}
+.barends{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.drv{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.drv:last-child{border-bottom:none}
+.drv .nm{flex:1;font-size:13px}
+.drv .nm small{display:block;color:var(--faint);font-size:11px}
+.drv .val{font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right;min-width:96px}
+.drv .chg{font-family:'IBM Plex Mono',monospace;font-size:12px;min-width:78px;text-align:right}
+.drv .vote{min-width:92px;text-align:right;font-size:12px;font-weight:600}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600}
+.pill.weak{background:rgba(242,112,110,.15);color:#f2a3a2}
+.pill.strong{background:rgba(45,212,191,.15);color:#7ee7da}
+.pill.neu{background:rgba(133,147,171,.15);color:#a7b2c6}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+@media(max-width:760px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.tile .t{font-size:11.5px;color:var(--mute)}
+.tile .v{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:5px}
+.tile .c{font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:3px}
+.btn{background:var(--panel2);color:var(--mute);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:600;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace}
+.btn:hover{color:var(--ink)}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.disc b{color:var(--mute)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 원/달러 방향 보드</h1>
+    <div class="sub">USD/KRW 방향성 트레이딩용 · FRED 데이터(회장님 Vercel 프록시 경유) · EOD 갱신</div>
+  </div>
+  <div class="status">
+    <div id="liveBadge" class="live"><span class="pulse"></span><span id="liveText">불러오는 중…</span></div>
+    <div id="lastUpd" style="margin-top:6px">—</div>
+  </div>
+</header>
+
+<div class="banner">
+  <b>● 방향 보조용 보드입니다.</b> 단기 환율은 점(point) 예측이 통계적으로 어렵습니다(랜덤워크에 가까움).
+  이 보드는 <b>"원화 강세/약세 방향 편향 + 강도"</b>를 5개 핵심 동인으로 종합해 매매·헷지 판단을 돕습니다. 점쟁이가 아닙니다.
+</div>
+
+<!-- HERO: 원/달러 -->
+<div class="card hero">
+  <div class="secttl">원/달러 (USD/KRW) — DEXKOUS
+    <span class="r">
+      <span class="seg" id="periodSeg">
+        <button data-d="95" class="on">3M</button><button data-d="190">6M</button><button data-d="370">1Y</button>
+      </span>
+    </span>
+  </div>
+  <div class="hrow">
+    <span class="big" id="fxPx">—</span>
+    <span class="d" id="fxDay">—</span>
+    <span class="mono" style="color:var(--faint);font-size:12px">원 / 1달러</span>
+  </div>
+  <div class="deltas">
+    <span>1일 <span class="mono" id="d1">—</span></span>
+    <span>1주 <span class="mono" id="d5">—</span></span>
+    <span>1개월 <span class="mono" id="d20">—</span></span>
+    <span style="color:var(--faint)">▲ = 원화 약세(달러 강세) · ▼ = 원화 강세</span>
+  </div>
+  <div class="chartwrap"><canvas id="fxChart" height="104"></canvas></div>
+</div>
+
+<!-- SIGNAL -->
+<div class="card">
+  <div class="secttl">오늘의 원화 방향 편향 <span class="r" id="momTag">최근 20거래일 모멘텀 기준</span></div>
+  <div class="sigwrap">
+    <div class="gaugebox">
+      <div class="glabel">편향 점수 (−100 강세 … +100 약세)</div>
+      <div class="score mono" id="scoreVal">—</div>
+      <div class="verdict" id="verdict">—</div>
+      <div class="strength" id="strength">—</div>
+      <div class="bar"><div class="mk" id="mk" style="left:50%"></div></div>
+      <div class="barends"><span>원화 강세</span><span>중립</span><span>원화 약세</span></div>
+    </div>
+    <div>
+      <div id="driverList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRIVER TILES -->
+<div class="card">
+  <div class="secttl">핵심 동인 현재값 <span class="r"><button class="btn" id="refreshBtn">새로고침</button></span></div>
+  <div class="tiles" id="tiles"></div>
+</div>
+
+<div class="disc">
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis), 회장님 전용 Vercel 프록시 경유. 시리즈: DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2.
+  <b>방향 편향은 5개 동인의 20거래일 모멘텀을 가중 투표한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
+  단기 환율 예측의 한계(랜덤워크)를 전제로, 점 예측이 아니라 방향·강도·헷지 판단 보조로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const PROXY='https://fred-proxy-nine.vercel.app/api/fred';
+const $=id=>document.getElementById(id);
+const C={grid:'#1b2438',line:'#27324a'};
+
+// dir:+1 → 이 지표가 오르면 '원화 약세(달러 강세)' 압력. w=가중치(합=1). dead=중립 데드밴드(20일 %변화 기준).
+const DRIVERS=[
+ {id:'DTWEXBGS',    name:'달러지수(광의)',   sub:'달러 강세 → 원화 약세',  w:0.30, dir:+1, dead:0.5, unit:''},
+ {id:'DGS2',        name:'미 2년 국채금리',  sub:'미 금리↑ → 달러 매수',   w:0.20, dir:+1, dead:2.0, unit:'%'},
+ {id:'DEXCHUS',     name:'위안화 CNY/USD',   sub:'위안 약세에 원화 동조',  w:0.20, dir:+1, dead:0.5, unit:''},
+ {id:'VIXCLS',      name:'변동성 VIX',       sub:'위험회피 → 원화 약세',   w:0.15, dir:+1, dead:5.0, unit:''},
+ {id:'BAMLH0A0HYM2',name:'하이일드 스프레드',sub:'신용경계 → 원화 약세',   w:0.15, dir:+1, dead:3.0, unit:'%p'},
+];
+const MOM=20; // 모멘텀 창(유효 거래일)
+let fxChart=null, fxData=[];
+
+function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
+
+async function fred(id,limit=160){
+  const url=`${PROXY}?series_id=${id}&limit=${limit}&sort_order=desc`;
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status+' ('+id+')');
+  const j=await r.json();
+  return ((j&&j.observations)||[]).map(o=>({date:o.date,v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
+}
+
+// data는 최신순(desc). win 거래일 전 대비 %변화
+function pctChange(data,win){ if(!data||data.length<2)return null; const w=Math.min(win,data.length-1); const now=data[0].v,past=data[w].v; if(!past)return null; return (now-past)/Math.abs(past)*100; }
+const fmtPct=p=> (p==null?'—':(p>=0?'+':'')+p.toFixed(2)+'%');
+const arrow=p=> p>0.001?'▲':(p<-0.001?'▼':'·');
+const cls=p=> p>0.001?'down':(p<-0.001?'up':'flat'); // 원/달러↑(약세)=rose, ↓(강세)=teal
+
+function fmtNum(v,unit){ if(v==null)return '—'; const d=Math.abs(v)>=100?0:(Math.abs(v)>=10?2:2); return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})+(unit||''); }
+
+async function loadHero(days){
+  const data=await fred('DEXKOUS', Math.max(days+15,110));
+  fxData=data;
+  const px=data[0].v;
+  $('fxPx').textContent=px.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const d1=pctChange(data,1),d5=pctChange(data,5),d20=pctChange(data,20);
+  const setD=(el,p)=>{const e=$(el);e.className='mono '+cls(p);e.textContent=arrow(p)+' '+fmtPct(p);};
+  $('fxDay').className='d '+cls(d1); $('fxDay').textContent=arrow(d1)+' '+(d1==null?'—':fmtPct(d1));
+  setD('d1',d1);setD('d5',d5);setD('d20',d20);
+  // chart (오래된→최신)
+  const slice=data.slice(0,days).reverse();
+  const labels=slice.map(d=>d.date.slice(2)),vals=slice.map(d=>d.v);
+  if(fxChart)fxChart.destroy();
+  fxChart=new Chart($('fxChart'),{type:'line',
+    data:{labels,datasets:[{data:vals,borderColor:'#5b8def',backgroundColor:'#5b8def22',borderWidth:2,fill:true,pointRadius:0,tension:.12}]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1,callbacks:{label:c=>'₩'+c.raw.toFixed(2)}}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:8,color:'#8593ab'}},
+              y:{grid:{color:C.grid},ticks:{color:'#8593ab'}}}}});
+}
+
+async function loadSignal(){
+  // 모든 동인 병렬 로드
+  const results=await Promise.all(DRIVERS.map(async d=>{
+    try{ const data=await fred(d.id); return {d, data, now:data[0].v, mom:pctChange(data,MOM)}; }
+    catch(e){ return {d, data:null, now:null, mom:null, err:e.message}; }
+  }));
+  let score=0, used=0;
+  const rows=[], tiles=[];
+  results.forEach(r=>{
+    const d=r.d; let vote=0;
+    if(r.mom!=null){ vote = r.mom> d.dead ? +1 : (r.mom< -d.dead ? -1 : 0); used++; }
+    const contrib = d.w * d.dir * vote;     // + = 원화 약세 압력
+    score += contrib;
+    // 방향 라벨: 약세압력(+) → rose, 강세압력(−) → teal
+    const lbl = vote>0? '원화 약세↑' : (vote<0? '원화 강세↓' : '중립');
+    const pill = vote>0? 'weak' : (vote<0? 'strong' : 'neu');
+    rows.push(`<div class="drv">
+      <div class="nm">${d.name}<small>${d.sub} · 가중 ${(d.w*100)|0}%</small></div>
+      <div class="val mono">${r.now==null?'—':fmtNum(r.now,d.unit)}</div>
+      <div class="chg mono ${r.mom>0?'down':(r.mom<0?'up':'flat')}">${r.mom==null?'—':fmtPct(r.mom)}</div>
+      <div class="vote"><span class="pill ${pill}">${lbl}</span></div>
+    </div>`);
+    tiles.push(`<div class="tile"><div class="t">${d.name}</div>
+      <div class="v">${r.now==null?'—':fmtNum(r.now,d.unit)}</div>
+      <div class="c ${r.mom>0?'down':(r.mom<0?'up':'flat')}">${arrow(r.mom)} ${r.mom==null?'—':fmtPct(r.mom)} <span style="color:var(--faint)">20일</span></div></div>`);
+  });
+  $('driverList').innerHTML=rows.join('');
+  $('tiles').innerHTML=tiles.join('');
+  // score: -1..+1 → -100..+100
+  const s100=Math.round(score*100);
+  $('scoreVal').textContent=(s100>0?'+':'')+s100;
+  $('scoreVal').className='score mono '+(s100>0?'down':(s100<0?'up':'flat'));
+  const mag=Math.abs(score);
+  const verd = score>0.25? '원화 약세(달러 강세) 우위' : (score<-0.25? '원화 강세(달러 약세) 우위' : '혼조 / 중립');
+  const strg = mag>0.6? '강' : (mag>0.3? '중' : '약');
+  $('verdict').textContent=verd;
+  $('verdict').className='verdict '+(score>0.25?'down':(score<-0.25?'up':'flat'));
+  $('strength').textContent='강도: '+strg+' · 동인 '+used+'/'+DRIVERS.length+'개 집계';
+  // marker: -1→0%, 0→50%, +1→100%
+  const pos=Math.max(0,Math.min(100,(score+1)/2*100));
+  $('mk').style.left=pos+'%';
+}
+
+async function refreshAll(days){
+  setLive(true,'불러오는 중…');
+  try{
+    await Promise.all([loadHero(days), loadSignal()]);
+    setLive(true,'LIVE · FRED');
+    $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
+  }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=e.message; }
+}
+
+let curDays=95;
+$('periodSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  [...$('periodSeg').children].forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  curDays=parseInt(b.dataset.d,10); loadHero(curDays);
+});
+$('refreshBtn').onclick=()=>refreshAll(curDays);
+
+refreshAll(curDays);
+setInterval(()=>refreshAll(curDays), 15*60*1000); // 15분마다
+</script>
+</body>
+</html>
