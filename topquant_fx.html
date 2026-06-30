@@ -84,6 +84,17 @@ padding:12px 15px;margin-bottom:16px;font-size:13px;color:#cfe0ff;line-height:1.
 .narr-h{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px}
 .narr b{color:#eaf1ff}.narr .up2{color:#2dd4bf}.narr .down2{color:#f2706e}
 .narr-foot{display:block;margin-top:7px;font-size:11px;color:var(--faint)}
+/* 신호 엔진 */
+.engtop{display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:stretch;margin-bottom:14px}
+@media(max-width:760px){.engtop{grid-template-columns:1fr}}
+.engbadge{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.engdir{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.engmeta{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--mute)}.engmeta b{color:var(--ink)}
+.tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:12px}
+@media(max-width:640px){.tiles3{grid-template-columns:1fr}}
+.trigbar{display:flex;flex-wrap:wrap;gap:8px}
+.trg{font-size:12px;font-family:'IBM Plex Mono',monospace;background:rgba(245,181,63,.10);border:1px solid rgba(245,181,63,.28);
+color:#f0d9a8;border-radius:8px;padding:6px 11px}
 /* modal */
 .modal{position:fixed;inset:0;background:rgba(5,9,16,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
 .modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:460px;width:100%;padding:20px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
@@ -134,10 +145,24 @@ padding:12px 15px;margin-bottom:16px;font-size:13px;color:#cfe0ff;line-height:1.
   <div class="chartwrap"><canvas id="fxChart" height="104"></canvas></div>
 </div>
 
-<!-- SIGNAL -->
+<!-- SIGNAL ENGINE -->
+<div class="card hero">
+  <div class="secttl"><span class="clk" onclick="openExplain('ENGINE')" title="누르면 쉬운 설명" style="border-bottom:1px dotted var(--faint)">신호 엔진 — 종합 매매 신호 ⓘ</span>
+    <span class="r">추세(MA) + 과열도(RSI) + 매크로 동인 융합</span></div>
+  <div class="engtop">
+    <div class="engbadge clk" id="engBadge" onclick="openExplain('ENGINE')" title="누르면 쉬운 설명">
+      <div class="engdir" id="engDir">불러오는 중…</div>
+      <div class="engmeta" id="engMeta">—</div>
+    </div>
+    <div class="narr" id="narr" style="margin:0">불러오는 중…</div>
+  </div>
+  <div class="tiles3" id="engTiles"></div>
+  <div class="trigbar" id="trigBar"></div>
+</div>
+
+<!-- SIGNAL (매크로 동인 상세) -->
 <div class="card">
-  <div class="secttl">오늘의 원화 방향 편향 <span class="r" id="momTag">최근 20거래일 모멘텀 기준</span></div>
-  <div class="narr" id="narr">불러오는 중…</div>
+  <div class="secttl">매크로 동인 — 편향 점수 구성 <span class="r" id="momTag">최근 20거래일 모멘텀 기준</span></div>
   <div class="sigwrap">
     <div class="gaugebox clk" onclick="openExplain('SCORE')" title="누르면 점수 보는 법 설명">
       <div class="glabel">편향 점수 (−100 강세 … +100 약세) <span style="color:var(--faint)">ⓘ</span></div>
@@ -161,7 +186,7 @@ padding:12px 15px;margin-bottom:16px;font-size:13px;color:#cfe0ff;line-height:1.
 
 <div class="disc">
   ※ 출처: FRED(Federal Reserve Bank of St. Louis), 회장님 전용 Vercel 프록시 경유. 시리즈: DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2.
-  <b>방향 편향은 5개 동인의 20거래일 모멘텀을 가중 투표한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
+  <b>신호 엔진은 원/달러 추세(이동평균 MA20/60)·과열도(RSI14)·5개 매크로 동인을 융합한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
   단기 환율 예측의 한계(랜덤워크)를 전제로, 점 예측이 아니라 방향·강도·헷지 판단 보조로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -199,11 +224,27 @@ const EXPLAIN={
    <p>예) 1,300원 → 1,400원 = 원화 약세(달러 강세).</p>
    <p><b>내 투자에 미치는 영향:</b> 미국 주식 같은 <b>달러 자산</b>을 가지고 있으면, 원/달러가 오를 때(원화 약세) 같은 달러라도 <b>원화로 바꾸면 더 많아져</b> 환차익이 납니다. 반대로 내리면 환차손.</p>
    <p style="color:var(--faint)">기억법: "환율이 오른다 = 원화가 싸진다 = 달러 자산엔 유리"</p>`},
- SCORE:{title:'종합 편향 점수란?', body:`
-   <p>아래 <b>5개 동인</b>이 각각 원화를 <b>약세/강세 어느 쪽으로 미는지 투표</b>하고, 중요도(가중치)대로 합산한 점수입니다.</p>
-   <p><b>+</b>(플러스)면 <b>원화 약세</b> 쪽, <b>−</b>면 <b>원화 강세</b> 쪽. 숫자가 클수록 그 방향의 힘(강도)이 셉니다.</p>
-   <p><b>읽는 법:</b> 부호로 <b>방향</b>, 크기로 <b>강도</b>를 봅니다. "내일 환율 얼마"를 맞히는 게 아니라 <b>바람이 어느 쪽으로 부는지</b> 보는 도구예요.</p>
+ SCORE:{title:'매크로 동인 컴포짓이란?', body:`
+   <p>아래 <b>5개 거시 동인</b>이 각각 원화를 <b>약세/강세 어느 쪽으로 미는지 투표</b>하고, 중요도(가중치)대로 합산한 점수입니다.</p>
+   <p><b>+</b>면 <b>원화 약세</b> 쪽, <b>−</b>면 <b>원화 강세</b> 쪽. 숫자가 클수록 그 방향의 힘이 셉니다.</p>
+   <p>이 점수는 신호 엔진에서 <b>'펀더멘털(거시) 입장'</b>으로 쓰이고, 차트 추세와 합쳐져 최종 신호가 됩니다.</p>
    <p style="color:var(--rose)">⚠ 보조지표입니다. 이것 하나만 보고 매매하지 마세요.</p>`},
+ ENGINE:{title:'신호 엔진 — 종합 신호', body:`
+   <p>세 가지를 <b>합쳐</b> 만든 최종 방향 신호입니다.</p>
+   <p>① <b>추세</b>(이동평균 골든/데드크로스) ② <b>과열도</b>(RSI) ③ <b>매크로 동인 컴포짓</b>(거시 5종).</p>
+   <p><b>점수</b>는 −100(원화 강세)~+100(원화 약세). <b>신뢰도</b>는 추세와 거시가 <b>같은 방향이면 '높음'</b>, RSI 과열로 되돌림 위험이면 '낮음'.</p>
+   <p>읽는 법: 부호=<b>방향</b>, 크기=<b>강도</b>, 신뢰도=<b>믿을 만한 정도</b>. 트리거 줄에 '지금 무슨 일이 켜졌는지' 요약됩니다.</p>
+   <p style="color:var(--rose)">⚠ 매매 보조용입니다. 단독 매수/매도 신호로 쓰지 마세요.</p>`},
+ TREND:{title:'추세 — 이동평균 (MA20/MA60)', body:`
+   <p><b>MA20</b>=최근 20일 평균값, <b>MA60</b>=60일 평균값. 짧은 평균이 긴 평균 <b>위</b>에 있으면 <b>상승추세</b>(원/달러↑ = 원화 약세).</p>
+   <p><b>골든크로스</b>: MA20이 MA60을 <b>아래에서 위로</b> 뚫음 → 상승추세 시작(원화 약세 가속) 신호.</p>
+   <p><b>데드크로스</b>: 반대로 위에서 아래로 뚫음 → 하락추세(원화 강세) 신호.</p>
+   <p style="color:var(--faint)">'추세추종' 관점. 추세는 한번 생기면 한동안 이어지는 경향이 있어요.</p>`},
+ RSI:{title:'과열도 — RSI(14)', body:`
+   <p>최근 14일 동안 <b>오른 날의 힘 vs 내린 날의 힘</b>을 0~100으로 나타낸 지표입니다.</p>
+   <p><b>70 이상 = 과매수</b>: 너무 빨리 올라 <b>단기 되돌림(조정)</b> 가능성 ↑.</p>
+   <p><b>30 이하 = 과매도</b>: 너무 빨리 내려 반등 가능성 ↑.</p>
+   <p style="color:var(--faint)">'평균회귀' 관점의 브레이크. 추세 신호가 강해도 RSI가 극단이면 신뢰도를 낮춰요.</p>`},
  DTWEXBGS:{title:'달러지수 (DTWEXBGS)', body:`
    <p>달러가 여러 주요 통화 대비 <b>얼마나 센지</b> 보여주는 종합 점수입니다.</p>
    <p><b>오르면(달러 강세):</b> 보통 원화 약세 압력 → 원/달러 상승.</p>
@@ -245,7 +286,7 @@ const cls=p=> p>0.001?'down':(p<-0.001?'up':'flat'); // 원/달러↑(약세)=ro
 function fmtNum(v,unit){ if(v==null)return '—'; const d=Math.abs(v)>=100?0:(Math.abs(v)>=10?2:2); return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})+(unit||''); }
 
 async function loadHero(days){
-  const data=await fred('DEXKOUS', Math.max(days+15,110));
+  const data=await fred('DEXKOUS', Math.max(days+15,130)); // SMA60·RSI 계산 여유분 확보
   fxData=data;
   const px=data[0].v;
   $('fxPx').textContent=px.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -308,31 +349,92 @@ async function loadSignal(){
   // marker: -1→0%, 0→50%, +1→100%
   const pos=Math.max(0,Math.min(100,(score+1)/2*100));
   $('mk').style.left=pos+'%';
-  renderNarrative();
 }
 
-// ── 초보자용 자동 해석 문장 ──
-function renderNarrative(){
-  if(!lastResults){ return; }
-  const score=lastScore, r=lastResults;
+// ── 신호 엔진 (추세 MA + 과열도 RSI + 매크로 동인 융합) ──
+function smaN(a,n){ n=Math.min(n,a.length); if(n<1)return null; let s=0; for(let i=0;i<n;i++)s+=a[i].v; return s/n; }
+function rsiN(a,p){ p=p||14; if(!a||a.length<p+1)return null; let g=0,l=0;
+  for(let i=0;i<p;i++){ const diff=a[i].v-a[i+1].v; if(diff>=0)g+=diff; else l-=diff; }
+  const ag=g/p, al=l/p; if(al===0)return 100; return 100-100/(1+ag/al); }
+
+function computeEngine(){
+  const a=fxData, comp=lastScore;            // a=DEXKOUS 최신순(desc), comp=매크로 동인 컴포짓(-1..1)
+  if(!a || a.length<61) return null;
+  const s20=smaN(a,20), s60=smaN(a,60);
+  const s20p=smaN(a.slice(1),20), s60p=smaN(a.slice(1),60);
+  const trendUp = s20>s60;                   // 원/달러 상승추세 = 원화 약세
+  const golden = (s20p<=s60p) && (s20>s60);
+  const dead   = (s20p>=s60p) && (s20<s60);
+  const trendScore = Math.max(-1,Math.min(1, Math.tanh(((s20-s60)/s60)*60))); // +면 원화 약세 추세
+  const r = rsiN(a,14);
+  const finalScore = 0.5*comp + 0.5*trendScore;  // -1..1 (+ = 원화 약세)
+  let reversal=null;
+  if(r!=null){
+    if(r>=70 && finalScore>0) reversal='원/달러 과매수(RSI '+r.toFixed(0)+') — 단기 원화 강세 되돌림 주의';
+    else if(r<=30 && finalScore<0) reversal='원/달러 과매도(RSI '+r.toFixed(0)+') — 단기 원화 약세 되돌림 주의';
+  }
+  const agree = trendScore!==0 && comp!==0 && (Math.sign(comp)===Math.sign(trendScore));
+  let conf = agree?'높음':'보통'; if(reversal) conf='낮음';
+  const mag=Math.abs(finalScore);
+  const strg = mag>0.5?'강':(mag>0.2?'중':'약');
+  const dir = finalScore>0.15?'약세':(finalScore<-0.15?'강세':'중립');
+  return {s20,s60,trendUp,golden,dead,trendScore,r,comp,finalScore,reversal,conf,strg,dir};
+}
+
+function renderEngine(){
+  const e=computeEngine();
+  if(!e){ $('engDir').textContent='데이터 부족'; $('engMeta').textContent='—'; return; }
+  const dirTxt=e.dir==='약세'?'원화 약세(달러 강세)':(e.dir==='강세'?'원화 강세(달러 약세)':'중립 / 혼조');
+  const dcls=e.dir==='약세'?'down':(e.dir==='강세'?'up':'flat');
+  $('engDir').textContent=dirTxt; $('engDir').className='engdir '+dcls;
+  $('engMeta').innerHTML='강도 <b>'+e.strg+'</b> · 신뢰도 <b>'+e.conf+'</b> · 점수 <b>'+(e.finalScore>0?'+':'')+Math.round(e.finalScore*100)+'</b>';
+  // 기술 신호 타일
+  const trendLbl=e.trendUp?'상승추세(원화 약세)':'하락추세(원화 강세)';
+  const trendTag=e.golden?' ⚡골든크로스':(e.dead?' ⚡데드크로스':'');
+  const rsiState=e.r==null?'—':(e.r>=70?'과매수':(e.r<=30?'과매도':'중립'));
+  $('engTiles').innerHTML=
+    `<div class="tile clk" onclick="openExplain('TREND')" title="누르면 쉬운 설명"><div class="t">추세 MA20/60 <span style="color:var(--faint)">ⓘ</span></div>
+       <div class="v ${e.trendUp?'down':'up'}" style="font-size:15px">${trendLbl}</div>
+       <div class="c">MA20 ${e.s20.toFixed(1)} · MA60 ${e.s60.toFixed(1)}<b style="color:var(--amber)">${trendTag}</b></div></div>`+
+    `<div class="tile clk" onclick="openExplain('RSI')" title="누르면 쉬운 설명"><div class="t">과열도 RSI(14) <span style="color:var(--faint)">ⓘ</span></div>
+       <div class="v ${e.r>=70?'down':(e.r<=30?'up':'flat')}">${e.r==null?'—':e.r.toFixed(0)}</div>
+       <div class="c ${e.r>=70?'down':(e.r<=30?'up':'flat')}">${rsiState}</div></div>`+
+    `<div class="tile clk" onclick="openExplain('SCORE')" title="누르면 쉬운 설명"><div class="t">매크로 동인 컴포짓 <span style="color:var(--faint)">ⓘ</span></div>
+       <div class="v ${e.comp>0?'down':(e.comp<0?'up':'flat')}">${(e.comp>0?'+':'')+Math.round(e.comp*100)}</div>
+       <div class="c">거시 5종 종합</div></div>`;
+  // 트리거
+  const trg=[];
+  if(e.golden) trg.push('⚡ 골든크로스: MA20이 MA60 상향돌파 → 원화 약세 추세 가속');
+  if(e.dead)   trg.push('⚡ 데드크로스: MA20이 MA60 하향돌파 → 원화 강세 추세');
+  if(e.r>=70)  trg.push('🔺 RSI 과매수('+e.r.toFixed(0)+') → 원/달러 과열·되돌림 주의');
+  if(e.r<=30)  trg.push('🔻 RSI 과매도('+e.r.toFixed(0)+') → 원/달러 과냉·되돌림 주의');
+  if(Math.abs(e.finalScore)>0.5) trg.push('● 강한 '+(e.finalScore>0?'원화 약세':'원화 강세')+' 신호(점수 '+(e.finalScore>0?'+':'')+Math.round(e.finalScore*100)+')');
+  $('trigBar').innerHTML = trg.length ? trg.map(t=>`<span class="trg">${t}</span>`).join('') : `<span class="trg" style="color:var(--faint)">활성 트리거 없음 — 뚜렷한 신호 대기 중</span>`;
+  renderNarrative(e);
+}
+
+// ── 초보자용 자동 해석 문장 (엔진 결과 기반) ──
+function renderNarrative(e){
+  if(!e){ return; }
+  const r=lastResults||[];
   const weak=r.filter(x=>x.vote>0).sort((a,b)=>b.d.w-a.d.w).map(x=>x.d.name);
   const strong=r.filter(x=>x.vote<0).sort((a,b)=>b.d.w-a.d.w).map(x=>x.d.name);
-  const mag=Math.abs(score), strg=mag>0.6?'강':(mag>0.3?'중':'약');
-  const dirTxt=score>0.25?'원화 약세(달러 강세) 우위':(score<-0.25?'원화 강세(달러 약세) 우위':'혼조 / 중립');
-  let mid, impact;
-  if(score>0.25){
-    mid=weak.length?`특히 <b>${weak.slice(0,2).join(' · ')}</b>가 원화를 약세 쪽으로 밀고 있어요.`:'';
-    impact=`회장님은 미국 주식 등 <b>달러 자산</b>을 보유 중이라, 이 방향(원화 약세)은 원화로 바꿀 때 <b class="up2">환차익</b>으로 유리하게 작동할 수 있습니다.`;
-  } else if(score<-0.25){
-    mid=strong.length?`특히 <b>${strong.slice(0,2).join(' · ')}</b>가 원화 강세 쪽으로 작용하고 있어요.`:'';
-    impact=`달러 자산 입장에선 이 방향(원화 강세)이 <b class="down2">환차손</b>으로 원화 환산 수익에 부담이 될 수 있어, <b>환헷지 점검 타이밍</b>입니다.`;
+  const dirTxt=e.dir==='약세'?'원화 약세(달러 강세) 우위':(e.dir==='강세'?'원화 강세(달러 약세) 우위':'혼조 / 중립');
+  let why, impact;
+  if(e.dir==='약세'){
+    why=`추세는 ${e.trendUp?'<b>상승(원화 약세)</b>':'하락'}이고${weak.length?`, 매크로에선 <b>${weak.slice(0,2).join(' · ')}</b>가 약세를 거들어요`:''}.`;
+    impact=`달러 자산(미국 주식) 보유자에겐 원화로 바꿀 때 <b class="up2">환차익</b> 방향입니다.`;
+  } else if(e.dir==='강세'){
+    why=`추세는 ${e.trendUp?'상승':'<b>하락(원화 강세)</b>'}이고${strong.length?`, 매크로에선 <b>${strong.slice(0,2).join(' · ')}</b>가 강세 쪽이에요`:''}.`;
+    impact=`달러 자산엔 <b class="down2">환차손</b> 방향이라 <b>환헷지 점검 타이밍</b>입니다.`;
   } else {
-    mid=`동인들이 서로 엇갈려 뚜렷한 방향이 약합니다.`;
+    why=`추세와 매크로 동인이 엇갈려 방향이 뚜렷하지 않아요.`;
     impact=`방향이 약할 땐 환율보다 <b>종목 자체 흐름</b>에 집중하는 편이 낫습니다.`;
   }
-  $('narr').innerHTML=`<div class="narr-h">📘 쉽게 풀면</div>
-    오늘 종합은 <b>${dirTxt} · 강도 ${strg}</b>입니다. ${mid}<br>${impact}
-    <span class="narr-foot">아래 항목이나 타일을 누르면 각 지표의 쉬운 설명이 나와요 · 방향 참고용 · 점 예측 아님</span>`;
+  const warn=e.reversal?`<br><span style="color:var(--amber)">⚠ ${e.reversal}</span>`:'';
+  $('narr').innerHTML=`<div class="narr-h">📘 신호 엔진 요약</div>
+    종합 신호: <b>${dirTxt} · 강도 ${e.strg} · 신뢰도 ${e.conf}</b>. ${why}<br>${impact}${warn}
+    <span class="narr-foot">추세(이동평균)+과열도(RSI)+매크로 동인 융합 · 보조지표 · 점 예측 아님 · 각 항목 클릭 시 설명</span>`;
 }
 
 // ── 쉬운 설명 모달 ──
@@ -348,6 +450,7 @@ async function refreshAll(days){
   setLive(true,'불러오는 중…');
   try{
     await Promise.all([loadHero(days), loadSignal()]);
+    renderEngine(); // 두 데이터(원/달러 + 동인) 모두 로드된 뒤 융합 신호 산출
     setLive(true,'LIVE · FRED');
     $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
   }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=e.message; }
