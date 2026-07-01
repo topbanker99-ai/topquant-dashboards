@@ -123,7 +123,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 
 <div class="banner">
   <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 이 보드는 닷컴 고점에서 실제로 나타났던
-  신호들이 지금 얼마나 켜졌는지 <b>8개 신호 / 16점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
+  신호들이 지금 얼마나 켜졌는지 <b>9개 신호 / 18점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
 </div>
 
 <!-- COMPOSITE -->
@@ -221,44 +221,19 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
   </div>
 </div>
 
-<!-- 버블 연료(실질임금) — 참고(비점수) -->
-<div class="card clk" onclick="openExplain('FUEL')" title="누르면 쉬운 설명">
-  <div class="secttl">버블 연료 — 실질임금 (포모는 합리적) ⓘ <span class="r">참고 · 매도신호 아님</span></div>
+<!-- SIGNAL 9: 레버리지·신용 사이클 (마진·신용융자) -->
+<div class="card clk" onclick="openExplain('LEVERAGE')" title="누르면 쉬운 설명">
+  <div class="secttl">⑨ 레버리지·신용 사이클 — 마진빚 되감기 ⓘ <span class="r">NFCI 레버리지·신용 (역사적 평균 대비)</span></div>
   <div class="sig">
-    <div class="main"><div class="big" id="fuel-big">—</div><div class="desc">팬데믹 후 임금 &lt; 물가(실질임금 마이너스)면 투자가 생존 압력 → 붐이 쉽게 안 꺼집니다. <b>지속력</b>을 보는 보조 지표.</div>
-      <div class="metrics" id="fuel-metrics"></div></div>
-    <span class="pill" id="fuel-pill" style="background:rgba(91,141,239,.16);color:#9bc0ff">참고</span>
-  </div>
-</div>
-
-<!-- 교육 노트 -->
-<div class="card">
-  <div class="secttl clk" onclick="openExplain('CAPFLIP')" title="누르면 설명">참고 — 삼성·하이닉스 시총 역전은 '매도 신호'가 아님 ⓘ</div>
-  <div class="note">
-    닷컴 때 시스코가 시총 1위가 된 직후 폭락한 '1등의 저주'가 회자되지만, 그땐 시스코 영업이익이 MS·GE의 <b>약 1/13</b>(체급 차이)이었습니다.
-    삼성전자·하이닉스는 <b>시총도 이익도 비슷한 헤비급끼리의 손바뀜</b>이라, 시총 역전 자체는 시장 꼭지의 유의미한 신호로 보기 어렵습니다.
-  </div>
-</div>
-
-<!-- 교육 노트: 닷컴 vs 코리아 붐 -->
-<div class="card">
-  <div class="secttl clk" onclick="openExplain('DOTCOM')" title="누르면 설명">참고 — 닷컴 붐 vs 코리아 붐 (상승폭은 비슷, 체급은 다르다) ⓘ</div>
-  <div class="note">
-    상승 폭·속도는 닷컴 때와 지금 코스피가 비슷하지만, 닷컴은 <b>적자·비전 기업</b>이 '닷컴'만 붙이면 상장했고 지금 주도주는 <b>내년·내후년 주문까지 쌓인 막대한 실이익</b>. 그래서 상승폭만으로 "곧 끝"이라 단정하기 어렵습니다.
-  </div>
-</div>
-
-<!-- 교육 노트: 쏠림은 기본값 -->
-<div class="card">
-  <div class="secttl clk" onclick="openExplain('CONCBASE')" title="누르면 설명">참고 — 소수 종목 쏠림은 '기본값'이다 ⓘ</div>
-  <div class="note">
-    베센바인더 연구 — 1926~2019년 미국 주식 <b>시총 이익의 절반을 상위 50개 종목</b>이, <b>2019년엔 단 2개</b>가 가져갔습니다. 쏠림은 예외가 아니라 기본값이라, '쏠렸다'는 사실만으로 과민하게 매도신호로 보긴 어렵습니다.
+    <div class="main"><div class="big" id="lev-big">—</div><div class="desc">시장 꼭지 부근에서 <b>마진빚(신용융자)이 최고조</b>에 달했다가 되감기(디레버리징)가 시작되면 하락을 가속합니다. 시카고연준 지수는 레버리지·신용 여건이 <b>역사적 평균(0) 대비</b> 어디인지 보여줍니다(+면 긴축·되감기 압력).</div>
+      <div class="metrics" id="lev-metrics"></div></div>
+    <span class="pill" id="lev-pill">—</span>
   </div>
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·STLFSI4·평균임금·CPI·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총) — 모두 Vercel 프록시 경유.
-  <b>8개 신호는 닷컴 붐 패턴과 밸류에이션을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총) — 모두 Vercel 프록시 경유.
+  <b>9개 신호는 닷컴 붐 패턴·밸류에이션·레버리지 사이클을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -302,8 +277,8 @@ const SIG={}; // 각 신호 상태 저장
 
 const EXPLAIN={
  TIER:{title:'매도 경계 단계란?', body:`
-   <p>아래 <b>7개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
-   <p>최대 14점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
+   <p>아래 <b>9개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림·버핏지표·레버리지/신용)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
+   <p>최대 18점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
    <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
@@ -334,27 +309,17 @@ const EXPLAIN={
    <p><b>VIX(공포지수)</b>와 <b>하이일드 스프레드(신용 위험 체온계)</b>가 같이 치솟으면 투자자들이 위험을 피하기 시작한 것입니다.</p>
    <p><b>경고</b>: VIX 30↑ 또는 (VIX 급등 + 스프레드 확대). <b>주의</b>: 둘 중 하나가 빠르게 상승.</p>
    <p style="color:var(--faint)">고점 직전엔 의외로 잠잠하다가 꺾일 때 함께 튀는 경우가 많아 보조로만 봅니다.</p>`},
- CAPFLIP:{title:'시총 역전이 신호가 아닌 이유', body:`
-   <p>닷컴 때 <b>시스코</b>가 시총 1위에 오른 직후 폭락한 '1등의 저주'가 유명하지만, 그땐 시스코 영업이익이 MS·GE의 <b>약 1/13</b>이었어요(헤비급 vs 페더급).</p>
-   <p>반면 <b>삼성전자·하이닉스</b>는 시총도, 이익도 비슷한 <b>헤비급끼리의 손바뀜</b>입니다.</p>
-   <p>그래서 시총 역전 자체는 "꼭지"의 유의미한 시그널로 보기 어렵다는 게 박사의 결론입니다.</p>`},
  ENGINE:{title:'⑤ 주도주 이익 엔진 (닷컴과의 결정적 차이)', body:`
    <p>박사가 꼽은 닷컴과 지금의 <b>가장 큰 차이</b> — 닷컴 땐 적자·비전 기업(펫닷컴·팜)이 '닷컴'만 붙이면 상장했지만, 지금 주도주(엔비디아·삼성전자·SK하이닉스)는 <b>막대한 실이익</b>을 냅니다(1~2년 새 ~10배).</p>
    <p>그래서 <b>이 이익 엔진이 받쳐주는 한 붐은 이어지고</b>, 반대로 <b>이익이 둔화되는 순간이 진짜 매도 트리거</b>입니다(1편에서도 "이익 둔화만 해도 터진다").</p>
    <p>두 가지로 이중확인합니다 — ① 리더 복합체(필라델피아 반도체·엔비디아·삼성전자·SK하이닉스)의 <b>주가 추세(200일선)</b>, ② 한국은행 ECOS의 <b>반도체 수출금액지수 YoY</b>(=삼성·하이닉스 이익의 선행 실수요).</p>
    <p><b>정상</b>: 주가 추세 위 + 수출 증가. <b>경고</b>: 주가 추세 이탈 또는 <b>반도체 수출 역성장</b>(가격이 멀쩡해도 수출이 꺾이면 이익 둔화 선행 신호).</p>`},
- FUEL:{title:'버블 연료 — 실질임금 (포모는 합리적)', body:`
-   <p>팬데믹 이후 <b>처음으로 임금 상승률 &lt; 물가 상승률</b>이 됐습니다(실질임금 마이너스). 월급만으로 생활이 빠듯해지니 <b>투자를 늘리는 게 합리적·절박한 선택</b>이 된 거죠.</p>
-   <p>박사는 "AI가 없었어도 포모는 있었을 것"이라며, 이 매크로 환경이 <b>버블의 구조적 연료</b>라고 봅니다.</p>
-   <p>실질임금이 <b>마이너스면 연료 ON</b>(붐이 쉽게 안 꺼짐), <b>플러스로 돌아서면 연료 약화</b>. 이건 매도 신호가 아니라 <b>지속력</b>을 보는 보조 참고입니다.</p>`},
- DOTCOM:{title:'닷컴 붐 vs 코리아 붐', body:`
-   <p>상승 <b>폭·속도</b>는 닷컴 때와 지금 코스피가 비슷합니다. 박사가 '버블'보다 '붐'이란 표현을 선호하는 이유죠(터지기 전까진 붐).</p>
-   <p>결정적 차이는 <b>기업 체급</b>. 닷컴 땐 상장 후 사라진 적자 기업이 수두룩했지만, 지금 주도주는 내년·내후년 주문까지 쌓여 있습니다.</p>
-   <p>그래서 상승폭만 보고 "과열이니 곧 끝"이라 단정하긴 어렵다는 것 — 5천·6천에서도 같은 말이 있었지만 이익이 받치며 9천까지 왔습니다.</p>`},
- CONCBASE:{title:'쏠림은 사실 기본값', body:`
-   <p>베센바인더 교수 연구: 1926~2019년 미국 주식의 <b>시총 이익 절반을 상위 50개 종목</b>이 가져갔고, <b>2019년엔 단 2개</b> 종목이 가져갔습니다.</p>
-   <p>즉 <b>소수 종목 쏠림은 예외가 아니라 기본값</b>입니다. AI 같은 범용기술 등장기엔 자금이 핵심으로 더 쏠립니다.</p>
-   <p>그래서 '쏠렸다'는 것만으로 과민하게 매도신호로 보긴 어렵습니다(②는 단일시장 쏠림이 아니라 <b>여러 나라가 동시에 무너지는</b> 다른 현상을 봅니다).</p>`},
+ LEVERAGE:{title:'⑨ 레버리지·신용 사이클 — 마진빚 되감기', body:`
+   <p>강세장의 마지막 국면에선 투자자들이 <b>빚(신용융자·마진)을 최대로 끌어 씁니다</b>. 이 마진빚이 정점을 찍고 <b>되감기(디레버리징)</b>로 돌아서면, 강제 청산·마진콜이 하락을 <b>가속</b>합니다 — 닷컴·2008 모두 이 패턴이었습니다.</p>
+   <p>시카고연준의 <b>레버리지 하위지수(NFCILEVERAGE)</b>와 <b>신용 하위지수(NFCICREDIT)</b>는 마진·부채·신용 여건이 <b>역사적 평균(=0) 대비 몇 표준편차</b> 위/아래인지 보여줍니다(주간 갱신).</p>
+   <p><b>정상</b>: 레버리지지수 &lt; 0.4 (평균 부근·완화적). <b>주의</b>: 0.4 이상이거나 최근 26주간 급등(레버리지 축적 후 긴축 전환). <b>경고</b>: 1.25 이상(역사적 상위 10% — 신용 스트레스, 되감기 본격화).</p>
+   <p>④ 금융환경(VIX·스프레드 종합)과 달리, 이 신호는 <b>레버리지·신용 축</b>만 확대해서 봅니다 — 사람들이 빚을 얼마나 끌어 썼고 지금 되감고 있는지에 집중.</p>
+   <p style="color:var(--faint)">데이터: FRED NFCILEVERAGE·NFCICREDIT(시카고연준 NFCI 하위지수, 주간·표준화). 한국 공매도·대차잔고는 별도 API 승인 후 추가 예정.</p>`},
  BUFFETT:{title:'⑧ 버핏 지표 — 미국 시장 밸류에이션', body:`
    <p>워런 버핏이 "가장 좋아하는 단일 지표"로 언급한 밸류에이션 척도입니다. <b>미국 주식 총시가총액 ÷ 명목 GDP × 100</b>으로 계산합니다.</p>
    <p>역사적 기준: <b>~100% = 적정 가치, ~150% = 다소 고평가, 190% 이상 = 극단적 고평가</b>. 닷컴 버블 고점(2000년 초)에 ~190%였습니다.</p>
@@ -545,18 +510,30 @@ function renderEngine(data,exp){
   setPill('eng-pill',st);
 }
 
-// ── 버블 연료: 실질임금 (참고·비점수) ──
-function yoyDesc(a){ if(!a||a.length<13)return null; return (a[0].v/a[12].v-1)*100; }
-function renderFuel(wage,cpi){
-  const wy=yoyDesc(wage), cy=yoyDesc(cpi);
-  const real=(wy!=null&&cy!=null)?wy-cy:null;
-  SIG.fuel={real};
-  $('fuel-metrics').innerHTML=
-    `<span class="m">임금 ${wy!=null?pct(wy):'—'} <span>YoY</span></span>
-     <span class="m">물가 ${cy!=null?pct(cy):'—'} <span>YoY</span></span>
-     <span class="m ${real!=null&&real<0?'down':'up'}">실질임금 ${real!=null?pct(real):'—'}</span>`;
-  $('fuel-big').textContent = real==null?'—'
-    : (real<0?'실질임금 마이너스 — 포모 연료 ON (붐 지속력 ↑)':'실질임금 플러스 — 포모 연료 약화');
+// ── 신호 ⑨: 레버리지·신용 사이클 (NFCI 하위지수, 역사적 평균 대비 z-score) ──
+function renderLeverage(lev,credit){
+  // lev/credit: FRED desc 배열 [{date,v}]. NFCI 하위지수 = 0(역사적 평균) 기준 표준화값.
+  const lv=lev&&lev.length?lev[0].v:null;
+  const cr=credit&&credit.length?credit[0].v:null;
+  // 최근 26주(주간) 변화 — 레버리지 축적 후 긴축(되감기) 전환 포착
+  const lvChg=lev&&lev.length>26?lv-lev[26].v:null;
+  let st='green';
+  if(lv!=null){
+    if(lv>=1.25) st='red';                                       // 역사적 상위 10% — 신용 스트레스
+    else if(lv>=0.4 || (lvChg!=null&&lvChg>=0.5)) st='amber';    // 평균 이상 or 급등(되감기 전환)
+  }
+  SIG.leverage={st,lv,cr,lvChg};
+  const zTag=v=>v==null?'flat':(v>=0.4?'down':(v<=-0.3?'up':'flat'));
+  const zTxt=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(2)+'σ';
+  $('lev-metrics').innerHTML=
+    `<span class="m ${zTag(lv)}">레버리지 ${zTxt(lv)} <span>평균 대비</span></span>`
+   +`<span class="m ${zTag(cr)}">신용여건 ${zTxt(cr)} <span>평균 대비</span></span>`
+   +(lvChg!=null?`<span class="m ${lvChg>=0.3?'down':'flat'}">26주 변화 ${(lvChg>=0?'+':'')+lvChg.toFixed(2)}σ${lvChg>=0.5?' ⚠ 급등':''}</span>`:'');
+  $('lev-big').textContent = lv==null?'—'
+    : st==='red'?'레버리지·신용 역사적 상위권 — 마진 되감기(디레버리징) 경고'
+    : st==='amber'?(lvChg!=null&&lvChg>=0.5?'레버리지 급속 축적 후 긴축 전환 — 되감기 주의':'레버리지·신용이 역사적 평균 위 — 주의')
+    : '레버리지·신용 여건 평균 부근 — 정상';
+  setPill('lev-pill',st);
 }
 
 // ── 신호 ⑦: 한국 반도체 쏠림 (삼성·하이닉스 시총 + 추세 괴리) ──
@@ -623,24 +600,24 @@ function renderBuffett(mktcap, gdp){
 // ── 종합 ──
 function renderComposite(){
   const v={green:0,amber:1,red:2};
-  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett].filter(Boolean);
-  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..16
+  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett,SIG.leverage].filter(Boolean);
+  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..18
   let lvl,col,posPct;
   const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
-  if(combo||score>=13){lvl='매도 검토';col='#f2706e';posPct=94;}
-  else if(score>=9){lvl='경계';col='#f2706e';posPct=76;}
-  else if(score>=5){lvl='주의';col='#f5b53f';posPct=52;}
+  if(combo||score>=14){lvl='매도 검토';col='#f2706e';posPct=94;}
+  else if(score>=10){lvl='경계';col='#f2706e';posPct=76;}
+  else if(score>=6){lvl='주의';col='#f5b53f';posPct=52;}
   else if(score>=1){lvl='관찰';col='#5b8def';posPct=26;}
   else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
   $('lvl').textContent=lvl; $('lvl').style.color=col;
-  $('score').textContent='경계 점수 '+score+'/16 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/8';
+  $('score').textContent='경계 점수 '+score+'/18 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/9';
   $('mk').style.left=posPct+'%';
   renderNarrative(lvl,score,combo);
 }
 function renderNarrative(lvl,score,combo){
-  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도'};
+  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도',krconc:'한국 반도체',buffett:'버핏지표',leverage:'레버리지·신용'};
   const fired=Object.keys(names).filter(k=>SIG[k]&&SIG[k].st!=='green').map(k=>names[k]+'('+PILL[SIG[k].st]+')');
-  const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, f=SIG.fuel||{};
+  const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, lg=SIG.leverage||{};
   let line1, line2;
   if(combo){
     line1=`<b class="r">결정적 조합 점등</b> — 글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파가 동시에 왔습니다. 박사 기준 가장 위험한 신호.`;
@@ -652,18 +629,18 @@ function renderNarrative(lvl,score,combo){
     line1=`현재 <b class="a">${lvl}</b> 단계 — 켜진 신호: <b>${fired.join(' · ')||'없음'}</b>.`;
     line2=`${e.st==='red'?'<b class="r">주도주 이익 엔진 둔화 조짐</b>이 핵심 — 박사가 말한 진짜 매도 트리거입니다. ':''}박사의 결정적 조합(글로벌 폭+금리 동시)은 아직 아니니, 보루(대만·유럽)·금리 방향·이익 엔진을 집중 관찰하세요.`;
   }
-  const fuelTxt = f.real!=null ? `<span class="narr-foot">버블 연료: 실질임금 ${f.real<0?'마이너스('+f.real.toFixed(1)+'%p) → 포모 압력 지속, 붐 쉽게 안 꺼짐':'플러스 → 연료 약화'} · 8개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>` : `<span class="narr-foot">8개 신호를 합친 보조 판단 · 점 예측 아님 · 각 카드를 누르면 쉬운 설명</span>`;
-  $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}<br>${fuelTxt}`;
+  const levTxt = lg.lv!=null ? `<span class="narr-foot">레버리지·신용: 마진·신용 여건이 역사적 평균 대비 ${lg.lv>=0?'+':''}${lg.lv.toFixed(2)}σ${lg.lvChg!=null&&lg.lvChg>=0.5?' (최근 급등 → 되감기 주의)':lg.lv>=0.4?' (평균 위)':' (평균 부근)'} · 9개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>` : `<span class="narr-foot">9개 신호를 합친 보조 판단 · 점 예측 아님 · 각 카드를 누르면 쉬운 설명</span>`;
+  $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}<br>${levTxt}`;
 }
 
 async function load(){
   setLive(true,'불러오는 중…');
   try{
     const OVH=['^GSPC','^IXIC'];
-    const [data,leadOvh,dff,vix,hy,wage,cpi,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp]=await Promise.all([
+    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
-      fred('CES0500000003',14), fred('CPIAUCSL',14),
+      fred('NFCILEVERAGE',60), fred('NFCICREDIT',60),
       fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5),
       semiExport(), krxFetch('005930'), krxFetch('000660'),
       fred('NCBEILQ027S',8), fred('GDP',8)
@@ -679,7 +656,7 @@ async function load(){
     renderOverheat(leadOvh);
     renderKrConc(samKrx,hynKrx,leadOvh);
     renderBuffett(buffMktcap,buffGdp);
-    renderFuel(wage,cpi);
+    renderLeverage(levSub,credSub);
     renderComposite();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
   }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
