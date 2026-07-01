@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 국민연금 수급 예측</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1180px;margin:0 auto;padding:22px 24px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:20px}
+.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
+.topnav a:hover{color:var(--ink);background:var(--panel2)}
+.topnav a.on{background:var(--teal);color:#0d1320}
+.topnav .brand{color:var(--ink);font-weight:700}.topnav .brand .dot{color:var(--teal)}.topnav .sp{flex:1}
+header{border-bottom:1px solid var(--line);padding-bottom:15px;margin-bottom:18px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px;max-width:820px}
+.live{display:inline-flex;align-items:center;gap:7px;color:#7ee7da;font-size:11.5px;
+  background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.3);border-radius:8px;padding:4px 10px;margin-top:8px}
+.live .d2{width:7px;height:7px;border-radius:50%;background:#2dd4bf}
+.live.err{color:#f2a3a2;background:rgba(242,112,110,.1);border-color:rgba(242,112,110,.3)}
+.grid2{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+@media(max-width:840px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.ct{font-size:12.5px;font-weight:700;margin-bottom:3px;letter-spacing:.2px}
+.cn{font-size:10.5px;color:var(--faint);margin-bottom:12px;line-height:1.5}
+.ctl{margin-bottom:14px}
+.ctl:last-child{margin-bottom:0}
+.ctl label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute);margin-bottom:5px;font-weight:600}
+.ctl label .v{font-family:'IBM Plex Mono',monospace;color:var(--teal);font-weight:600}
+.ctl input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:5px;background:var(--panel2);outline:none}
+.ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--teal);cursor:pointer;box-shadow:0 0 0 3px rgba(45,212,191,.2)}
+.ctl input[type=number]{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);
+  padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.hd{background:linear-gradient(180deg,#17223644,#151d2e)}
+.hd .big{font-family:'IBM Plex Mono',monospace;font-size:32px;font-weight:700;letter-spacing:-.5px;margin:6px 0}
+.hd .lab{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.hd .sm{font-size:12px;color:var(--mute);margin-top:6px;line-height:1.6}
+.pos{color:var(--teal)}.neg{color:var(--rose)}.amber{color:var(--amber)}.blue{color:var(--blue)}.mute{color:var(--mute)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+.tile .k{font-size:10px;color:var(--mute)}.tile .v{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin-top:3px}
+.cw{position:relative;width:100%;margin-top:6px}
+.chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:2px 8px;border-radius:6px;font-weight:600;margin-right:5px}
+.chip.g{background:rgba(45,212,191,.15);color:#7ee7da}.chip.a{background:rgba(245,181,63,.16);color:#f5cd7e}.chip.r{background:rgba(242,112,110,.16);color:#f2a3a2}
+.note{background:var(--panel2);border:1px dashed var(--line);border-radius:11px;padding:12px 14px;font-size:12px;color:var(--mute);line-height:1.65}
+.note b{color:var(--ink)}
+.reset{background:var(--panel2);color:var(--mute);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.reset:hover{color:var(--ink)}
+.disc{margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:4px}
+.seg button{background:transparent;border:none;color:var(--mute);padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.seg button.on{background:var(--teal);color:#0d1320}
+.seg button+button{border-left:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <span class="brand">탑퀀트<span class="dot">.</span></span>
+  <a href="topquant_macro.html">유동성</a>
+  <a href="topquant_fx.html">원/달러</a>
+  <a href="topquant_sell.html">매도</a>
+  <a href="topquant_heatmap.html">시장맵</a>
+  <a href="topquant_nps.html" class="on">연금예측</a>
+  <span class="sp"></span>
+</nav>
+
+<header>
+  <h1>탑퀀트 <span class="dot">·</span> 국민연금 수급 예측</h1>
+  <div class="sub">코스피 최대 기관 국민연금(NPS)의 <b>자산배분 규칙(목표비중·리밸런싱 밴드)</b>과 시장 시나리오로 <b>미래 국내주식 순매수/순매도(수급)</b>를 예측합니다. 규칙 기반이라 심리·기술 신호보다 예측 가능성이 높습니다.</div>
+  <div id="liveBadge" class="live"><span class="d2"></span><span id="liveText">불러오는 중…</span></div>
+</header>
+
+<div class="grid2">
+  <!-- 입력 패널 -->
+  <div>
+    <div class="card">
+      <div class="ct">현재 상태 <span class="cn" style="margin:0">(공시+시장 추정, 수정 가능)</span></div>
+      <div class="ctl">
+        <label>현재 기금 총액 (조원) <span class="v" id="v-total">—</span></label>
+        <input type="number" id="i-total" step="10">
+      </div>
+      <div class="ctl">
+        <label>현재 국내주식 비중 (%) <span class="v" id="v-curw">—</span></label>
+        <input type="number" id="i-curw" step="0.1">
+      </div>
+      <div style="font-size:10.5px;color:var(--faint);line-height:1.5">기본값 = 2026-03 공시(국내주식 320.9조·전체 1,526조)를 이후 KOSPI·S&amp;P 등락으로 굴린 <b>리밸런싱 전 드리프트 추정</b>. 최신 공시를 아시면 직접 수정하세요.</div>
+    </div>
+
+    <div class="card">
+      <div class="ct">국민연금 규칙</div>
+      <div class="ctl">
+        <label>국내주식 목표비중 (%) <span class="v" id="v-tgt">20.8</span></label>
+        <input type="range" id="i-tgt" min="12" max="25" step="0.1" value="20.8">
+        <div style="font-size:10px;color:var(--faint);margin-top:3px">2026·2027 목표 20.8% · 장기(2031) 해외·대체 확대 기조</div>
+      </div>
+      <div class="ctl">
+        <label>리밸런싱 밴드 ±(%p) <span class="v" id="v-band">6.0</span></label>
+        <input type="range" id="i-band" min="1" max="8" step="0.5" value="6">
+        <div style="font-size:10px;color:var(--faint);margin-top:3px">SAA ±6%p, TAA 포함 최대 ±8%p (실제치 일부 비공개)</div>
+      </div>
+      <div class="ctl">
+        <label>연 순유입 (조원/년) <span class="v" id="v-flow">15</span></label>
+        <input type="range" id="i-flow" min="-20" max="40" step="1" value="15">
+        <div style="font-size:10px;color:var(--faint);margin-top:3px">보험료−급여 순현금(신규 매수여력). 2040년경 정점 후 감소 전망</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">시장 시나리오 <span class="cn" style="margin:0">(예측기간 동안)</span></div>
+      <div class="ctl">
+        <label>예측 기간 <span class="v" id="v-mon">12개월</span></label>
+        <div class="seg" id="monSeg">
+          <button data-m="6">6개월</button><button data-m="12" class="on">12개월</button><button data-m="24">24개월</button><button data-m="36">36개월</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label>KOSPI 예상 수익률 (%) <span class="v" id="v-rk">0</span></label>
+        <input type="range" id="i-rk" min="-40" max="80" step="1" value="0">
+      </div>
+      <div class="ctl">
+        <label>해외주식 예상 수익률 (%) <span class="v" id="v-rf">8</span></label>
+        <input type="range" id="i-rf" min="-40" max="60" step="1" value="8">
+      </div>
+      <div class="ctl">
+        <label>기타자산(채권·대체) 수익률 (%) <span class="v" id="v-ro">4</span></label>
+        <input type="range" id="i-ro" min="-15" max="20" step="1" value="4">
+      </div>
+      <button class="reset" id="resetBtn">기본값 복원</button>
+    </div>
+  </div>
+
+  <!-- 결과 패널 -->
+  <div>
+    <div class="card hd">
+      <div class="lab">예측 결과 · 국민연금 국내주식 순매매</div>
+      <div class="big" id="flow-big">—</div>
+      <div id="flow-badge"></div>
+      <div class="sm" id="flow-sm">—</div>
+      <div class="tiles">
+        <div class="tile"><div class="k">현재 추정 비중</div><div class="v" id="t-curw">—</div></div>
+        <div class="tile"><div class="k">기간말 예상 비중(리밸런싱 전)</div><div class="v" id="t-endw">—</div></div>
+        <div class="tile"><div class="k">상단밴드 도달 KOSPI</div><div class="v" id="t-crit">—</div></div>
+        <div class="tile"><div class="k">기간말 예상 기금</div><div class="v" id="t-endt">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">KOSPI 수익률별 국민연금 순매매 (조원)</div>
+      <div class="cn">가로축 = 예측기간 KOSPI 수익률. 세로축 = NPS 국내주식 순매매(음수=매도=수급 악재). 빨간 세로선 = 현재 슬라이더 시나리오.</div>
+      <div class="cw"><canvas id="flowChart" height="150"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">KOSPI 수익률별 국내주식 비중 (리밸런싱 전 드리프트)</div>
+      <div class="cn">비중이 상단밴드(목표+밴드)를 넘으면 국민연금이 기계적으로 매도. 점선 = 목표·상단·하단밴드.</div>
+      <div class="cw"><canvas id="weightChart" height="150"></canvas></div>
+    </div>
+
+    <div class="note" id="readout">—</div>
+  </div>
+</div>
+
+<div class="disc">
+  ※ 모델: 2026-03 국민연금 기금 포트폴리오 공시(data.go.kr 15106894, 국내주식 320.9조·해외주식 557.0조·전체 1,526조)를 base로, 이후 KOSPI(^KS11)·S&amp;P500(^GSPC) 실시간 등락으로 현재를 추정하고, 시나리오 수익률·순유입·리밸런싱 규칙(목표±밴드, 초과 시 목표로 되돌림)으로 미래를 투영합니다.
+  목표비중·밴드는 2026년 자산배분안(국내주식 20.8%, SAA ±6%p) 기준이며 실제 밴드는 일부 비공개입니다. 순유입·해외/기타 수익률은 가정값입니다. <b>단순화 모델의 추정</b>이며 실제 국민연금 매매는 종목선택·전술적판단·비공개 요인으로 달라집니다. 투자 판단·책임은 본인에게 있습니다.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const PROXY='https://fred-proxy-nine.vercel.app';
+const $=id=>document.getElementById(id);
+const C={grid:'#1b2438',line:'#27324a',teal:'#2dd4bf',blue:'#5b8def',amber:'#f5b53f',rose:'#f2706e',mute:'#8593ab'};
+
+// ── 2026-03 공시 base (조원) ──
+const BASE={date:'2026-03-31', D:320.9, F:557.0, T:1526.1};
+BASE.O = BASE.T - BASE.D - BASE.F;   // 기타(채권+대체+단기)
+
+let MULT={k:1.6434, g:1.1462};       // KOSPI·S&P 배수(기본값, 로드시 실시간 갱신)
+const DEF={tgt:20.8, band:6, flow:15, months:12, rk:0, rf:8, ro:4};
+let S={...DEF, total:null, curw:null};
+
+async function indices(syms,range){
+  const r=await fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range='+(range||'1y'),{cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json(); if(!j.ok) throw new Error('idx'); return j.data;
+}
+function closeAt(arr,ymd){let b=null;if(!arr)return null;for(const o of arr){if(o.t<=ymd)b=o;}return b?b.c:null;}
+
+// 현재 추정 상태 계산(드리프트)
+function computeCurrent(){
+  const Dn=BASE.D*MULT.k, Fn=BASE.F*MULT.g, On=BASE.O; // 기타 ~flat
+  const Tn=Dn+Fn+On;
+  return {total:Tn, curw:Dn/Tn*100, Dn, Fn, On};
+}
+
+// 핵심 예측 엔진: 주어진 KOSPI 수익률 rk(%)에서 국민연금 국내주식 순매매(조) 계산
+function project(rk){
+  const cur=computeCurrent();
+  const total = S.total!=null ? S.total : cur.total;
+  const curw  = S.curw!=null ? S.curw : cur.curw;
+  const D0 = total*curw/100;
+  const rest0 = total - D0;
+  // 기타 rest를 해외주식/기타로 분해(현재 추정 비율 유지)
+  const cf = cur.Fn/(cur.Fn+cur.On), fShare=rest0*cf, oShare=rest0*(1-cf);
+  const hf = S.months/12;
+  const D1 = D0*(1+rk/100);
+  const F1 = fShare*Math.pow(1+S.rf/100, hf);
+  const O1 = oShare*Math.pow(1+S.ro/100, hf);
+  const NI = S.flow*hf;
+  const T1 = D1+F1+O1+NI;
+  const wT = S.tgt/100, band=S.band/100;
+  const wdrift = D1/T1;                          // 리밸런싱 전 드리프트 비중
+  const upper=wT+band, lower=wT-band;
+  let flow;                                       // 국내주식 순매매(양수 매수 / 음수 매도)
+  if(wdrift>upper || wdrift<lower) flow = wT*T1 - D1;   // 밴드 이탈 → 목표로 되돌림
+  else flow = wT*NI;                              // 밴드 내 → 신규유입만 목표비중대로 매수
+  return {flow, wdrift:wdrift*100, T1, D1, wT:wT*100, upper:upper*100, lower:lower*100};
+}
+
+let charts={};
+function drawLine(id,labels,datasets,opt={}){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($(id),{type:'line',data:{labels,datasets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:!!opt.legend,labels:{boxWidth:11,font:{size:10},color:C.mute}},
+        tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1,callbacks:opt.cb||{}}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:11,color:'#8593ab',font:{size:9.5},callback:opt.xf}},
+        y:{grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:9.5},callback:opt.yf}}}}});
+}
+
+function render(){
+  // 슬라이더 라벨 동기화
+  $('v-tgt').textContent=S.tgt.toFixed(1); $('v-band').textContent=S.band.toFixed(1);
+  $('v-flow').textContent=S.flow; $('v-mon').textContent=S.months+'개월';
+  $('v-rk').textContent=(S.rk>=0?'+':'')+S.rk; $('v-rf').textContent=(S.rf>=0?'+':'')+S.rf; $('v-ro').textContent=(S.ro>=0?'+':'')+S.ro;
+
+  const cur=computeCurrent();
+  if(S.total==null){ $('i-total').value=Math.round(cur.total); $('v-total').textContent=Math.round(cur.total)+'조'; }
+  if(S.curw==null){ $('i-curw').value=cur.curw.toFixed(1); $('v-curw').textContent=cur.curw.toFixed(1)+'%'; }
+  $('t-curw').textContent=(S.curw!=null?S.curw:cur.curw).toFixed(1)+'%';
+
+  // 현재 시나리오 결과
+  const p=project(S.rk);
+  const sell=p.flow<0;
+  $('flow-big').textContent=(p.flow>=0?'+':'')+p.flow.toFixed(1)+'조';
+  $('flow-big').className='big '+(sell?'neg':'pos');
+  const st = p.flow<=-20?'r':(p.flow<-3?'a':'g');
+  $('flow-badge').innerHTML=`<span class="chip ${st}">${sell?(p.flow<=-20?'대규모 순매도(수급 악재)':'순매도'):'순매수(수급 우호)'}</span>`;
+  $('flow-sm').innerHTML=`KOSPI ${S.rk>=0?'+':''}${S.rk}% (${S.months}개월) 시 → 국민연금 국내주식 <b>${sell?'매도':'매수'} ${Math.abs(p.flow).toFixed(1)}조</b> 예상. 드리프트 비중 ${p.wdrift.toFixed(1)}% (목표 ${p.wT.toFixed(1)}% / 상단 ${p.upper.toFixed(1)}%).`;
+  $('t-endw').textContent=p.wdrift.toFixed(1)+'%';
+  $('t-endt').textContent=Math.round(p.T1)+'조';
+
+  // 임계 KOSPI 수익률(상단밴드 도달) 탐색
+  let crit=null;
+  for(let x=-40;x<=120;x+=0.5){ const q=project(x); if(q.wdrift>=q.upper){ crit=x; break; } }
+  $('t-crit').textContent = crit==null?'>+120%':(crit<=S.rk?'이미 초과':'+'+crit.toFixed(0)+'%');
+
+  // 차트: KOSPI 수익률 스윕
+  const xs=[]; for(let x=-40;x<=80;x+=2) xs.push(x);
+  const flowY=xs.map(x=>+project(x).flow.toFixed(1));
+  const wY=xs.map(x=>+project(x).wdrift.toFixed(2));
+  const curIdx=xs.reduce((bi,x,i)=>Math.abs(x-S.rk)<Math.abs(xs[bi]-S.rk)?i:bi,0);
+  const mark=xs.map((x,i)=>i===curIdx?flowY[i]:null);
+  const markW=xs.map((x,i)=>i===curIdx?wY[i]:null);
+
+  drawLine('flowChart', xs, [
+    {label:'순매매(조)',data:flowY,borderColor:C.teal,backgroundColor:'rgba(45,212,191,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.15,
+      segment:{borderColor:ctx=>ctx.p1.parsed.y<0?C.rose:C.teal}},
+    {label:'현재 시나리오',data:mark,borderColor:C.amber,backgroundColor:C.amber,pointRadius:5,pointStyle:'circle',showLine:false},
+  ],{xf:v=>{const x=xs[v];return x%20===0?(x>=0?'+':'')+x+'%':'';}, yf:v=>v+'조', legend:true,
+     cb:{title:it=>'KOSPI '+((xs[it[0].dataIndex]>=0?'+':'')+xs[it[0].dataIndex])+'%', label:it=>'순매매 '+flowY[it.dataIndex]+'조'}});
+
+  const tgtLine=xs.map(()=>p.wT), upLine=xs.map(()=>p.upper), loLine=xs.map(()=>p.lower);
+  drawLine('weightChart', xs, [
+    {label:'국내주식 비중(드리프트)',data:wY,borderColor:C.blue,backgroundColor:'rgba(91,141,239,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.15},
+    {label:'현재 시나리오',data:markW,borderColor:C.amber,backgroundColor:C.amber,pointRadius:5,showLine:false},
+    {label:'목표',data:tgtLine,borderColor:C.mute,borderWidth:1,borderDash:[5,4],pointRadius:0},
+    {label:'상단밴드',data:upLine,borderColor:C.rose,borderWidth:1,borderDash:[5,4],pointRadius:0},
+    {label:'하단밴드',data:loLine,borderColor:C.teal,borderWidth:1,borderDash:[5,4],pointRadius:0},
+  ],{xf:v=>{const x=xs[v];return x%20===0?(x>=0?'+':'')+x+'%':'';}, yf:v=>v+'%', legend:true,
+     cb:{title:it=>'KOSPI '+((xs[it[0].dataIndex]>=0?'+':'')+xs[it[0].dataIndex])+'%', label:it=>'비중 '+wY[it.dataIndex]+'%'}});
+
+  // 해설
+  const curP=project(S.rk);
+  let msg;
+  if(curP.flow<=-20) msg=`<b>수급 경고.</b> 현재 시나리오에서 국민연금이 <b>${Math.abs(curP.flow).toFixed(0)}조</b>를 순매도해야 합니다(비중 ${curP.wdrift.toFixed(1)}% → 목표 ${curP.wT.toFixed(1)}%로 되돌림). 대형주 중심 기계적 매도로 KOSPI에 하방압력. 실제로는 여러 분기에 나눠 집행됩니다.`;
+  else if(curP.flow<0) msg=`<b>완만한 순매도.</b> 국민연금 국내주식 비중이 상단밴드를 소폭 넘어 <b>${Math.abs(curP.flow).toFixed(0)}조</b> 매도 예상. 수급상 약한 역풍.`;
+  else msg=`<b>순매수 또는 중립.</b> 비중이 밴드 안이라 신규 순유입으로 <b>${curP.flow.toFixed(0)}조</b> 매수 여력. 수급상 우호적이거나 중립.`;
+  const critTxt = crit==null?'예측 범위(+120%)에선 밴드 초과 없음':(crit<=S.rk?'이미 밴드 초과 상태':`KOSPI가 <b>+${crit.toFixed(0)}%</b> 더 오르면 상단밴드 도달 → 강제매도 시작`);
+  $('readout').innerHTML=`${msg}<br><span style="color:var(--faint)">임계선: ${critTxt}. 슬라이더로 시장 시나리오·규칙을 바꿔 미래 수급을 시뮬레이션하세요.</span>`;
+}
+
+// ── 입력 바인딩 ──
+function bindRange(id,key,fn){ $(id).addEventListener('input',e=>{ S[key]=parseFloat(e.target.value); render(); }); }
+bindRange('i-tgt','tgt'); bindRange('i-band','band'); bindRange('i-flow','flow');
+bindRange('i-rk','rk'); bindRange('i-rf','rf'); bindRange('i-ro','ro');
+$('i-total').addEventListener('input',e=>{ S.total=parseFloat(e.target.value)||null; $('v-total').textContent=(e.target.value||'—')+'조'; render(); });
+$('i-curw').addEventListener('input',e=>{ S.curw=parseFloat(e.target.value); if(isNaN(S.curw))S.curw=null; $('v-curw').textContent=(e.target.value||'—')+'%'; render(); });
+document.querySelectorAll('#monSeg button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#monSeg button').forEach(x=>x.classList.toggle('on',x===b)); S.months=parseInt(b.dataset.m); render();
+}));
+$('resetBtn').addEventListener('click',()=>{
+  S={...DEF,total:null,curw:null};
+  $('i-tgt').value=DEF.tgt; $('i-band').value=DEF.band; $('i-flow').value=DEF.flow;
+  $('i-rk').value=DEF.rk; $('i-rf').value=DEF.rf; $('i-ro').value=DEF.ro;
+  document.querySelectorAll('#monSeg button').forEach(x=>x.classList.toggle('on',x.dataset.m==='12'));
+  render();
+});
+
+async function init(){
+  try{
+    const d=await indices(['^KS11','^GSPC'],'1y');
+    const kB=closeAt(d['^KS11'],BASE.date), kN=d['^KS11'][d['^KS11'].length-1].c;
+    const gB=closeAt(d['^GSPC'],BASE.date), gN=d['^GSPC'][d['^GSPC'].length-1].c;
+    if(kB&&kN) MULT.k=kN/kB; if(gB&&gN) MULT.g=gN/gB;
+    $('liveText').textContent='LIVE · KOSPI '+Math.round(kN).toLocaleString()+' ('+((MULT.k-1)*100>=0?'+':'')+((MULT.k-1)*100).toFixed(0)+'% vs 2026-03)';
+  }catch(e){ $('liveBadge').className='live err'; $('liveText').textContent='시장데이터 오류 — 기본 배수 사용'; }
+  render();
+}
+(function(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
+  document.querySelectorAll('.topnav a').forEach(a=>{if((a.getAttribute('href')||'').toLowerCase()===f)a.classList.add('on');});})();
+init();
+</script>
+</body>
+</html>
