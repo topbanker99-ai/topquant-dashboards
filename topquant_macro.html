@@ -428,15 +428,24 @@ function renderMktSize(){
   const kospiDate=kospiArr.length?kospiArr[0].date:'—';
   const kosdaqDate=kosdaqArr.length?kosdaqArr[0].date:'—';
 
+  // S&P500 / Nasdaq100 추정 (비율 추정: 실제 시총 API 없어 NCBEILQ027S 기반 근사)
+  const sp500est=eq!=null?eq*0.82/1e6:null;  // S&P500 ≈ 전체의 82%
+  const nq100est=eq!=null?eq*0.47/1e6:null;  // 나스닥100 ≈ 전체의 47%
+  const eqDate=mktcap.length?(mktcap[0].date||''):'';
+
   $('mktSizeTiles').innerHTML =
     tile('KOSPI_MC','코스피 시가총액',kospiV==null?'—':Math.round(kospiV).toLocaleString()+'조원',
       kospiV==null?'ECOS 901Y014':kospiDate+' 기준','blue')
    +tile('KOSDAQ_MC','코스닥 시가총액',kosdaqV==null?'—':Math.round(kosdaqV).toLocaleString()+'조원',
       kosdaqV==null?'ECOS 901Y014':kosdaqDate+' 기준','violet')
+   +tile('USMC','미국 전체 주식시총',eq==null?'—':'$'+(eq/1e6).toFixed(1)+'T',
+      eq==null?'FRED NCBEILQ027S (분기)':eqDate+' 분기','blue')
+   +tile('SP500MC','S&P500 시총 (추정)',sp500est==null?'—':'$'+sp500est.toFixed(1)+'T',
+      '전체의 82% 비율 추정 · 참고용','blue')
+   +tile('NQ100MC','나스닥100 시총 (추정)',nq100est==null?'—':'$'+nq100est.toFixed(1)+'T',
+      '전체의 47% 비율 추정 · 참고용','violet')
    +tile('BUFFETT','버핏 지표 (시총/GDP)',buffett==null?'—':buffett.toFixed(0)+'%',
-      buffett==null?'FRED NCBEILQ027S/GDP':buffett>=170?'극단 고평가 (>170%)':buffett>=130?'고평가 (>130%)':'적정 (<130%)', bTone)
-   +tile('USMC','미국 주식 총시가총액',eq==null?'—':'$'+(eq/1e6).toFixed(1)+'T',
-      eq==null?'FRED NCBEILQ027S (분기)':(mktcap[0].date||'')+'분기','blue');
+      buffett==null?'FRED NCBEILQ027S/GDP':buffett>=170?'극단 고평가 (>170%)':buffett>=130?'고평가 (>130%)':'적정 (<130%)', bTone);
 }
 
 // ── 해석 엔진 ──
@@ -616,6 +625,28 @@ function explain(key){
       );
       foot=`FRED: NCBEILQ027S(주식시총, 분기, 백만달러) ÷ GDP(명목, 분기, 십억달러) × 100`; break;
     }
+    case 'SP500MC': {
+      const eq=D.NCBEILQ027S&&D.NCBEILQ027S.length?D.NCBEILQ027S[0].v:null;
+      const v=eq!=null?eq*0.82/1e6:null;
+      title='S&P500 시가총액 (추정)'; valStr=v==null?'—':'$'+v.toFixed(1)+'T'; tone='blue'; status='추정값';
+      lines=P(
+        '<b>⚠ 비율 추정값입니다.</b> 실제 S&P500 시총 API는 유료(companiesmarketcap.com 등) — 대신 FRED 미국 전체 주식시총(NCBEILQ027S)에 역사적 비율 <b>82%</b>를 곱해 근사합니다.',
+        'S&P500은 미국 전체 상장시총의 약 80~85%를 차지합니다. 실제값과 ±5~10% 차이가 날 수 있습니다.',
+        '분기 데이터 특성상 2~3개월 후행합니다. 정확한 값이 필요하다면 companiesmarketcap.com API 키를 발급받아 추가하세요.'
+      );
+      foot='FRED NCBEILQ027S × 0.82 (S&P500 ≈ 미국 전체의 82% 추정)'; break;
+    }
+    case 'NQ100MC': {
+      const eq=D.NCBEILQ027S&&D.NCBEILQ027S.length?D.NCBEILQ027S[0].v:null;
+      const v=eq!=null?eq*0.47/1e6:null;
+      title='나스닥100 시가총액 (추정)'; valStr=v==null?'—':'$'+v.toFixed(1)+'T'; tone='violet'; status='추정값';
+      lines=P(
+        '<b>⚠ 비율 추정값입니다.</b> 나스닥100은 미국 전체 주식시총의 약 45~50%를 차지합니다. NCBEILQ027S에 <b>47%</b>를 곱해 근사.',
+        '나스닥100은 시총 기준 상위 100개 비금융 종목이므로 실제 비율이 시장 상황에 따라 달라집니다(AI 붐 시 비중 상승). 참고용으로만 활용하세요.',
+        '분기 데이터 특성상 2~3개월 후행합니다.'
+      );
+      foot='FRED NCBEILQ027S × 0.47 (나스닥100 ≈ 미국 전체의 47% 추정)'; break;
+    }
     case 'KOSPI_MC': {
       const v=KR_MKT.kospi&&KR_MKT.kospi.length?KR_MKT.kospi[0].v/1e9:null;
       title='코스피 시가총액'; valStr=v==null?'—':Math.round(v).toLocaleString()+'조원'; tone='blue'; status=v==null?'데이터 없음':'시총';
@@ -761,6 +792,8 @@ function modalSeries(key){
       return {desc:aligned, yfmt:v=>v.toFixed(0)+'%'};
     }
     case 'USMC':     return {desc:map(D.NCBEILQ027S||[],v=>+(v/1e6).toFixed(2)), yfmt:v=>'$'+v+'T'};
+    case 'SP500MC':  return {desc:map(D.NCBEILQ027S||[],v=>+(v*0.82/1e6).toFixed(2)), yfmt:v=>'$'+v+'T'};
+    case 'NQ100MC':  return {desc:map(D.NCBEILQ027S||[],v=>+(v*0.47/1e6).toFixed(2)), yfmt:v=>'$'+v+'T'};
     default:
       if(LEVEL[key]){ const u=LEVEL[key].u; return {desc:map(D[key]||[]), yfmt:(u==='%'||u==='%p')?(v=>v+u):(v=>v)}; }
       return null;
