@@ -122,7 +122,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 
 <div class="banner">
   <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 이 보드는 닷컴 고점에서 실제로 나타났던
-  <b>4가지 신호</b>가 지금 얼마나 켜졌는지 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
+  신호들이 지금 얼마나 켜졌는지 <b>8개 신호 / 16점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
 </div>
 
 <!-- COMPOSITE -->
@@ -200,6 +200,26 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
   </div>
 </div>
 
+<!-- SIGNAL 7: 한국 반도체 쏠림 -->
+<div class="card clk" onclick="openExplain('KRCONC')" title="누르면 쉬운 설명">
+  <div class="secttl">⑦ 한국 반도체 쏠림 — 삼성·하이닉스 시총·추세 ⓘ <span class="r">공공데이터포털 · Yahoo Finance</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="kr-big">—</div><div class="desc">삼성전자·SK하이닉스가 코스피의 핵심 축. 둘 다 200일선 아래로 꺼지거나 3개월 성과 괴리가 20%p 이상이면 '한국판 이익 엔진 분화' 신호입니다.</div>
+      <div class="metrics" id="kr-metrics"></div></div>
+    <span class="pill" id="kr-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 8: 버핏 지표 (미국 밸류에이션) -->
+<div class="card clk" onclick="openExplain('BUFFETT')" title="누르면 쉬운 설명">
+  <div class="secttl">⑧ 미국 밸류에이션 — 버핏 지표 ⓘ <span class="r">미국 주식시총 ÷ GDP · FRED</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="bf-big">—</div><div class="desc">버핏이 "주식시총/GDP를 보라"고 한 지표. 과거 닷컴 버블 직전 190%를 넘었습니다. 현재 수준이 역사적 고점 영역인지 실시간 확인.</div>
+      <div class="metrics" id="bf-metrics"></div></div>
+    <span class="pill" id="bf-pill">—</span>
+  </div>
+</div>
+
 <!-- 버블 연료(실질임금) — 참고(비점수) -->
 <div class="card clk" onclick="openExplain('FUEL')" title="누르면 쉬운 설명">
   <div class="secttl">버블 연료 — 실질임금 (포모는 합리적) ⓘ <span class="r">참고 · 매도신호 아님</span></div>
@@ -236,8 +256,8 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·금리차 T10Y2Y·NFCI·STLFSI4·평균임금·CPI), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수) — 모두 회장님 Vercel 프록시 경유.
-  <b>6개 신호는 닷컴 붐 패턴을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·STLFSI4·평균임금·CPI·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총) — 모두 Vercel 프록시 경유.
+  <b>8개 신호는 닷컴 붐 패턴과 밸류에이션을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -281,8 +301,8 @@ const SIG={}; // 각 신호 상태 저장
 
 const EXPLAIN={
  TIER:{title:'매도 경계 단계란?', body:`
-   <p>아래 <b>6개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
-   <p><b>관망 → 관찰 → 주의 → 경계 → 매도검토</b> 순으로 올라갑니다. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
+   <p>아래 <b>7개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
+   <p>최대 14점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
    <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
@@ -334,6 +354,18 @@ const EXPLAIN={
    <p>베센바인더 교수 연구: 1926~2019년 미국 주식의 <b>시총 이익 절반을 상위 50개 종목</b>이 가져갔고, <b>2019년엔 단 2개</b> 종목이 가져갔습니다.</p>
    <p>즉 <b>소수 종목 쏠림은 예외가 아니라 기본값</b>입니다. AI 같은 범용기술 등장기엔 자금이 핵심으로 더 쏠립니다.</p>
    <p>그래서 '쏠렸다'는 것만으로 과민하게 매도신호로 보긴 어렵습니다(②는 단일시장 쏠림이 아니라 <b>여러 나라가 동시에 무너지는</b> 다른 현상을 봅니다).</p>`},
+ BUFFETT:{title:'⑧ 버핏 지표 — 미국 시장 밸류에이션', body:`
+   <p>워런 버핏이 "가장 좋아하는 단일 지표"로 언급한 밸류에이션 척도입니다. <b>미국 주식 총시가총액 ÷ 명목 GDP × 100</b>으로 계산합니다.</p>
+   <p>역사적 기준: <b>~100% = 적정 가치, ~150% = 다소 고평가, 190% 이상 = 극단적 고평가</b>. 닷컴 버블 고점(2000년 초)에 ~190%였습니다.</p>
+   <p>현재는 200%를 훌쩍 넘은 역사적 최고 수준입니다. 다만 저금리+AI 성장성 할인율 하락으로 인해 과거보다 높은 밸류에이션이 '용인'될 수 있다는 시각도 있습니다.</p>
+   <p><b>단독 사용 금지</b>: 시장이 몇 년을 오버밸류 상태로 지속할 수 있습니다. 이 신호는 나머지 7개와 함께 <b>종합 방어선</b>의 하나로만 봐야 합니다.</p>
+   <p style="color:var(--faint)">데이터: FRED NCBEILQ027S(미국 주식 총시가총액, 분기) + GDP(명목 GDP, 분기). 분기 데이터 특성상 2~3개월 후행합니다.</p>`},
+ KRCONC:{title:'⑦ 한국 반도체 쏠림 — 삼성·하이닉스', body:`
+   <p>코스피의 핵심축인 <b>삼성전자·SK하이닉스</b>의 추세와 시총을 공공데이터포털 + Yahoo Finance로 실시간 추적합니다.</p>
+   <p>두 종목이 모두 <b>200일 이동평균선 아래</b>로 꺼지면 한국 반도체 사이클이 꺾인 신호입니다. ⑤ 이익 엔진(필라델피아 반도체·엔비디아 포함)과 함께 보는 <b>한국판 이익 둔화 조기경보</b>.</p>
+   <p><b>삼성 vs 하이닉스 3개월 성과가 20%p 이상 벌어지면</b> 자금이 한 종목으로만 쏠리는 분화 신호로 봅니다(한 쪽이 버티는 동안 다른 쪽이 먼저 흔들리는 패턴).</p>
+   <p>시총 역전(하이닉스 > 삼성) 자체는 '꼭지' 신호로 보기 어렵습니다(참고 카드 설명). 이 신호는 역전이 아니라 <b>추세 이탈·성과 분화</b>를 봅니다.</p>
+   <p style="color:var(--faint)">데이터: 공공데이터포털 금융위원회_주식시세정보(당일 시총·종가) + Yahoo Finance 주가추세.</p>`},
 };
 function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
 function closeModal(){$('modal').style.display='none';}
@@ -526,20 +558,81 @@ function renderFuel(wage,cpi){
     : (real<0?'실질임금 마이너스 — 포모 연료 ON (붐 지속력 ↑)':'실질임금 플러스 — 포모 연료 약화');
 }
 
+// ── 신호 ⑦: 한국 반도체 쏠림 (삼성·하이닉스 시총 + 추세 괴리) ──
+async function krxFetch(code){
+  try{
+    const r=await fetch(PROXY+'/api/krx?op=getStockPriceInfo&likeSrtnCd='+code+'&numOfRows=1',{cache:'no-store'});
+    if(!r.ok) return null;
+    const j=await r.json();
+    const body=j&&j.response&&j.response.body;
+    const item=(body&&body.items&&body.items.item||[])[0];
+    if(!item) return null;
+    return {name:item.itmsNm,mktcap:parseInt(item.mrktTotAmt)||0,price:parseInt(item.clpr)||0,chgPct:parseFloat(item.fltRt)||0,date:item.basDt};
+  }catch(e){ return null; }
+}
+function renderKrConc(sam,hyn,leadData){
+  const samA=leadData&&leadData['005930.KS'], hynA=leadData&&leadData['000660.KS'];
+  const samOk=Array.isArray(samA)&&samA.length>200, hynOk=Array.isArray(hynA)&&hynA.length>200;
+  const sam3m=samOk?retAsc(samA,63):null, hyn3m=hynOk?retAsc(hynA,63):null;
+  const sam200=samOk?(samA.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+  const hyn200=hynOk?(hynA.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+  const samAbove=samOk&&sam200!=null?samA[samA.length-1].c>sam200:null;
+  const hynAbove=hynOk&&hyn200!=null?hynA[hynA.length-1].c>hyn200:null;
+  const diverge=sam3m!=null&&hyn3m!=null?Math.abs(sam3m-hyn3m):null;
+  const samMkt=sam?sam.mktcap:null, hynMkt=hyn?hyn.mktcap:null;
+  const combined=samMkt&&hynMkt?samMkt+hynMkt:null;
+  const flip=samMkt!=null&&hynMkt!=null&&hynMkt>samMkt;
+  let st='green';
+  if(samAbove===false&&hynAbove===false) st='red';
+  else if(samAbove===false||hynAbove===false||(diverge!=null&&diverge>=20)) st='amber';
+  SIG.krconc={st,diverge,samAbove,hynAbove,flip};
+  const jo=n=>n==null?'—':(n/1e12).toFixed(1)+'조원';
+  const trendCls=a=>a==null?'flat':(a?'up':'down');
+  $('kr-metrics').innerHTML=[
+    `<span class="m ${ccls(sam3m)}">삼성 ${sam?sam.price.toLocaleString()+'원':''} ${pct(sam3m)}<span> 3M · 200일 </span><span class="${trendCls(samAbove)}">${samAbove==null?'—':(samAbove?'▲위':'▼이탈')}${flip?'':'★1위'}</span></span>`,
+    `<span class="m ${ccls(hyn3m)}">하이닉스 ${hyn?hyn.price.toLocaleString()+'원':''} ${pct(hyn3m)}<span> 3M · 200일 </span><span class="${trendCls(hynAbove)}">${hynAbove==null?'—':(hynAbove?'▲위':'▼이탈')}${flip?'★1위':''}</span></span>`,
+    `<span class="m">합산 시총 ${jo(combined)}</span>`,
+    diverge!=null?`<span class="m ${diverge>=20?'down':'flat'}">성과 괴리 ${diverge.toFixed(1)}%p${diverge>=20?' ⚠ 분화':''}</span>`:'',
+  ].join('');
+  $('kr-big').textContent = st==='red'?'삼성·하이닉스 모두 200일선 이탈 — 한국 반도체 추세 붕괴 경고'
+    : st==='amber'?(diverge!=null&&diverge>=20)?'성과 괴리 과대 — 분화 신호 (한 종목 먼저 흔들림)':'한국 반도체 일부 추세 이탈 — 관찰'
+    : '삼성·하이닉스 모두 200일선 위 — 한국 반도체 쏠림 건재';
+  setPill('kr-pill',st);
+}
+
+// ── 신호 ⑧: 버핏 지표 (미국 밸류에이션) ──
+function renderBuffett(mktcap, gdp){
+  if(!mktcap||!mktcap.length||!gdp||!gdp.length){ SIG.buffett={st:'green'}; return; }
+  const eq=mktcap[0].v; // millions USD
+  const g=gdp[0].v;     // billions USD
+  const ratio=eq/(g*1000)*100;
+  let st='green';
+  if(ratio>=170) st='red'; else if(ratio>=130) st='amber';
+  SIG.buffett={st,ratio,eqT:eq/1e6,gdpT:g/1000,date:mktcap[0].date};
+  const prev = mktcap.length>4?mktcap[4].v/(gdp.length>4?gdp[4].v:g)/10:null;
+  $('bf-big').textContent = ratio.toFixed(0)+'% (시총/GDP)';
+  $('bf-metrics').innerHTML=
+    `<span class="m ${ratio>=170?'down':(ratio>=130?'flat':'up')}">버핏지표 ${ratio.toFixed(0)}% <span>${ratio>=170?'극단 고평가':ratio>=130?'고평가':'적정'}</span></span>`
+   +`<span class="m">주식시총 $${(eq/1e6).toFixed(1)}T <span>분기</span></span>`
+   +`<span class="m">명목GDP $${(g/1000).toFixed(2)}T <span>분기</span></span>`
+   +(prev!=null?`<span class="m flat">전년동기 ${prev.toFixed(0)}%p <span>1년 전</span></span>`:'');
+  setPill('bf-pill',st);
+}
+
 // ── 종합 ──
 function renderComposite(){
   const v={green:0,amber:1,red:2};
-  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat].filter(Boolean);
-  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..12
+  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett].filter(Boolean);
+  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..16
   let lvl,col,posPct;
   const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
-  if(combo||score>=10){lvl='매도 검토';col='#f2706e';posPct=94;}
-  else if(score>=7){lvl='경계';col='#f2706e';posPct=76;}
-  else if(score>=4){lvl='주의';col='#f5b53f';posPct=52;}
+  if(combo||score>=13){lvl='매도 검토';col='#f2706e';posPct=94;}
+  else if(score>=9){lvl='경계';col='#f2706e';posPct=76;}
+  else if(score>=5){lvl='주의';col='#f5b53f';posPct=52;}
   else if(score>=1){lvl='관찰';col='#5b8def';posPct=26;}
   else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
   $('lvl').textContent=lvl; $('lvl').style.color=col;
-  $('score').textContent='경계 점수 '+score+'/12 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/6';
+  $('score').textContent='경계 점수 '+score+'/16 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/8';
   $('mk').style.left=posPct+'%';
   renderNarrative(lvl,score,combo);
 }
@@ -558,7 +651,7 @@ function renderNarrative(lvl,score,combo){
     line1=`현재 <b class="a">${lvl}</b> 단계 — 켜진 신호: <b>${fired.join(' · ')||'없음'}</b>.`;
     line2=`${e.st==='red'?'<b class="r">주도주 이익 엔진 둔화 조짐</b>이 핵심 — 박사가 말한 진짜 매도 트리거입니다. ':''}박사의 결정적 조합(글로벌 폭+금리 동시)은 아직 아니니, 보루(대만·유럽)·금리 방향·이익 엔진을 집중 관찰하세요.`;
   }
-  const fuelTxt = f.real!=null ? `<span class="narr-foot">버블 연료: 실질임금 ${f.real<0?'마이너스('+f.real.toFixed(1)+'%p) → 포모 압력 지속, 붐 쉽게 안 꺼짐':'플러스 → 연료 약화'} · 5개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>` : `<span class="narr-foot">5개 신호를 합친 보조 판단 · 점 예측 아님 · 각 카드를 누르면 쉬운 설명</span>`;
+  const fuelTxt = f.real!=null ? `<span class="narr-foot">버블 연료: 실질임금 ${f.real<0?'마이너스('+f.real.toFixed(1)+'%p) → 포모 압력 지속, 붐 쉽게 안 꺼짐':'플러스 → 연료 약화'} · 8개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>` : `<span class="narr-foot">8개 신호를 합친 보조 판단 · 점 예측 아님 · 각 카드를 누르면 쉬운 설명</span>`;
   $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}<br>${fuelTxt}`;
 }
 
@@ -566,12 +659,13 @@ async function load(){
   setLive(true,'불러오는 중…');
   try{
     const OVH=['^GSPC','^IXIC'];
-    const [data,leadOvh,dff,vix,hy,wage,cpi,curve,nfci,stress,exp]=await Promise.all([
+    const [data,leadOvh,dff,vix,hy,wage,cpi,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
       fred('CES0500000003',14), fred('CPIAUCSL',14),
       fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5),
-      semiExport()
+      semiExport(), krxFetch('005930'), krxFetch('000660'),
+      fred('NCBEILQ027S',8), fred('GDP',8)
     ]);
     const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
       return Object.assign({},m,{r2w:ok?retAsc(a,10):null,r1:ok?retAsc(a,21):null,r2m:ok?retAsc(a,42):null,r3:ok?retAsc(a,63):null});});
@@ -582,6 +676,8 @@ async function load(){
     renderRisk(vix,hy,curve,nfci,stress);
     renderEngine(leadOvh,exp);
     renderOverheat(leadOvh);
+    renderKrConc(samKrx,hynKrx,leadOvh);
+    renderBuffett(buffMktcap,buffGdp);
     renderFuel(wage,cpi);
     renderComposite();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
