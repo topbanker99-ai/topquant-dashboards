@@ -10,7 +10,7 @@
 :root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
 --ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa;--gold:#e3b341}
 body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
-max-width:1180px;margin:0 auto;padding:22px 24px 60px}
+max-width:1200px;margin:0 auto;padding:22px 24px 60px}
 .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
 .topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
   background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
@@ -22,7 +22,7 @@ max-width:1180px;margin:0 auto;padding:22px 24px 60px}
 .topnav .brand{color:var(--ink);font-weight:700}.topnav .brand .dot{color:var(--gold)}.topnav .sp{flex:1}
 header{border-bottom:1px solid var(--line);padding-bottom:15px;margin-bottom:18px}
 h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--gold)}
-.sub{color:var(--mute);font-size:12.5px;margin-top:5px;max-width:840px}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px;max-width:860px}
 .live{display:inline-flex;align-items:center;gap:7px;color:#e9d08a;font-size:11.5px;
   background:rgba(227,179,65,.1);border:1px solid rgba(227,179,65,.3);border-radius:8px;padding:4px 10px;margin-top:8px}
 .live .d2{width:7px;height:7px;border-radius:50%;background:var(--gold)}
@@ -31,47 +31,43 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--gold)
 .ct{font-size:12.5px;font-weight:700;margin-bottom:3px;letter-spacing:.2px}
 .cn{font-size:10.5px;color:var(--faint);margin-bottom:12px;line-height:1.5}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:840px){.grid2{grid-template-columns:1fr}}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
 .pos{color:var(--teal)}.neg{color:var(--rose)}.amber{color:var(--amber)}.blue{color:var(--blue)}.mute{color:var(--mute)}.gold{color:var(--gold)}
-/* 게이지 */
-.gauge-wrap{text-align:center;padding:6px 0}
-.gauge-val{font-family:'IBM Plex Mono',monospace;font-size:40px;font-weight:700;letter-spacing:-1px}
+.gauge-wrap{text-align:center;padding:4px 0}
+.gauge-val{font-family:'IBM Plex Mono',monospace;font-size:38px;font-weight:700;letter-spacing:-1px}
 .gauge-lab{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.5px}
-.gbar{height:14px;border-radius:8px;margin:16px 0 6px;position:relative;
+.gbar{height:14px;border-radius:8px;margin:14px 0 6px;position:relative;
   background:linear-gradient(90deg,#2dd4bf 0%,#5b8def 30%,#f5b53f 55%,#f2706e 80%)}
+.gbar.rev{background:linear-gradient(90deg,#2dd4bf 0%,#5b8def 40%,#f5b53f 70%,#f2706e 100%)}
 .gbar .mk{position:absolute;top:-5px;width:4px;height:24px;border-radius:2px;background:#fff;box-shadow:0 0 0 2px #1b2438}
 .gends{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
-/* 태세 배지 */
-.posture{display:flex;align-items:center;gap:12px;margin:12px 0;padding:13px 15px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
-.posture .em{font-size:30px}
-.posture .k{font-size:17px;font-weight:700}
-.posture .d{font-size:12px;color:var(--mute);margin-top:2px;line-height:1.5}
-/* 타일 */
+.posture{display:flex;align-items:center;gap:12px;margin:10px 0;padding:12px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
+.posture .em{font-size:28px}.posture .k{font-size:16px;font-weight:700}.posture .d{font-size:11.5px;color:var(--mute);margin-top:2px;line-height:1.5}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .tile{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.tile .k{font-size:10px;color:var(--mute)}.tile .v{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;margin-top:3px}
+.tile .k{font-size:10px;color:var(--mute)}.tile .v{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin-top:3px}
 .tile .s{font-size:10px;color:var(--faint);margin-top:2px}
-/* 보유종목 */
 .hold{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);margin-bottom:6px}
 .hold .nm{font-size:12.5px;font-weight:600}.hold .nm .tk{color:var(--mute);font-family:'IBM Plex Mono',monospace;font-size:10.5px;margin-left:5px}
-.hold .wt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint)}
-.hold .rt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-align:right;min-width:70px}
-.bar{height:4px;border-radius:3px;background:var(--gold);margin-top:4px;opacity:.5}
-/* 컨트롤 */
-.ctl{margin:14px 0}
+.hold .sec{font-size:9.5px;color:var(--faint)}
+.hold .mid{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);text-align:center;min-width:78px}
+.hold .rt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-align:right;min-width:74px}
+.secbar{display:flex;height:22px;border-radius:7px;overflow:hidden;margin:4px 0 8px;border:1px solid var(--line)}
+.secbar span{display:flex;align-items:center;justify-content:center;font-size:9px;color:#0d1320;font-weight:700;overflow:hidden;white-space:nowrap}
+.ctl{margin:12px 0}
 .ctl label{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:6px;font-weight:600}
 .ctl label .v{font-family:'IBM Plex Mono',monospace;color:var(--gold);font-weight:600}
 .ctl input[type=range]{width:100%;-webkit-appearance:none;height:5px;border-radius:5px;background:var(--panel2);outline:none}
 .ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 0 3px rgba(227,179,65,.2)}
-.big{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;letter-spacing:-.5px;margin:6px 0}
+.big{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;letter-spacing:-.5px;margin:4px 0}
 .chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:2px 8px;border-radius:6px;font-weight:600}
 .chip.g{background:rgba(45,212,191,.15);color:#7ee7da}.chip.b{background:rgba(91,141,239,.16);color:#a9c5ff}.chip.a{background:rgba(245,181,63,.16);color:#f5cd7e}.chip.r{background:rgba(242,112,110,.16);color:#f2a3a2}
 .note{background:var(--panel2);border:1px dashed var(--line);border-radius:11px;padding:12px 14px;font-size:12px;color:var(--mute);line-height:1.65}
 .note b{color:var(--ink)}
-.chk{font-size:12.5px;color:var(--mute);line-height:1.9}
-.chk b{color:var(--ink)}.chk .y{color:var(--teal)}.chk .n{color:var(--rose)}
+.chk{font-size:12.5px;color:var(--mute);line-height:1.9}.chk b{color:var(--ink)}.chk .y{color:var(--teal)}.chk .n{color:var(--rose)}
 .disc{margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
 .cw{position:relative;width:100%;margin-top:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -89,73 +85,97 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--gold)
 
 <header>
   <h1>탑퀀트 <span class="dot">·</span> 버핏 추종 예측</h1>
-  <div class="sub">워런 버핏(버크셔 해서웨이)의 <b>투자 원칙과 규칙</b>(밸류에이션 기준 현금 축적·공포에 매수)을 복제해, 현재 시장에서 버핏이 <b>어떤 태세를 취하고 향후 어떻게 움직일지</b>를 예측합니다. 그의 지표 "버핏 인디케이터(시총/GDP)"가 핵심 나침반입니다.</div>
+  <div class="sub">워런 버핏(버크셔)의 규칙 — <b>밸류에이션(버핏지표)</b>과 <b>금리 중력</b>으로 매수/현금 태세를 정한다 — 을 복제해 현재 시장에서 버핏이 어떻게 움직일지 예측합니다. "금리는 자산가격에 중력과 같다"(버핏).</div>
   <div id="liveBadge" class="live"><span class="d2"></span><span id="liveText">불러오는 중…</span></div>
 </header>
 
-<!-- 버핏 지표 게이지 + 태세 -->
-<div class="card">
-  <div class="ct">버핏 인디케이터 — 미국 주식시총 ÷ GDP</div>
-  <div class="cn">버핏이 "밸류에이션을 재는 최고의 단일 지표"라 부른 값. 높을수록 시장 고평가 → 버핏은 매수를 줄이고 현금을 쌓습니다.</div>
-  <div class="grid2">
-    <div>
-      <div class="gauge-wrap">
-        <div class="gauge-val" id="bi-val">—</div>
-        <div class="gauge-lab" id="bi-zone">—</div>
-        <div class="gbar"><div class="mk" id="bi-mk" style="left:50%"></div></div>
-        <div class="gends"><span>75% 저평가</span><span>115%</span><span>150%</span><span>220%+ 극단</span></div>
-      </div>
+<div class="grid2">
+  <!-- 버핏 인디케이터 -->
+  <div class="card">
+    <div class="ct">버핏 인디케이터 — 미국 주식시총 ÷ GDP</div>
+    <div class="cn">버핏이 "밸류에이션 측정 최고의 단일 지표"라 부른 값. 높을수록 고평가 → 매수 축소·현금 축적.</div>
+    <div class="gauge-wrap">
+      <div class="gauge-val" id="bi-val">—</div><div class="gauge-lab" id="bi-zone">—</div>
+      <div class="gbar"><div class="mk" id="bi-mk" style="left:50%"></div></div>
+      <div class="gends"><span>75%</span><span>115%</span><span>150%</span><span>220%+</span></div>
     </div>
-    <div>
-      <div class="posture" id="posture">
-        <div class="em" id="p-em">⏳</div>
-        <div><div class="k" id="p-k">—</div><div class="d" id="p-d">불러오는 중…</div></div>
-      </div>
-      <div class="tiles">
-        <div class="tile"><div class="k">버크셔 현금성 자산</div><div class="v gold" id="t-cash">—</div><div class="s">기록적 수준 · 분기공시</div></div>
-        <div class="tile"><div class="k">주식 포트폴리오</div><div class="v" id="t-equity">—</div><div class="s">현금 &gt; 주식 = 방어</div></div>
-      </div>
+    <div class="posture" id="posture"><div class="em" id="p-em">⏳</div><div><div class="k" id="p-k">—</div><div class="d" id="p-d">불러오는 중…</div></div></div>
+  </div>
+
+  <!-- 금리 중력 -->
+  <div class="card">
+    <div class="ct">금리 중력 (Rates = Gravity)</div>
+    <div class="cn">버핏: 금리가 오르면 모든 자산의 '적정가'가 내려간다. 고평가 + 고금리 = 이중 부담.</div>
+    <div class="gauge-wrap">
+      <div class="gauge-val" id="rt-val">—</div><div class="gauge-lab">미 국채 10년</div>
+      <div class="gbar rev"><div class="mk" id="rt-mk" style="left:50%"></div></div>
+      <div class="gends"><span>2%</span><span>3.5%</span><span>4.5%</span><span>6%</span></div>
+    </div>
+    <div class="tiles" style="margin-top:10px">
+      <div class="tile"><div class="k">밸류에이션 부담 점수</div><div class="v" id="t-press">—</div><div class="s">버핏지표+금리 종합 0~100</div></div>
+      <div class="tile"><div class="k">현금 T-bill 이자수익</div><div class="v gold" id="t-tbill">—</div><div class="s">현금이 노는 게 아님</div></div>
     </div>
   </div>
+</div>
+
+<!-- 히스토리 -->
+<div class="card">
+  <div class="ct">버핏 인디케이터 — 장기 히스토리 <span class="cn" style="margin:0">(분기 · FRED)</span></div>
+  <div class="cn">닷컴(2000)·금융위기·2021 버블·현재를 한눈에. 점선 = 매수권(75%)·적정(115%)·고평가(150%). 현재는 역사적 최고 영역.</div>
+  <div class="cw"><canvas id="histChart" height="150"></canvas></div>
 </div>
 
 <div class="grid2">
-  <!-- 예측 시뮬레이터 -->
+  <!-- 시뮬레이터 -->
   <div class="card">
     <div class="ct">"버핏이라면" 예측 시뮬레이터</div>
-    <div class="cn">향후 미국 시장(S&amp;P500) 시나리오를 넣으면, 버핏 인디케이터가 어떻게 변하고 버핏이 어떤 태세로 전환할지 예측합니다.</div>
-    <div class="ctl">
-      <label>향후 미국 시장 수익률 (%) <span class="v" id="v-r">0</span></label>
-      <input type="range" id="i-r" min="-60" max="40" step="1" value="0">
-    </div>
-    <div style="text-align:center;margin:14px 0">
-      <div class="gauge-lab">예측 버핏 인디케이터</div>
-      <div class="big" id="pred-bi">—</div>
-      <div id="pred-badge"></div>
+    <div class="cn">시장 수익률 + 금리 변화를 넣으면 버핏지표·금리중력이 바뀌고, 버핏 태세가 어떻게 전환될지 예측합니다.</div>
+    <div class="ctl"><label>향후 미국 시장 수익률 (%) <span class="v" id="v-r">0</span></label><input type="range" id="i-r" min="-60" max="40" step="1" value="0"></div>
+    <div class="ctl"><label>10년 금리 변화 (%p) <span class="v" id="v-dy">0.0</span></label><input type="range" id="i-dy" min="-3" max="3" step="0.1" value="0"></div>
+    <div style="text-align:center;margin:12px 0">
+      <div class="row2">
+        <div><div class="gauge-lab">예측 버핏지표</div><div class="big" id="pred-bi">—</div></div>
+        <div><div class="gauge-lab">예측 부담점수</div><div class="big" id="pred-press">—</div></div>
+      </div>
+      <div id="pred-badge" style="margin-top:6px"></div>
       <div class="d mute" id="pred-sm" style="font-size:12px;margin-top:8px;line-height:1.6">—</div>
     </div>
-    <div class="cw"><canvas id="postureChart" height="130"></canvas></div>
+    <div class="cw"><canvas id="simChart" height="120"></canvas></div>
   </div>
 
-  <!-- 보유 포트폴리오 -->
+  <!-- 현금 실탄 + 포트폴리오 -->
   <div class="card">
-    <div class="ct">버크셔 주요 보유종목 <span class="cn" style="margin:0">(실시간 · 비중은 13F 기준 근사)</span></div>
-    <div class="cn">버핏이 실제 들고 있는 핵심 종목. 그의 "해자·현금흐름·적정가격" 원칙의 결과물입니다.</div>
-    <div id="holdings"></div>
+    <div class="ct">버크셔 실탄 · 포트폴리오</div>
+    <div class="cn">현금이 주식 포트폴리오를 넘어선 사상 최대 방어 태세. 섹터는 금융·기술 집중.</div>
+    <div class="tiles">
+      <div class="tile"><div class="k">현금성 자산</div><div class="v gold" id="t-cash">—</div><div class="s" id="t-cashpct">—</div></div>
+      <div class="tile"><div class="k">주식 포트폴리오</div><div class="v" id="t-equity">—</div><div class="s" id="t-aggr">—</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--mute);margin:12px 0 3px;font-weight:600">섹터 구성 (추적분)</div>
+    <div class="secbar" id="secbar"></div>
+    <div class="tiles">
+      <div class="tile"><div class="k">상위 5종목 집중도</div><div class="v" id="t-conc">—</div><div class="s">쏠림 = 확신의 표현</div></div>
+      <div class="tile"><div class="k">추적 포트 오늘</div><div class="v" id="t-day">—</div><div class="s">비중가중 등락</div></div>
+    </div>
   </div>
 </div>
 
-<!-- 버핏 원칙 체크리스트 -->
+<!-- 보유종목 -->
 <div class="card">
-  <div class="ct">버핏 원칙 × 현재 시장 대입</div>
-  <div class="cn">버핏의 대표 원칙을 지금 시장에 대입한 자동 판정입니다.</div>
+  <div class="ct">버크셔 주요 보유종목 <span class="cn" style="margin:0">(실시간 · 비중 13F 근사 · 추세 200일선)</span></div>
+  <div id="holdings"></div>
+</div>
+
+<!-- 체크리스트 -->
+<div class="card">
+  <div class="ct">버핏 원칙 × 현재 시장 자동 판정</div>
   <div class="chk" id="checklist">—</div>
 </div>
 
 <div class="note" id="readout">—</div>
 
 <div class="disc">
-  ※ 모델: 버핏 인디케이터 = FRED 미국 주식 총시가총액(NCBEILQ027S) ÷ 명목 GDP(분기, 2~3개월 지연). 버크셔 현금·포트폴리오는 분기 공시 기준 근사값(수정 가능). 보유종목 비중은 최근 13F 기준 근사, 가격은 Yahoo Finance 실시간(프록시 경유). 태세 임계값은 버핏이 공개적으로 언급한 밸류에이션 기준의 <b>단순화 규칙</b>이며, 저금리·구조변화로 적정선이 과거보다 높아졌다는 견해도 있습니다. 실제 버크셔 매매는 개별기업 가치·경영권·비공개 판단으로 달라집니다. <b>투자 조언이 아니며</b> 판단·책임은 본인에게 있습니다.
+  ※ 버핏지표 = FRED 미국 주식 총시가총액(NCBEILQ027S) ÷ 명목 GDP(분기, 2~3개월 지연). 금리 = FRED 미 국채 10년(DGS10)·3개월(DGS3MO). 버크셔 현금·포트폴리오는 분기 공시 근사값. 보유종목 비중은 최근 13F 근사, 가격·추세는 Yahoo Finance 실시간(프록시 경유). 부담점수 = 버핏지표(70%)+금리(30%) 종합 규칙. 태세 임계값·가중치는 버핏의 공개 발언 기반 <b>단순화 규칙</b>이며 저금리·구조변화로 적정선 상향 견해도 있습니다. 실제 버크셔 매매는 개별기업 가치·경영권·비공개 판단으로 달라집니다. <b>투자 조언 아님</b>.
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -163,120 +183,176 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--gold)
 const PROXY='https://fred-proxy-nine.vercel.app';
 const $=id=>document.getElementById(id);
 const C={grid:'#1b2438',line:'#27324a',teal:'#2dd4bf',blue:'#5b8def',amber:'#f5b53f',rose:'#f2706e',mute:'#8593ab',gold:'#e3b341'};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-// ── 버크셔 근사 데이터(분기 공시 기준, 조정 가능) ──
-const BRK = { cash:344, equity:290 };   // $B
-// 주요 보유종목: 티커, 이름, 비중(%) — 최근 13F 근사
-const HOLD = [
-  ['AAPL','애플',23],['AXP','아메리칸익스프레스',16],['BAC','뱅크오브아메리카',10],
-  ['KO','코카콜라',9],['CVX','셰브런',7],['OXY','옥시덴탈',5],
-  ['MCO','무디스',4.5],['KHC','크래프트하인즈',3.5],['CB','처브',3],['DVA','다비타',2],
+const BRK={cash:344, equity:290};   // $B, 분기공시 근사
+// 티커, 이름, 비중%, 섹터
+const HOLD=[
+  ['AAPL','애플',23,'기술','#5b8def'],['AXP','아메리칸익스프레스',16,'금융','#2dd4bf'],
+  ['BAC','뱅크오브아메리카',10,'금융','#2dd4bf'],['KO','코카콜라',9,'필수소비재','#f5b53f'],
+  ['CVX','셰브런',7,'에너지','#f2706e'],['OXY','옥시덴탈',5,'에너지','#f2706e'],
+  ['MCO','무디스',4.5,'금융','#2dd4bf'],['KHC','크래프트하인즈',3.5,'필수소비재','#f5b53f'],
+  ['CB','처브',3,'금융','#2dd4bf'],['DVA','다비타',2,'헬스케어','#a78bfa'],
 ];
-let CUR_BI=218;   // 현재 버핏 인디케이터(%), 로드시 FRED로 갱신
+const SECCOL={'기술':'#5b8def','금융':'#2dd4bf','필수소비재':'#f5b53f','에너지':'#f2706e','헬스케어':'#a78bfa'};
+let CUR_BI=218, Y10=4.38, Y3M=3.87;
 
-async function fred(id){
-  const r=await fetch(PROXY+'/api/fred?series_id='+id+'&limit=1&sort_order=desc',{cache:'no-store'});
+async function fredSeries(id,limit){
+  const r=await fetch(PROXY+'/api/fred?series_id='+id+'&limit='+limit+'&sort_order=desc',{cache:'no-store'});
   if(!r.ok) throw new Error('FRED'); const j=await r.json();
-  const o=(j.observations||[]).find(x=>x.value!=='.'); return o?parseFloat(o.value):null;
+  return (j.observations||[]).filter(o=>o.value!=='.').map(o=>({d:o.date,v:parseFloat(o.value)}));
 }
-async function indices(syms){
-  const r=await fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range=5d',{cache:'no-store'});
+async function indices(syms,range){
+  const r=await fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range='+(range||'1y'),{cache:'no-store'});
   if(!r.ok) throw new Error('idx'); const j=await r.json(); if(!j.ok) throw new Error('idx'); return j.data;
 }
 
-// 버핏 태세 매핑(밸류에이션 기준 규칙)
+// 태세(밸류에이션 기준)
 function posture(bi){
-  if(bi<90)  return {k:'적극 매수',        em:'🟢', c:'g', col:C.teal, d:'역사적 저평가 — 대량 현금을 쏟아붓는 국면(2008·2020형).'};
-  if(bi<120) return {k:'선별 매수',        em:'🔵', c:'b', col:C.blue, d:'적정~약간 저평가 — 좋은 기업을 적정가에 담는 국면.'};
-  if(bi<150) return {k:'관망 (신중)',      em:'🟡', c:'a', col:C.amber,d:'고평가 진입 — 신규매수 자제, 자사주·기존보유 유지.'};
-  return              {k:'현금 축적·방어',  em:'🔴', c:'r', col:C.rose, d:'극단 고평가 — "살 게 없다". 현금 쌓고 대폭락을 기다리는 국면.'};
+  if(bi<90)  return {k:'적극 매수', em:'🟢', c:'g', col:C.teal, d:'역사적 저평가 — 대량 현금 투입 국면(2008·2020형).'};
+  if(bi<120) return {k:'선별 매수', em:'🔵', c:'b', col:C.blue, d:'적정~약간 저평가 — 좋은 기업을 적정가에.'};
+  if(bi<150) return {k:'관망 (신중)', em:'🟡', c:'a', col:C.amber,d:'고평가 진입 — 신규매수 자제, 자사주·기존보유 유지.'};
+  return {k:'현금 축적·방어', em:'🔴', c:'r', col:C.rose, d:'극단 고평가 — "살 게 없다". 현금 쌓고 대폭락 대기.'};
 }
+// 밸류에이션 부담점수(0~100): 버핏지표 70% + 금리 30%
+function pressure(bi,y10){
+  const biS=clamp((bi-75)/(220-75)*100,0,100);
+  const rtS=clamp((y10-2)/(6-2)*100,0,100);
+  return 0.7*biS+0.3*rtS;
+}
+function pcol(p){ return p>=75?C.rose:p>=55?C.amber:p>=35?C.blue:C.teal; }
 
-let chart;
-function render(){
-  const r=parseFloat($('i-r').value); $('v-r').textContent=(r>=0?'+':'')+r;
-  // 현재
-  const p0=posture(CUR_BI);
-  $('bi-val').textContent=CUR_BI.toFixed(0)+'%'; $('bi-val').style.color=p0.col;
-  $('bi-zone').textContent=p0.k;
-  const mk=Math.max(0,Math.min(100,(CUR_BI-60)/(240-60)*100)); $('bi-mk').style.left=mk+'%';
-  $('p-em').textContent=p0.em; $('p-k').textContent=p0.k; $('p-k').style.color=p0.col; $('p-d').textContent=p0.d;
-  $('t-cash').textContent='$'+BRK.cash+'B'; $('t-equity').textContent='$'+BRK.equity+'B';
-
-  // 예측
-  const biN=CUR_BI*(1+r/100);
-  const pN=posture(biN);
-  $('pred-bi').textContent=biN.toFixed(0)+'%'; $('pred-bi').style.color=pN.col;
-  $('pred-badge').innerHTML=`<span class="chip ${pN.c}">${pN.em} ${pN.k}</span>`;
-  // 매수 전환 임계 하락률(BI 120 도달)
-  const buyBI=120, declToBuy=(buyBI/CUR_BI-1)*100;
-  $('pred-sm').innerHTML = `미국 시장 <b>${r>=0?'+':''}${r}%</b> 시 버핏 인디케이터 <b>${biN.toFixed(0)}%</b> → 버핏 예상 태세 <b style="color:${pN.col}">${pN.k}</b>.`
-    + (declToBuy<0 ? `<br>버핏의 매수 전환(≈120%)까지: 시장이 <b class="neg">${declToBuy.toFixed(0)}%</b> 하락 필요 — 즉 지금은 <b>대기</b> 국면.` : `<br>이미 매수권입니다.`);
-
-  // 차트: 시장 수익률별 예측 인디케이터 + 태세 구간
-  const xs=[]; for(let x=-60;x<=40;x+=2) xs.push(x);
-  const biY=xs.map(x=>+(CUR_BI*(1+x/100)).toFixed(1));
-  const curIdx=xs.reduce((bi,x,i)=>Math.abs(x-r)<Math.abs(xs[bi]-r)?i:bi,0);
-  const mark=xs.map((x,i)=>i===curIdx?biY[i]:null);
-  if(chart)chart.destroy();
-  chart=new Chart($('postureChart'),{type:'line',
-    data:{labels:xs,datasets:[
-      {label:'예측 버핏 인디케이터(%)',data:biY,borderColor:C.gold,backgroundColor:'rgba(227,179,65,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.1},
-      {label:'현재 시나리오',data:mark,borderColor:C.rose,backgroundColor:C.rose,pointRadius:5,showLine:false},
-      {label:'매수권(120%)',data:xs.map(()=>120),borderColor:C.teal,borderWidth:1,borderDash:[5,4],pointRadius:0},
-      {label:'고평가(150%)',data:xs.map(()=>150),borderColor:C.amber,borderWidth:1,borderDash:[5,4],pointRadius:0},
+let histC, simC;
+function drawHist(hist){
+  const labels=hist.map(x=>x.d.slice(0,4));
+  if(histC)histC.destroy();
+  histC=new Chart($('histChart'),{type:'line',
+    data:{labels,datasets:[
+      {label:'버핏지표(%)',data:hist.map(x=>+x.bi.toFixed(0)),borderColor:C.gold,backgroundColor:'rgba(227,179,65,.08)',fill:true,borderWidth:2,pointRadius:0,tension:.1},
+      {label:'매수권 75%',data:hist.map(()=>75),borderColor:C.teal,borderWidth:1,borderDash:[4,4],pointRadius:0},
+      {label:'적정 115%',data:hist.map(()=>115),borderColor:C.blue,borderWidth:1,borderDash:[4,4],pointRadius:0},
+      {label:'고평가 150%',data:hist.map(()=>150),borderColor:C.amber,borderWidth:1,borderDash:[4,4],pointRadius:0},
     ]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:9.5},color:C.mute}},
-        tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1,
-          callbacks:{title:it=>'시장 '+((xs[it[0].dataIndex]>=0?'+':'')+xs[it[0].dataIndex])+'%',label:it=>'인디케이터 '+biY[it.dataIndex]+'%'}}},
-      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:11,color:'#8593ab',font:{size:9.5},callback:v=>{const x=xs[v];return x%20===0?(x>=0?'+':'')+x+'%':'';}}},
+        tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:12,color:'#8593ab',font:{size:9}}},
         y:{grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:9.5},callback:v=>v+'%'}}}}});
+}
+
+function render(){
+  const r=parseFloat($('i-r').value), dy=parseFloat($('i-dy').value);
+  $('v-r').textContent=(r>=0?'+':'')+r; $('v-dy').textContent=(dy>=0?'+':'')+dy.toFixed(1);
+
+  // 현재
+  const p0=posture(CUR_BI);
+  $('bi-val').textContent=CUR_BI.toFixed(0)+'%'; $('bi-val').style.color=p0.col; $('bi-zone').textContent=p0.k;
+  $('bi-mk').style.left=clamp((CUR_BI-60)/(240-60)*100,0,100)+'%';
+  $('p-em').textContent=p0.em; $('p-k').textContent=p0.k; $('p-k').style.color=p0.col; $('p-d').textContent=p0.d;
+  // 금리
+  $('rt-val').textContent=Y10.toFixed(2)+'%'; $('rt-val').style.color=Y10>=4.5?C.rose:Y10>=3.5?C.amber:C.teal;
+  $('rt-mk').style.left=clamp((Y10-2)/(6-2)*100,0,100)+'%';
+  const press0=pressure(CUR_BI,Y10);
+  $('t-press').textContent=press0.toFixed(0); $('t-press').style.color=pcol(press0);
+  const tbill=BRK.cash*Y3M/100; $('t-tbill').textContent='$'+tbill.toFixed(0)+'B/년';
+  // 실탄
+  $('t-cash').textContent='$'+BRK.cash+'B'; $('t-cashpct').textContent='현금비중 '+(BRK.cash/(BRK.cash+BRK.equity)*100).toFixed(0)+'%';
+  $('t-equity').textContent='$'+BRK.equity+'B';
+  const conc=HOLD.slice(0,5).reduce((s,h)=>s+h[2],0); $('t-conc').textContent=conc.toFixed(0)+'%';
+
+  // 예측
+  const biN=CUR_BI*(1+r/100), y10N=Y10+dy, pN=posture(biN), pressN=pressure(biN,y10N);
+  $('pred-bi').textContent=biN.toFixed(0)+'%'; $('pred-bi').style.color=pN.col;
+  $('pred-press').textContent=pressN.toFixed(0); $('pred-press').style.color=pcol(pressN);
+  $('pred-badge').innerHTML=`<span class="chip ${pN.c}">${pN.em} ${pN.k}</span>`;
+  const declToBuy=(120/CUR_BI-1)*100;
+  $('pred-sm').innerHTML=`시장 <b>${r>=0?'+':''}${r}%</b>·금리 <b>${dy>=0?'+':''}${dy.toFixed(1)}%p</b> → 버핏지표 <b>${biN.toFixed(0)}%</b>, 부담 <b style="color:${pcol(pressN)}">${pressN.toFixed(0)}</b> → 태세 <b style="color:${pN.col}">${pN.k}</b>.`
+    + (declToBuy<0?`<br>버핏 매수권(120%)까지: 시장 <b class="neg">${declToBuy.toFixed(0)}%</b> 하락 필요 → 지금은 <b>대기</b>.`:`<br>이미 매수권.`);
+
+  // 시뮬 차트: 시장 수익률별 버핏지표 + 부담
+  const xs=[]; for(let x=-60;x<=40;x+=2) xs.push(x);
+  const biY=xs.map(x=>+(CUR_BI*(1+x/100)).toFixed(1));
+  const prY=xs.map(x=>+pressure(CUR_BI*(1+x/100),y10N).toFixed(1));
+  const ci=xs.reduce((b,x,i)=>Math.abs(x-r)<Math.abs(xs[b]-r)?i:b,0);
+  if(simC)simC.destroy();
+  simC=new Chart($('simChart'),{type:'line',
+    data:{labels:xs,datasets:[
+      {label:'버핏지표(%)',data:biY,borderColor:C.gold,backgroundColor:'rgba(227,179,65,.07)',fill:true,borderWidth:2,pointRadius:0,tension:.1,yAxisID:'y'},
+      {label:'부담점수',data:prY,borderColor:C.rose,borderWidth:1.5,pointRadius:0,tension:.1,yAxisID:'y1'},
+      {label:'현재',data:xs.map((x,i)=>i===ci?biY[i]:null),borderColor:C.blue,backgroundColor:C.blue,pointRadius:5,showLine:false,yAxisID:'y'},
+      {label:'매수권 120%',data:xs.map(()=>120),borderColor:C.teal,borderWidth:1,borderDash:[4,4],pointRadius:0,yAxisID:'y'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,labels:{boxWidth:9,font:{size:9},color:C.mute}},
+        tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1,callbacks:{title:it=>'시장 '+((xs[it[0].dataIndex]>=0?'+':'')+xs[it[0].dataIndex])+'%'}}},
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:11,color:'#8593ab',font:{size:9},callback:v=>{const x=xs[v];return x%20===0?(x>=0?'+':'')+x+'%':'';}}},
+        y:{position:'left',grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:9},callback:v=>v+'%'}},
+        y1:{position:'right',min:0,max:100,grid:{display:false},ticks:{color:'#f2a3a2',font:{size:9}}}}}});
 
   // 해설
   let msg;
-  if(CUR_BI>=150) msg=`현재 버핏 인디케이터 <b>${CUR_BI.toFixed(0)}%</b> — <b class="r">극단적 고평가</b>. 버핏 규칙상 <b>신규 대량매수는 자제하고 현금을 쌓는</b> 국면입니다. 실제로 버크셔 현금이 주식 포트폴리오(<b>$${BRK.equity}B</b>)를 넘는 <b>$${BRK.cash}B</b>로 사상 최대 — "살 게 없다"는 신호를 몸으로 보여주는 중.`;
-  else if(CUR_BI>=120) msg=`버핏 인디케이터 <b>${CUR_BI.toFixed(0)}%</b> — 고평가 영역. 버핏은 <b>관망·선별</b> 태세일 가능성이 큽니다.`;
-  else msg=`버핏 인디케이터 <b>${CUR_BI.toFixed(0)}%</b> — 매수 가능 영역. 버핏 규칙상 <b>현금 투입</b> 여지가 커집니다.`;
-  $('readout').innerHTML=`${msg}<br><span style="color:var(--faint)">슬라이더로 시장 시나리오를 바꿔, 어느 정도 하락해야 버핏이 대기 현금 $${BRK.cash}B를 풀기 시작할지 시뮬레이션하세요. 이는 규칙 기반 근사이며 실제 매매와 다를 수 있습니다.</span>`;
+  if(CUR_BI>=150) msg=`버핏지표 <b>${CUR_BI.toFixed(0)}%</b>(극단 고평가) + 10년금리 <b>${Y10.toFixed(2)}%</b> → 밸류에이션 부담 <b style="color:${pcol(press0)}">${press0.toFixed(0)}/100</b>. 버핏 규칙상 <b class="r">신규 대량매수 자제·현금 축적</b> 국면. 현금 $${BRK.cash}B &gt; 주식 $${BRK.equity}B(사상 최대 방어), 그 현금이 T-bill로 연 <b>$${tbill.toFixed(0)}B</b> 이자를 벌며 대기 중.`;
+  else msg=`버핏지표 <b>${CUR_BI.toFixed(0)}%</b> — 매수 여지 존재. 부담점수 ${press0.toFixed(0)}.`;
+  $('readout').innerHTML=`${msg}<br><span style="color:var(--faint)">두 슬라이더(시장·금리)로 시나리오를 바꿔, 버핏이 대기 현금 $${BRK.cash}B를 언제 풀지 시뮬레이션하세요. 규칙 기반 근사이며 실제 매매와 다를 수 있습니다.</span>`;
 
-  renderChecklist();
+  renderChecklist(press0);
 }
-
-function renderChecklist(){
-  const hi=CUR_BI>=150, mid=CUR_BI>=120;
+function renderChecklist(press){
+  const hi=CUR_BI>=150;
   const rows=[
-    ['"공포에 사고 탐욕에 팔라"', hi?'현재는 <b class="n">탐욕</b> 구간(고평가) → 버핏은 <b>매수 자제</b>':'현재는 매수 가능 구간', hi],
-    ['현금은 실탄이자 인내', BRK.cash>BRK.equity?`현금 $${BRK.cash}B &gt; 주식 $${BRK.equity}B → <b class="n">사상 최대 방어</b>`:'현금 정상', BRK.cash>BRK.equity],
-    ['해자·현금흐름·적정가격', '보유 상위(애플·아멕스·코카콜라)는 강한 해자 기업', false],
-    ['자사주 매입 선호', '신규 살 게 없을 땐 버크셔 자사주 매입으로 주주가치 방어', false],
-    ['대폭락은 기회', `버핏 매수권(120%)까지 시장 <b>${(120/CUR_BI-1)*100 |0}%</b> 하락 필요 — 대기 중`, hi],
+    ['"공포에 사고 탐욕에 팔라"', hi?'현재 <b class="n">탐욕(고평가)</b> → 버핏은 <b>매수 자제</b>':'매수 가능 구간'],
+    ['금리는 중력', Y10>=4?`10년 <b class="n">${Y10.toFixed(2)}%</b> → 밸류에이션에 강한 하방 중력`:`10년 ${Y10.toFixed(2)}% → 중력 완만`],
+    ['현금은 실탄이자 인내', BRK.cash>BRK.equity?`현금 $${BRK.cash}B &gt; 주식 $${BRK.equity}B → <b class="n">사상 최대 방어</b>`:'현금 정상'],
+    ['해자·현금흐름·적정가격', '상위(애플·아멕스·코카콜라)는 강한 해자 기업'],
+    ['대폭락은 기회', `매수권(120%)까지 시장 <b>${((120/CUR_BI-1)*100)|0}%</b> 하락 필요 — 대기`],
   ];
   $('checklist').innerHTML=rows.map(r=>`• <b>${r[0]}</b> — ${r[1]}`).join('<br>');
 }
 
 async function init(){
   try{
-    const [eq,gdp,px]=await Promise.all([ fred('NCBEILQ027S'), fred('GDP'), indices(HOLD.map(h=>h[0])) ]);
-    if(eq&&gdp) CUR_BI = eq/(gdp*1000)*100;   // NCBEILQ027S(백만$) / (GDP 십억$ ×1000) ×100
-    // 보유종목 렌더
+    const [eqS,gdpS,y10s,y3s,px]=await Promise.all([
+      fredSeries('NCBEILQ027S',320), fredSeries('GDP',320),
+      fredSeries('DGS10',5), fredSeries('DGS3MO',5), indices(HOLD.map(h=>h[0]),'1y')
+    ]);
+    // 버핏지표 히스토리(분기 정렬)
+    const gmap={}; gdpS.forEach(o=>gmap[o.d]=o.v);
+    const hist=eqS.filter(o=>gmap[o.d]).map(o=>({d:o.d,bi:o.v/(gmap[o.d]*1000)*100})).reverse();
+    if(hist.length){ CUR_BI=hist[hist.length-1].bi; drawHist(hist); }
+    if(y10s.length) Y10=y10s[0].v; if(y3s.length) Y3M=y3s[0].v;
+
+    // 포트폴리오 집계 + 보유종목
+    let aggDay=0, aggYtd=0, wsum=0;
+    const secMix={};
     $('holdings').innerHTML=HOLD.map(h=>{
-      const a=px[h[0]]; const last=a&&a.length?a[a.length-1].c:null; const prev=a&&a.length>1?a[a.length-2].c:null;
+      const a=px[h[0]]; const last=a&&a.length?a[a.length-1].c:null, prev=a&&a.length>1?a[a.length-2].c:null;
       const chg=(last&&prev)?(last/prev-1)*100:null;
+      const ma200=a&&a.length>=200?a.slice(-200).reduce((s,x)=>s+x.c,0)/200:null;
+      const above=(last&&ma200)?last>=ma200:null;
+      const yr=a&&a.length>60?(last/a[0].c-1)*100:null;
+      if(chg!=null){ aggDay+=chg*h[2]; wsum+=h[2]; }
+      if(yr!=null) aggYtd+=yr*h[2];
+      secMix[h[3]]=(secMix[h[3]]||0)+h[2];
       const cls=chg==null?'mute':(chg>=0?'pos':'neg');
-      return `<div class="hold"><div style="flex:1">
-          <div class="nm">${h[1]}<span class="tk">${h[0]}</span></div>
-          <div class="bar" style="width:${h[2]*3}px"></div>
-        </div>
-        <div class="wt">${h[2]}%</div>
+      return `<div class="hold">
+        <div style="flex:1"><div class="nm">${h[1]}<span class="tk">${h[0]}</span></div><div class="sec">${h[3]} · ${h[2]}%</div></div>
+        <div class="mid">${yr==null?'':'1년 '+(yr>=0?'+':'')+yr.toFixed(0)+'%'}<br><span style="color:${above==null?C.mute:(above?C.teal:C.rose)}">${above==null?'':(above?'▲ 200일선 위':'▼ 200일선 아래')}</span></div>
         <div class="rt ${cls}">${last?'$'+last.toFixed(2):'—'}<br><span style="font-size:11px">${chg==null?'':(chg>=0?'+':'')+chg.toFixed(2)+'%'}</span></div>
       </div>`;
     }).join('');
-    $('liveText').textContent='LIVE · 버핏 인디케이터 '+CUR_BI.toFixed(0)+'% · BRK 보유 '+HOLD.length+'종목';
+    const day=wsum?aggDay/wsum:null;
+    $('t-day').textContent=day==null?'—':(day>=0?'+':'')+day.toFixed(2)+'%'; $('t-day').style.color=day==null?C.mute:(day>=0?C.teal:C.rose);
+    $('t-aggr').textContent=wsum?'1년 '+(aggYtd/wsum>=0?'+':'')+(aggYtd/wsum).toFixed(0)+'%':'';
+    // 섹터바
+    const totW=Object.values(secMix).reduce((a,b)=>a+b,0);
+    $('secbar').innerHTML=Object.entries(secMix).sort((a,b)=>b[1]-a[1]).map(([s,w])=>
+      `<span style="width:${w/totW*100}%;background:${SECCOL[s]||'#8593ab'}" title="${s} ${w}%">${w/totW>0.12?s:''}</span>`).join('');
+
+    $('liveText').textContent='LIVE · 버핏지표 '+CUR_BI.toFixed(0)+'% · 10Y '+Y10.toFixed(2)+'% · BRK '+HOLD.length+'종목';
   }catch(e){ $('liveBadge').className='live err'; $('liveText').textContent='일부 데이터 오류 — 기본값 사용'; }
   render();
 }
-$('i-r').addEventListener('input',render);
+$('i-r').addEventListener('input',render); $('i-dy').addEventListener('input',render);
 (function(){const f=(location.pathname.split('/').pop()||'').toLowerCase();
   document.querySelectorAll('.topnav a').forEach(a=>{if((a.getAttribute('href')||'').toLowerCase()===f)a.classList.add('on');});})();
 init();
