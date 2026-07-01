@@ -123,7 +123,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 
 <div class="banner">
   <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 이 보드는 닷컴 고점에서 실제로 나타났던
-  신호들이 지금 얼마나 켜졌는지 <b>9개 신호 / 18점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
+  신호들이 지금 얼마나 켜졌는지 <b>10개 신호 / 20점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
 </div>
 
 <!-- COMPOSITE -->
@@ -231,9 +231,19 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
   </div>
 </div>
 
+<!-- SIGNAL 10: 국민연금 리밸런싱 매도 압력 -->
+<div class="card clk" onclick="openExplain('NPS')" title="누르면 쉬운 설명">
+  <div class="secttl">⑩ 국민연금 리밸런싱 매도 압력 — 규칙 기반 강제매도 ⓘ <span class="r">국내주식 비중 vs 목표 20.8%+밴드</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="nps-big">—</div><div class="desc">코스피 최대 기관 국민연금은 <b>국내주식 목표비중(20.8%)</b>을 두고, 비중이 <b>상단밴드(+6~8%p)</b>를 넘으면 <b>기계적으로 매도</b>합니다. KOSPI 급등 → NPS 비중 상승 → 밴드 초과 시 "매도폭탄". 심리가 아닌 <b>규칙</b> 기반이라 예측 가능성이 높습니다.</div>
+      <div class="metrics" id="nps-metrics"></div></div>
+    <span class="pill" id="nps-pill">—</span>
+  </div>
+</div>
+
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총) — 모두 Vercel 프록시 경유.
-  <b>9개 신호는 닷컴 붐 패턴·밸류에이션·레버리지 사이클을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
+  <b>10개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -277,8 +287,8 @@ const SIG={}; // 각 신호 상태 저장
 
 const EXPLAIN={
  TIER:{title:'매도 경계 단계란?', body:`
-   <p>아래 <b>9개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림·버핏지표·레버리지/신용)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
-   <p>최대 18점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
+   <p>아래 <b>10개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림·버핏지표·레버리지/신용·국민연금 리밸런싱)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
+   <p>최대 20점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
    <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
@@ -320,6 +330,12 @@ const EXPLAIN={
    <p><b>정상</b>: 레버리지지수 &lt; 0.4 (평균 부근·완화적). <b>주의</b>: 0.4 이상이거나 최근 26주간 급등(레버리지 축적 후 긴축 전환). <b>경고</b>: 1.25 이상(역사적 상위 10% — 신용 스트레스, 되감기 본격화).</p>
    <p>④ 금융환경(VIX·스프레드 종합)과 달리, 이 신호는 <b>레버리지·신용 축</b>만 확대해서 봅니다 — 사람들이 빚을 얼마나 끌어 썼고 지금 되감고 있는지에 집중.</p>
    <p style="color:var(--faint)">데이터: FRED NFCILEVERAGE·NFCICREDIT(시카고연준 NFCI 하위지수, 주간·표준화). 한국 공매도·대차잔고는 별도 API 승인 후 추가 예정.</p>`},
+ NPS:{title:'⑩ 국민연금 리밸런싱 매도 압력', body:`
+   <p>국민연금(NPS)은 <b>코스피 최대 기관투자자</b>(기금 ~1,530조)입니다. 자산배분 규칙상 <b>국내주식 목표비중 20.8%</b>를 정해두고, 실제 비중이 <b>상단밴드(전략적자산배분 SAA ±6%p, 전술 TAA 포함 최대 ±8%p)</b>를 벗어나면 <b>기계적으로 리밸런싱 매도</b>합니다.</p>
+   <p><b>메커니즘</b>: KOSPI가 급등하면 → NPS 보유 국내주식 평가액↑ → 전체기금 대비 비중이 목표(20.8%) 위로 상승 → 상단밴드(약 26.8~28.8%)를 넘으면 목표로 되돌리려 <b>대규모 매도</b>. 이게 언론의 "국민연금 매도폭탄"입니다.</p>
+   <p><b>추정 방식</b>: 최신 공시(2026년 3월말 국내주식 비중 <b>21.0%</b>, 기금 1,526조)를 기준으로, 그 이후 <b>KOSPI·해외지수 등락</b>을 반영해 현재 비중을 추정합니다. <b>정상</b>: 추정 &lt; 24%. <b>주의</b>: 24~26.8%. <b>경고</b>: 26.8%(+6%p 밴드) 이상 — 강제매도 구간.</p>
+   <p>이건 심리·기술 신호와 <b>완전히 다른 축</b> — 수급(기관 강제매도)입니다. 규칙 기반이라 예측 가능성이 높습니다. 다만 실제 밴드 폭은 <b>일부 비공개</b>이고 추정에 오차가 있으니 보조로만 보세요.</p>
+   <p style="color:var(--faint)">데이터: 국민연금공단 기금 포트폴리오 현황(data.go.kr 15106894, 월별·2~3개월 지연) + KOSPI/S&P500 실시간(Yahoo). 정책수치는 2026년 자산배분안 기준.</p>`},
  BUFFETT:{title:'⑧ 버핏 지표 — 미국 시장 밸류에이션', body:`
    <p>워런 버핏이 "가장 좋아하는 단일 지표"로 언급한 밸류에이션 척도입니다. <b>미국 주식 총시가총액 ÷ 명목 GDP × 100</b>으로 계산합니다.</p>
    <p>역사적 기준: <b>~100% = 적정 가치, ~150% = 다소 고평가, 190% 이상 = 극단적 고평가</b>. 닷컴 버블 고점(2000년 초)에 ~190%였습니다.</p>
@@ -536,6 +552,35 @@ function renderLeverage(lev,credit){
   setPill('lev-pill',st);
 }
 
+// ── 신호 ⑩: 국민연금 리밸런싱 매도 압력 ──
+// 기준: 국민연금 기금 포트폴리오 현황(data.go.kr 15106894) 2026-03말 공시(단위 십억원)
+const NPS = { baseDate:'2026-03-31', dom:320913, forn:557003, tot:1526112, target:20.8, band6:26.8, band8:28.8 };
+function closeAt(arr, ymd){ let b=null; if(!arr)return null; for(const o of arr){ if(o.t<=ymd) b=o; } return b?b.c:null; }
+function renderNpsRebal(lead){
+  const ks=lead&&lead['^KS11'], sp=lead&&lead['^GSPC'];
+  const kBase=closeAt(ks,NPS.baseDate), kNow=ks&&ks.length?ks[ks.length-1].c:null;
+  const sBase=closeAt(sp,NPS.baseDate), sNow=sp&&sp.length?sp[sp.length-1].c:null;
+  if(!kBase||!kNow){ SIG.nps={st:'green'}; $('nps-big').textContent='KOSPI 데이터 없음 — 추정 불가'; setPill('nps-pill','green'); return; }
+  const km=kNow/kBase, gm=(sBase&&sNow)?sNow/sBase:1;
+  const domN=NPS.dom*km, forN=NPS.forn*gm, rest=NPS.tot-NPS.dom-NPS.forn;
+  const w=domN/(domN+forN+rest)*100;      // 추정 현재 국내주식 비중
+  const w0=NPS.dom/NPS.tot*100;           // 기준(2026-03) 비중
+  const kPct=(km-1)*100;
+  let st='green';
+  if(w>=NPS.band6) st='red'; else if(w>=24) st='amber';
+  SIG.nps={st,w,km,w0};
+  const gap=w-NPS.target;
+  $('nps-metrics').innerHTML=
+    `<span class="m ${w>=NPS.band6?'down':(w>=24?'flat':'up')}">추정 국내주식 비중 ${w.toFixed(1)}% <span>목표 20.8%</span></span>`
+   +`<span class="m ${gap>=6?'down':'flat'}">목표 대비 +${gap.toFixed(1)}%p <span>상단밴드 +6~8%p</span></span>`
+   +`<span class="m ${kPct>=0?'down':'up'}">KOSPI ${kPct>=0?'+':''}${kPct.toFixed(1)}% <span>3월말 대비</span></span>`
+   +`<span class="m mute">기준 ${w0.toFixed(1)}% <span>2026-03 공시</span></span>`;
+  $('nps-big').textContent = st==='red'?`국민연금 국내주식 추정 비중 ${w.toFixed(1)}% — 상단밴드 초과, 리밸런싱 강제매도 구간(수급 악재)`
+    : st==='amber'?`추정 비중 ${w.toFixed(1)}% — 목표(20.8%) 초과, 상단밴드 접근 중(매도 압력 누적)`
+    : `추정 비중 ${w.toFixed(1)}% — 목표 부근, 리밸런싱 매도 압력 제한적`;
+  setPill('nps-pill',st);
+}
+
 // ── 신호 ⑦: 한국 반도체 쏠림 (삼성·하이닉스 시총 + 추세 괴리) ──
 async function krxFetch(code){
   try{
@@ -600,24 +645,24 @@ function renderBuffett(mktcap, gdp){
 // ── 종합 ──
 function renderComposite(){
   const v={green:0,amber:1,red:2};
-  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett,SIG.leverage].filter(Boolean);
-  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..18
+  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett,SIG.leverage,SIG.nps].filter(Boolean);
+  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..20
   let lvl,col,posPct;
   const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
-  if(combo||score>=14){lvl='매도 검토';col='#f2706e';posPct=94;}
-  else if(score>=10){lvl='경계';col='#f2706e';posPct=76;}
+  if(combo||score>=15){lvl='매도 검토';col='#f2706e';posPct=94;}
+  else if(score>=11){lvl='경계';col='#f2706e';posPct=76;}
   else if(score>=6){lvl='주의';col='#f5b53f';posPct=52;}
   else if(score>=1){lvl='관찰';col='#5b8def';posPct=26;}
   else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
   $('lvl').textContent=lvl; $('lvl').style.color=col;
-  $('score').textContent='경계 점수 '+score+'/18 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/9';
+  $('score').textContent='경계 점수 '+score+'/20 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/10';
   $('mk').style.left=posPct+'%';
   renderNarrative(lvl,score,combo);
 }
 function renderNarrative(lvl,score,combo){
-  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도',krconc:'한국 반도체',buffett:'버핏지표',leverage:'레버리지·신용'};
+  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도',krconc:'한국 반도체',buffett:'버핏지표',leverage:'레버리지·신용',nps:'국민연금 수급'};
   const fired=Object.keys(names).filter(k=>SIG[k]&&SIG[k].st!=='green').map(k=>names[k]+'('+PILL[SIG[k].st]+')');
-  const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, lg=SIG.leverage||{};
+  const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, lg=SIG.leverage||{}, np=SIG.nps||{};
   let line1, line2;
   if(combo){
     line1=`<b class="r">결정적 조합 점등</b> — 글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파가 동시에 왔습니다. 박사 기준 가장 위험한 신호.`;
@@ -629,14 +674,15 @@ function renderNarrative(lvl,score,combo){
     line1=`현재 <b class="a">${lvl}</b> 단계 — 켜진 신호: <b>${fired.join(' · ')||'없음'}</b>.`;
     line2=`${e.st==='red'?'<b class="r">주도주 이익 엔진 둔화 조짐</b>이 핵심 — 박사가 말한 진짜 매도 트리거입니다. ':''}박사의 결정적 조합(글로벌 폭+금리 동시)은 아직 아니니, 보루(대만·유럽)·금리 방향·이익 엔진을 집중 관찰하세요.`;
   }
-  const levTxt = lg.lv!=null ? `<span class="narr-foot">레버리지·신용: 마진·신용 여건이 역사적 평균 대비 ${lg.lv>=0?'+':''}${lg.lv.toFixed(2)}σ${lg.lvChg!=null&&lg.lvChg>=0.5?' (최근 급등 → 되감기 주의)':lg.lv>=0.4?' (평균 위)':' (평균 부근)'} · 9개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>` : `<span class="narr-foot">9개 신호를 합친 보조 판단 · 점 예측 아님 · 각 카드를 누르면 쉬운 설명</span>`;
+  const npsTxt = np.w!=null ? `국민연금 수급: 국내주식 추정 비중 <b>${np.w.toFixed(1)}%</b>(목표 20.8%)${np.st==='red'?' → <b class="r">상단밴드 초과, 리밸런싱 강제매도 구간</b>':np.st==='amber'?' → 밴드 접근(매도 압력 누적)':' → 매도 압력 제한적'}` : '';
+  const levTxt = `<span class="narr-foot">${npsTxt?npsTxt+' · ':''}10개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>`;
   $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}<br>${levTxt}`;
 }
 
 async function load(){
   setLive(true,'불러오는 중…');
   try{
-    const OVH=['^GSPC','^IXIC'];
+    const OVH=['^GSPC','^IXIC','^KS11'];
     const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
@@ -657,6 +703,7 @@ async function load(){
     renderKrConc(samKrx,hynKrx,leadOvh);
     renderBuffett(buffMktcap,buffGdp);
     renderLeverage(levSub,credSub);
+    renderNpsRebal(leadOvh);
     renderComposite();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
   }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
