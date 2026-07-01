@@ -205,9 +205,9 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 
 <!-- SIGNAL 7: 한국 반도체 쏠림 -->
 <div class="card clk" onclick="openExplain('KRCONC')" title="누르면 쉬운 설명">
-  <div class="secttl">⑦ 한국 반도체 쏠림 — 삼성·하이닉스 시총·추세 ⓘ <span class="r">공공데이터포털 · Yahoo Finance</span></div>
+  <div class="secttl">⑦ 한국 반도체 쏠림 — 삼성·하이닉스 시총·추세·대차잔고 ⓘ <span class="r">공공데이터포털 · 예탁결제원 · Yahoo</span></div>
   <div class="sig">
-    <div class="main"><div class="big" id="kr-big">—</div><div class="desc">삼성전자·SK하이닉스가 코스피의 핵심 축. 둘 다 200일선 아래로 꺼지거나 3개월 성과 괴리가 20%p 이상이면 '한국판 이익 엔진 분화' 신호입니다.</div>
+    <div class="main"><div class="big" id="kr-big">—</div><div class="desc">삼성전자·SK하이닉스가 코스피의 핵심 축. 둘 다 200일선 아래로 꺼지거나 3개월 성과 괴리 20%p↑, 또는 <b>대차잔고(공매도 대기물량) 급증</b>이면 매도 압력 신호입니다.</div>
       <div class="metrics" id="kr-metrics"></div></div>
     <span class="pill" id="kr-pill">—</span>
   </div>
@@ -244,7 +244,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
   <b>10개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
@@ -349,7 +349,8 @@ const EXPLAIN={
    <p>두 종목이 모두 <b>200일 이동평균선 아래</b>로 꺼지면 한국 반도체 사이클이 꺾인 신호입니다. ⑤ 이익 엔진(필라델피아 반도체·엔비디아 포함)과 함께 보는 <b>한국판 이익 둔화 조기경보</b>.</p>
    <p><b>삼성 vs 하이닉스 3개월 성과가 20%p 이상 벌어지면</b> 자금이 한 종목으로만 쏠리는 분화 신호로 봅니다(한 쪽이 버티는 동안 다른 쪽이 먼저 흔들리는 패턴).</p>
    <p>시총 역전(하이닉스 > 삼성) 자체는 '꼭지' 신호로 보기 어렵습니다(참고 카드 설명). 이 신호는 역전이 아니라 <b>추세 이탈·성과 분화</b>를 봅니다.</p>
-   <p style="color:var(--faint)">데이터: 공공데이터포털 금융위원회_주식시세정보(당일 시총·종가) + Yahoo Finance 주가추세.</p>`},
+   <p><b>대차잔고 = 공매도 대기물량.</b> 공매도를 하려면 먼저 주식을 빌려야(대차) 하므로, <b>대차잔고 급증은 하락 베팅 자금이 쌓이는 신호</b>입니다. 예탁결제원 데이터로 삼성·하이닉스 대차잔고금액을 추적해, 최근 1개월 <b>둘 다 +15%↑ 급증</b>하면 경계를 한 단계 올립니다.</p>
+   <p style="color:var(--faint)">데이터: 공공데이터포털 금융위원회_주식시세정보(시총·종가) + 한국예탁결제원 증권대차(대차잔고, 15157426) + Yahoo Finance 주가추세.</p>`},
 };
 function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
 function closeModal(){$('modal').style.display='none';}
@@ -612,7 +613,32 @@ async function krxFetch(code){
     return {name:item.itmsNm,mktcap:parseInt(item.mrktTotAmt)||0,price:parseInt(item.clpr)||0,chgPct:parseFloat(item.fltRt)||0,date:item.basDt};
   }catch(e){ return null; }
 }
-function renderKrConc(sam,hyn,leadData){
+// 예탁결제원 증권대차 — 주식 대차잔고 상위(공매도 대기물량). 최신일+약1개월전 비교.
+function _ymd(d){ return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
+async function slbRank(stdDt){
+  try{
+    const r=await fetch(PROXY+'/api/slb?op=getSlbStockRank&stdDt='+stdDt+'&rankTpcd=1',{cache:'no-store'});
+    if(!r.ok) return null; const t=await r.text();
+    const doc=new DOMParser().parseFromString(t,'application/xml');
+    const rc=doc.querySelector('resultCode'); if(!rc||rc.textContent.trim()!=='00') return null;
+    const m={};
+    doc.querySelectorAll('item').forEach(it=>{ const c=it.querySelector('shotnIsin'); if(!c) return;
+      m[c.textContent]={ name:(it.querySelector('korSecnNm')||{}).textContent,
+        remQty:parseInt((it.querySelector('slbTrRemQty')||{}).textContent)||0,
+        remAmt:parseInt((it.querySelector('remAmt')||{}).textContent)||0 }; });
+    return Object.keys(m).length?m:null;
+  }catch(e){ return null; }
+}
+async function slbFetch(){
+  const today=new Date();
+  let latest=null, latestDd=null;
+  for(let i=1;i<=8&&!latest;i++){ const d=new Date(today); d.setDate(d.getDate()-i); const s=_ymd(d); const r=await slbRank(s); if(r){latest=r;latestDd=s;} }
+  let prior=null;
+  if(latestDd){ const b=new Date(+latestDd.slice(0,4),+latestDd.slice(4,6)-1,+latestDd.slice(6,8));
+    for(let i=28;i<=40&&!prior;i++){ const d=new Date(b); d.setDate(d.getDate()-i); const r=await slbRank(_ymd(d)); if(r)prior=r; } }
+  return {latest,prior,latestDd};
+}
+function renderKrConc(sam,hyn,leadData,slb){
   const samA=leadData&&leadData['005930.KS'], hynA=leadData&&leadData['000660.KS'];
   const samOk=Array.isArray(samA)&&samA.length>200, hynOk=Array.isArray(hynA)&&hynA.length>200;
   const sam3m=samOk?retAsc(samA,63):null, hyn3m=hynOk?retAsc(hynA,63):null;
@@ -624,10 +650,21 @@ function renderKrConc(sam,hyn,leadData){
   const samMkt=sam?sam.mktcap:null, hynMkt=hyn?hyn.mktcap:null;
   const combined=samMkt&&hynMkt?samMkt+hynMkt:null;
   const flip=samMkt!=null&&hynMkt!=null&&hynMkt>samMkt;
+  // 대차잔고(공매도 대기물량): 최신 vs 약1개월 전 잔고금액 변화
+  const L=slb&&slb.latest, P=slb&&slb.prior;
+  const samLoan=L&&L['005930']?L['005930'].remAmt:null, hynLoan=L&&L['000660']?L['000660'].remAmt:null;
+  const samLoan0=P&&P['005930']?P['005930'].remAmt:null, hynLoan0=P&&P['000660']?P['000660'].remAmt:null;
+  const samLoanChg=(samLoan&&samLoan0)?(samLoan/samLoan0-1)*100:null;
+  const hynLoanChg=(hynLoan&&hynLoan0)?(hynLoan/hynLoan0-1)*100:null;
+  const loanSurge=(samLoanChg!=null&&samLoanChg>=15)&&(hynLoanChg!=null&&hynLoanChg>=15); // 둘 다 급증
+  const loanSurge1=(samLoanChg!=null&&samLoanChg>=15)||(hynLoanChg!=null&&hynLoanChg>=15);
   let st='green';
   if(samAbove===false&&hynAbove===false) st='red';
   else if(samAbove===false||hynAbove===false||(diverge!=null&&diverge>=20)) st='amber';
-  SIG.krconc={st,diverge,samAbove,hynAbove,flip};
+  // 대차잔고 급증은 공매도 압력 → 한 단계 상향(green→amber, amber→red)
+  if(loanSurge){ st = st==='green'?'amber':'red'; }
+  else if(loanSurge1 && st==='green'){ st='amber'; }
+  SIG.krconc={st,diverge,samAbove,hynAbove,flip,samLoanChg,hynLoanChg};
   const jo=n=>n==null?'—':(n/1e12).toFixed(1)+'조원';
   const trendCls=a=>a==null?'flat':(a?'up':'down');
   $('kr-metrics').innerHTML=[
@@ -635,10 +672,13 @@ function renderKrConc(sam,hyn,leadData){
     `<span class="m ${ccls(hyn3m)}">하이닉스 ${hyn?hyn.price.toLocaleString()+'원':''} ${pct(hyn3m)}<span> 3M · 200일 </span><span class="${trendCls(hynAbove)}">${hynAbove==null?'—':(hynAbove?'▲위':'▼이탈')}${flip?'★1위':''}</span></span>`,
     `<span class="m">합산 시총 ${jo(combined)}</span>`,
     diverge!=null?`<span class="m ${diverge>=20?'down':'flat'}">성과 괴리 ${diverge.toFixed(1)}%p${diverge>=20?' ⚠ 분화':''}</span>`:'',
+    samLoan!=null?`<span class="m ${samLoanChg!=null&&samLoanChg>=15?'down':'flat'}">삼성 대차잔고 ${(samLoan/1e12).toFixed(1)}조${samLoanChg!=null?' ('+(samLoanChg>=0?'+':'')+samLoanChg.toFixed(0)+'% 1M)':''}<span> 공매도 대기</span></span>`:'',
+    hynLoan!=null?`<span class="m ${hynLoanChg!=null&&hynLoanChg>=15?'down':'flat'}">하이닉스 대차잔고 ${(hynLoan/1e12).toFixed(1)}조${hynLoanChg!=null?' ('+(hynLoanChg>=0?'+':'')+hynLoanChg.toFixed(0)+'% 1M)':''}<span> 공매도 대기</span></span>`:'',
   ].join('');
-  $('kr-big').textContent = st==='red'?'삼성·하이닉스 모두 200일선 이탈 — 한국 반도체 추세 붕괴 경고'
-    : st==='amber'?(diverge!=null&&diverge>=20)?'성과 괴리 과대 — 분화 신호 (한 종목 먼저 흔들림)':'한국 반도체 일부 추세 이탈 — 관찰'
-    : '삼성·하이닉스 모두 200일선 위 — 한국 반도체 쏠림 건재';
+  const loanTxt = loanSurge?' · 삼성·하이닉스 대차잔고 동반 급증(공매도 대기물량↑)':loanSurge1?' · 대차잔고 급증 종목 있음(공매도 대기↑)':'';
+  $('kr-big').textContent = st==='red'?'삼성·하이닉스 200일선 이탈'+ (loanSurge?'+대차잔고 급증':'') +' — 한국 반도체 추세 붕괴·공매도 압력 경고'
+    : st==='amber'?((diverge!=null&&diverge>=20)?'성과 괴리 과대 — 분화 신호':'한국 반도체 관찰')+loanTxt
+    : '삼성·하이닉스 200일선 위 — 한국 반도체 쏠림 건재'+loanTxt;
   setPill('kr-pill',st);
 }
 
@@ -702,13 +742,13 @@ async function load(){
   setLive(true,'불러오는 중…');
   try{
     const OVH=['^GSPC','^IXIC','^KS11'];
-    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp]=await Promise.all([
+    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp,slbData]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
       fred('NFCILEVERAGE',60), fred('NFCICREDIT',60),
       fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5),
       semiExport(), krxFetch('005930'), krxFetch('000660'),
-      fred('NCBEILQ027S',8), fred('GDP',8)
+      fred('NCBEILQ027S',8), fred('GDP',8), slbFetch()
     ]);
     const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
       return Object.assign({},m,{r2w:ok?retAsc(a,10):null,r1:ok?retAsc(a,21):null,r2m:ok?retAsc(a,42):null,r3:ok?retAsc(a,63):null});});
@@ -719,7 +759,7 @@ async function load(){
     renderRisk(vix,hy,curve,nfci,stress);
     renderEngine(leadOvh,exp);
     renderOverheat(leadOvh);
-    renderKrConc(samKrx,hynKrx,leadOvh);
+    renderKrConc(samKrx,hynKrx,leadOvh,slbData);
     renderBuffett(buffMktcap,buffGdp);
     renderLeverage(levSub,credSub);
     renderNpsRebal(leadOvh);
