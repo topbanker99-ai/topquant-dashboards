@@ -210,8 +210,19 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
   <div class="tiles" id="tiles"></div>
 </div>
 
+<!-- 한국 경제 펀더멘털 — 참고 지표 (월간, 신호 점수에 미포함) -->
+<div class="card">
+  <div class="secttl">한국 경제 방패 — 참고 지표 ⓘ <span class="r">한국은행 ECOS · 월간 · 신호 점수에 미포함</span></div>
+  <div class="banner" style="margin-bottom:12px;font-size:12px">
+    <b>경상수지 흑자 + 외환보유액 충분 = 원화 방어력 OK.</b> 단기 환율 신호에 직접 반영되지 않지만, 외환위기 가능성을 가늠하는 구조적 배경입니다.
+    경상수지 적자 지속 + 외환보유액 감소가 동시에 나타나면 원화 약세 압력이 구조화될 수 있습니다.
+  </div>
+  <div class="tiles" id="krFundTiles" style="margin-bottom:4px"></div>
+  <div id="krFundNote" style="font-size:11px;color:var(--faint);margin-top:8px"></div>
+</div>
+
 <div class="disc">
-  ※ 출처: FRED(Federal Reserve Bank of St. Louis), 회장님 전용 Vercel 프록시 경유. 시리즈: DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2.
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 국고채 2년(캐리)·경상수지·외환보유액.
   <b>신호 엔진은 원/달러 추세(이동평균 MA20/60)·과열도(RSI14)·5개 매크로 동인을 융합한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
   단기 환율 예측의 한계(랜덤워크)를 전제로, 점 예측이 아니라 방향·강도·헷지 판단 보조로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
@@ -496,12 +507,68 @@ function openExplain(key){
 }
 function closeModal(){ $('modal').style.display='none'; }
 
+// ── 한국 경제 펀더멘털 — 경상수지 + 외환보유액 (ECOS, 참고용) ──
+async function loadKrMacro(){
+  try{
+    const y=new Date().getFullYear();
+    const [ca, fx] = await Promise.all([
+      ecosSeries('301Y013','M','S10000',(y-2)+'01',y+'12'),   // 경상수지 (백만달러)
+      ecosSeries('732Y001','M','0100000',(y-2)+'01',y+'12'),  // 외환보유액 총계 (백만달러)
+    ]);
+    renderKrMacro(ca, fx);
+  } catch(e){ renderKrMacro([], []); }
+}
+
+function renderKrMacro(ca, fx){
+  const caV=ca&&ca.length?ca[0].v:null;
+  const fxV=fx&&fx.length?fx[0].v:null;
+  const caDate=ca&&ca.length?ca[0].date:'';
+  const fxDate=fx&&fx.length?fx[0].date:'';
+  // 3개월 변화
+  const ca3m=ca&&ca.length>3?ca[0].v-ca[3].v:null;
+  const fx3m=fx&&fx.length>3?fx[0].v-fx[3].v:null;
+  // 12개월 합산(경상수지 연간 흑자)
+  const caSum12=ca&&ca.length>=12?ca.slice(0,12).reduce((s,x)=>s+x.v,0):null;
+
+  const fmt_m=v=>v==null?'—':(v>=0?'+':'')+Math.round(v/100)/10+'억$';   // 백만→억달러
+  const fmt_b=v=>v==null?'—':'$'+(v/1000).toFixed(0)+'B'; // 백만→십억
+
+  const caCls=caV==null?'flat':(caV>0?'up':'down');
+  const fxCls=fx3m==null?'flat':(fx3m>0?'up':'down');
+  const ca3mCls=ca3m==null?'flat':(ca3m>0?'up':'down');
+
+  $('krFundTiles').innerHTML=[
+    `<div class="tile"><div class="t">경상수지 (월, 백만$)</div>
+       <div class="v ${caCls}">${fmt_m(caV)}</div>
+       <div class="c flat">${caDate||'—'} · 3M변화 <span class="${ca3mCls}">${ca3m==null?'—':(ca3m>=0?'+':'')+Math.round(ca3m/100)/10+'억$'}</span></div></div>`,
+    `<div class="tile"><div class="t">경상수지 12개월 합산</div>
+       <div class="v ${caSum12==null?'flat':(caSum12>0?'up':'down')}">${caSum12==null?'—':(caSum12>=0?'+':'')+Math.round(caSum12/100)/10+'억$'}</div>
+       <div class="c flat">${caSum12!=null?(caSum12>0?'연간 흑자 → 원화 지지':'연간 적자 → 원화 약세 구조 우려'):'ECOS 데이터 로드 중'}</div></div>`,
+    `<div class="tile"><div class="t">외환보유액 (백만$)</div>
+       <div class="v ${fxCls}">${fxV==null?'—':fmt_b(fxV)}</div>
+       <div class="c flat">${fxDate||'—'} · 3M <span class="${fxCls}">${fx3m==null?'—':(fx3m>=0?'▲':'▼')+Math.abs(Math.round(fx3m/100)/10)+'억$'}</span></div></div>`,
+  ].join('');
+
+  // 해석 노트
+  let note='';
+  if(caV!=null && fxV!=null){
+    const shield = caSum12!=null&&caSum12>0 && fxV>350000; // 350B+ reserves
+    const weak   = caSum12!=null&&caSum12<0 && fx3m!=null&&fx3m<0;
+    if(shield) note='✅ 경상수지 흑자 + 외환보유액 충분 → 원화 방어력 양호. 단기 충격은 흡수 가능.';
+    else if(weak) note='⚠ 경상수지 적자 + 외환보유액 감소 동시 진행 → 원화 약세 구조적 압력 상존.';
+    else note='경상수지·외환보유액 지표 확인. 장기 추세와 함께 판단하세요.';
+  } else {
+    note='ECOS API 로드 중 또는 데이터 미수신. 한국은행 API 키 확인 후 새로고침.';
+  }
+  $('krFundNote').textContent=note;
+}
+
 async function refreshAll(days){
   setLive(true,'불러오는 중…');
   try{
-    await Promise.all([loadHero(days), loadSignal()]);
+    await Promise.all([loadHero(days), loadSignal(), loadKrMacro()]);
     renderEngine(); // 두 데이터(원/달러 + 동인) 모두 로드된 뒤 융합 신호 산출
-    setLive(true,'LIVE · FRED');
+    setLive(true,'LIVE · FRED + ECOS');
     $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
   }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=e.message; }
 }

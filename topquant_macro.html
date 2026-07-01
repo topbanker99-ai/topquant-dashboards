@@ -181,12 +181,18 @@ padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:12px;width:300p
     <div class="card"><div class="ct">WTI 유가 추이</div><div class="cn">인플레·에너지 비용. 급등 시 물가 압력, 급락 시 수요 둔화 신호.</div><div class="cw"><canvas id="oilChart" height="105"></canvas></div></div>
   </div>
 
+  <div class="sect">
+    <div class="secttl">원자재 · 통화량 · 경기선행<span class="r">실물 체온 · 유동성 배경 · 미래 신호</span></div>
+    <div class="grid gauto" id="assetTiles"></div>
+    <div class="card"><div class="ct">금 vs 구리 — 안전선호 vs 실물경기 (3년, 월별 정규화)</div><div class="cn">금=안전자산·달러 헤지. 구리='닥터 쿠퍼' — 실물경기를 6개월 선행. 금↑+구리↓ 동시 = 위험회피+경기둔화 복합 신호.</div><div class="cw"><canvas id="goldCopChart" height="105"></canvas></div></div>
+  </div>
+
 </div>
 
 <div id="prompt" class="state load" style="padding:50px 20px">데이터를 불러오는 중…</div>
 
 <div class="disc">
-  ※ 출처: FRED(Federal Reserve Bank of St. Louis), 회장님 전용 Vercel 프록시 경유(<code>fred-proxy-nine.vercel.app</code>). 순유동성 = WALCL − TGA − RRP×1000(단위 보정).
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — 금리·곡선·유동성·인플레·고용·신용·통화·실물·원자재·M2·OECD CLI 등. Vercel 프록시(<code>fred-proxy-nine.vercel.app</code>) 경유. 순유동성 = WALCL − TGA − RRP×1000(단위 보정). 구리 = PCOPPUSDM(IMF/FRED), 금 = GOLDAMGBD228NLBM, CLI = USALOLITONOSTSAM(OECD).
   해석은 일반적 기준선에 따른 참고용이며, 임계값은 국면에 따라 달라질 수 있습니다. 투자 참고용이며 수익을 보장하지 않습니다.
 </div>
 
@@ -229,6 +235,7 @@ const SPEC = {
   BAMLH0A0HYM2:780, VIXCLS:520, T5YIE:520, NFCI:260,
   DTWEXBGS:520, DFII10:780, T10YIE:520, BAMLC0A0CM:780,
   DCOILWTICO:780, MORTGAGE30US:260, ICSA:260, INDPRO:60, UMCSENT:60,
+  GOLDAMGBD228NLBM:520, PCOPPUSDM:60, M2SL:60, USALOLITONOSTSAM:60,
 };
 const D = {};
 let GRAN = 'D';                       // 차트 입자: D(일)/W(주)/M(월)
@@ -340,6 +347,42 @@ function renderReal(){
   drawLine('oilChart',ol.map(x=>x.date.slice(2,7)),[{label:'WTI($)',data:ol.map(x=>x.v),borderColor:C.amber,backgroundColor:'rgba(245,181,63,.10)',fill:true,borderWidth:2,pointRadius:0,tension:.2}],{yfmt:v=>'$'+v});
 }
 
+function renderAssets(){
+  const gldArr=D.GOLDAMGBD228NLBM||[], copArr=D.PCOPPUSDM||[], m2Arr=D.M2SL||[], leiArr=D.USALOLITONOSTSAM||[];
+  const gld=gldArr.length?gldArr[0].v:null, cop=copArr.length?copArr[0].v:null, lei=leiArr.length?leiArr[0].v:null;
+  const m2Y=yoySeries(m2Arr); const m2v=m2Y.length?m2Y[0].v:null;
+  const gld3m=gldArr.length>63?(gldArr[0].v/gldArr[63].v-1)*100:null; // ~63 trading days ≈ 3M
+  const cop3m=copArr.length>2?(copArr[0].v/copArr[2].v-1)*100:null;   // monthly: 3 obs = 3M
+  const lei2m=leiArr.length>2?leiArr[0].v-leiArr[2].v:null;
+
+  const pctTag=(v,th1,th2)=>v==null?'flat':(v>=th1?'pos':v>0?'blue':(v<-th2?'neg':'flat'));
+  $('assetTiles').innerHTML =
+    tile('GOLD','금 (Gold)',gld==null?'—':'$'+Math.round(gld),
+      gld3m==null?'안전자산 · 달러헤지':(gld3m>=0?'▲':'')+gld3m.toFixed(1)+'% 3M',pctTag(gld3m,5,5))
+   +tile('COPPER','구리 (닥터 쿠퍼)',cop==null?'—':'$'+cop.toFixed(3)+'/lb',
+      cop3m==null?'실물경기 6개월 선행':(cop3m>=0?'▲':'')+cop3m.toFixed(1)+'% 3M',pctTag(cop3m,3,3))
+   +tile('M2YOY','M2 통화공급 YoY',m2v==null?'—':sgn(m2v,1,'%'),
+      m2v==null?'유동성 배경':m2v>6?'과잉 유동성':m2v>0?'정상 확장':'유동성 수축 중',
+      m2v==null?'':(m2v>6?'amber':m2v>0?'pos':'neg'))
+   +tile('LEI','경기선행지수 (CLI)',lei==null?'—':lei.toFixed(1),
+      lei2m==null?'OECD · 6~9개월 선행':(lei2m>=0?'▲ 상승(경기 회복 선행)':'▼ 하락(경기 둔화 선행)')+' · 2개월',
+      lei2m==null?'':(lei2m>=0?'pos':'neg'));
+
+  // Gold vs Copper chart (월별 정규화, 3년)
+  const gMon=resample([...gldArr],'M').slice(0,36).reverse(); // asc
+  const cAsc=[...copArr].slice(0,36).reverse();
+  if(gMon.length>1 && cAsc.length>1){
+    const g0=gMon[0].v, c0=cAsc[0].v;
+    const labels=gMon.map(x=>x.date.slice(2,7));
+    // align copper length to gold
+    const cData=labels.map((_,i)=>cAsc[i]?+(cAsc[i].v/c0*100).toFixed(1):null);
+    drawLine('goldCopChart',labels,[
+      {label:'금 (기준=100)',data:gMon.map(x=>+(x.v/g0*100).toFixed(1)),borderColor:C.amber,backgroundColor:'rgba(245,181,63,.10)',fill:false,borderWidth:2,pointRadius:0,tension:.2},
+      {label:'구리 (기준=100)',data:cData,borderColor:C.teal,backgroundColor:'rgba(45,212,191,.10)',fill:false,borderWidth:2,pointRadius:0,tension:.2},
+    ],{yfmt:v=>v,legend:true});
+  }
+}
+
 // ── 해석 엔진 ──
 function band(v,bands){ for(const b of bands){ if(v<=b.max) return b; } return bands[bands.length-1]; }
 const P = (...a)=>a.map(x=>`<p>${x}</p>`).join('');
@@ -414,6 +457,27 @@ const LEVEL = {
     {max:85,tone:'amber',s:'보통',t:'중립적.'},
     {max:999,tone:'pos',s:'양호',t:'소비 견조 — 경기 우호.'}],
     why:'설문 기반 소비 선행 신호. 미국 GDP의 ~70%인 소비를 가늠.'},
+  GOLD:{name:'금 (Gold)',u:'$/oz',f:v=>'$'+Math.round(v),bands:[
+    {max:1800,tone:'blue',s:'보통',t:'평온 구간.'},
+    {max:2200,tone:'amber',s:'고점권',t:'달러 약세·인플레·위험회피 수요 반영.'},
+    {max:9999,tone:'neg',s:'급등',t:'강한 안전자산 수요 — 지정학·금융불안 우려.'}],
+    why:'안전자산 + 달러 헤지. 실질금리 하락 시 오르고, 주식 급락 구간에서 동조 상승하면 버블 종반 신호.'},
+  COPPER:{name:'구리 (닥터 쿠퍼)',u:'$/lb',f:v=>'$'+v.toFixed(3)+'/lb',bands:[
+    {max:3,tone:'neg',s:'침체 신호',t:'실물 수요 급감.'},
+    {max:4,tone:'blue',s:'보통',t:'역사적 중립 구간.'},
+    {max:999,tone:'pos',s:'호황 반영',t:'실물경기 강세 — 산업 수요 확대.'}],
+    why:"'닥터 쿠퍼' — 광범위한 산업에 쓰여 GDP를 6개월 선행하는 실물 체온계. 구리가 꺾이면 이익 엔진도 서서히 식는다."},
+  M2YOY:{name:'M2 통화공급 (전년比)',u:'%',f:v=>v.toFixed(1)+'%',bands:[
+    {max:0,tone:'neg',s:'수축',t:'M2 줄어드는 구간 — 유동성 급감.'},
+    {max:2,tone:'blue',s:'정상',t:'건강한 통화공급 증가.'},
+    {max:6,tone:'pos',s:'확장',t:'완화적 유동성 배경.'},
+    {max:99,tone:'amber',s:'과잉',t:'M2 급증 — 인플레 위험.'}],
+    why:'버블의 연료. M2 급증이 끝나고 수축으로 돌아서면 유동성 흡수 → 위험자산 조정 선행.'},
+  LEI:{name:'경기선행지수 (OECD CLI)',u:'',f:v=>v.toFixed(1),bands:[
+    {max:99,tone:'neg',s:'하락추세',t:'6~9개월 후 경기 둔화를 예고.'},
+    {max:100,tone:'blue',s:'중립',t:'100 = 장기 추세 수준.'},
+    {max:999,tone:'pos',s:'상승추세',t:'6~9개월 후 경기 회복을 예고.'}],
+    why:'OECD 복합선행지수. 100 위이면 성장, 아래이면 둔화. 2개월 연속 하락은 경기 꺾임 조기경보.'},
 };
 
 function explain(key){
@@ -593,6 +657,10 @@ function modalSeries(key){
     case 'DXY':      return {desc:map(D.DTWEXBGS||[]),   yfmt:v=>v};
     case 'OIL':      return {desc:map(D.DCOILWTICO||[]), yfmt:v=>'$'+v};
     case 'ICSA':     return {desc:map(D.ICSA||[],v=>v/1000), yfmt:v=>v+'K'};
+    case 'GOLD':     return {desc:map(D.GOLDAMGBD228NLBM||[]), yfmt:v=>'$'+Math.round(v)};
+    case 'COPPER':   return {desc:map(D.PCOPPUSDM||[]), yfmt:v=>'$'+v+'/lb'};
+    case 'M2YOY':   return {desc:yoySeries(D.M2SL||[]), yfmt:v=>v.toFixed(1)+'%'};
+    case 'LEI':      return {desc:map(D.USALOLITONOSTSAM||[]), yfmt:v=>v.toFixed(1)};
     default:
       if(LEVEL[key]){ const u=LEVEL[key].u; return {desc:map(D[key]||[]), yfmt:(u==='%'||u==='%p')?(v=>v+u):(v=>v)}; }
       return null;
@@ -621,7 +689,7 @@ async function loadAll(){
     try{ D[id]=await fredGet(id, SPEC[id]); ok++; }
     catch(e){ D[id]=D[id]||[]; }
   });
-  try{ renderRates(); renderLiquidity(); renderInfl(); renderCredit(); renderFX(); renderReal(); renderRegime(); }catch(e){ console.error(e); }
+  try{ renderRates(); renderLiquidity(); renderInfl(); renderCredit(); renderFX(); renderReal(); renderAssets(); renderRegime(); }catch(e){ console.error(e); }
   if(ok===0) $('updInfo').textContent='수신 실패 — 새로고침 해보세요';
   else $('updInfo').textContent = `갱신 ${new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${ok}/${ids.length}`;
   $('refreshBtn').disabled=false; loading=false;
@@ -630,7 +698,7 @@ async function loadAll(){
 // 차트만 다시 그리기 (데이터 재요청 없이 일/주/월 전환)
 function redrawAll(){
   if(!Object.keys(D).length) return;
-  try{ renderRates(); renderLiquidity(); renderInfl(); renderCredit(); renderFX(); renderReal(); }catch(e){ console.error(e); }
+  try{ renderRates(); renderLiquidity(); renderInfl(); renderCredit(); renderFX(); renderReal(); renderAssets(); }catch(e){ console.error(e); }
   if($('modal').style.display==='flex' && curModalKey) drawModalChart(curModalKey, curModalTone);
 }
 document.querySelectorAll('#granSeg button').forEach(b=>{
