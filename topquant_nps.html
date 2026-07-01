@@ -93,7 +93,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--teal)
         <label>현재 국내주식 비중 (%) <span class="v" id="v-curw">—</span></label>
         <input type="number" id="i-curw" step="0.1">
       </div>
-      <div style="font-size:10.5px;color:var(--faint);line-height:1.5">기본값 = 2026-03 공시(국내주식 320.9조·전체 1,526조)를 이후 KOSPI·S&amp;P 등락으로 굴린 <b>리밸런싱 전 드리프트 추정</b>. 최신 공시를 아시면 직접 수정하세요.</div>
+      <div style="font-size:10.5px;color:var(--faint);line-height:1.5">기본값 = 2026-03 공시(국내주식 320.9조·전체 1,526조)를 이후 <b>실제 KOSPI·S&amp;P 경로로 월별로 굴리며 매달 리밸런싱(밴드 초과분 매도)을 적용</b>한 자동 자기보정 추정. 외부 API·수동입력 없이 live 시장데이터만으로 갱신됩니다. 최신 공시를 아시면 직접 덮어써도 됩니다.</div>
     </div>
 
     <div class="card">
@@ -171,7 +171,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--teal)
 </div>
 
 <div class="disc">
-  ※ 모델: 2026-03 국민연금 기금 포트폴리오 공시(data.go.kr 15106894, 국내주식 320.9조·해외주식 557.0조·전체 1,526조)를 base로, 이후 KOSPI(^KS11)·S&amp;P500(^GSPC) 실시간 등락으로 현재를 추정하고, 시나리오 수익률·순유입·리밸런싱 규칙(목표±밴드, 초과 시 목표로 되돌림)으로 미래를 투영합니다.
+  ※ 모델: 2026-03 국민연금 기금 포트폴리오 공시(data.go.kr 15106894, 국내주식 320.9조·해외주식 557.0조·전체 1,526조)를 base로, 이후 <b>실제 KOSPI(^KS11)·S&amp;P500(^GSPC) 경로로 월별로 굴리며 매달 리밸런싱(밴드 초과분 매도)을 적용해 현재를 자동 추정</b>(외부 API·수동입력 불필요, live 시장데이터만으로 자기보정)하고, 시나리오 수익률·순유입·리밸런싱 규칙으로 미래를 투영합니다.
   목표비중·밴드는 2026년 자산배분안(국내주식 20.8%, SAA ±6%p) 기준이며 실제 밴드는 일부 비공개입니다. 순유입·해외/기타 수익률은 가정값입니다. <b>단순화 모델의 추정</b>이며 실제 국민연금 매매는 종목선택·전술적판단·비공개 요인으로 달라집니다. 투자 판단·책임은 본인에게 있습니다.
 </div>
 
@@ -186,7 +186,9 @@ const BASE={date:'2026-03-31', D:320.9, F:557.0, T:1526.1};
 BASE.O = BASE.T - BASE.D - BASE.F;   // 기타(채권+대체+단기)
 
 let MULT={k:1.6434, g:1.1462};       // KOSPI·S&P 배수(기본값, 로드시 실시간 갱신)
+let SERIES={ks:null, sp:null};       // 실시간 일별 시계열(자기보정 롤용)
 const DEF={tgt:20.8, band:6, flow:15, months:12, rk:0, rf:8, ro:4};
+const REAL={tgt:20.8, band:6, flow:15};   // 과거 롤에 쓰는 '실제 정책'(고정)
 let S={...DEF, total:null, curw:null};
 
 async function indices(syms,range){
@@ -195,11 +197,37 @@ async function indices(syms,range){
 }
 function closeAt(arr,ymd){let b=null;if(!arr)return null;for(const o of arr){if(o.t<=ymd)b=o;}return b?b.c:null;}
 
-// 현재 추정 상태 계산(드리프트)
+// 월말 날짜 배열(base 다음달 ~ 현재)
+function monthEnds(fromYmd){
+  const out=[]; let [y,m]=fromYmd.split('-').map(Number);
+  const now=new Date(); const ny=now.getUTCFullYear(), nm=now.getUTCMonth()+1;
+  while(true){ m++; if(m>12){m=1;y++;} if(y>ny||(y===ny&&m>nm)) break;
+    const last=new Date(Date.UTC(y,m,0)).getUTCDate();
+    out.push(y+'-'+String(m).padStart(2,'0')+'-'+String(last).padStart(2,'0')); }
+  return out;
+}
+// 현재 추정: base(2026-03)를 실제 KOSPI·S&P 경로로 월별로 굴리되 매달 리밸런싱(밴드 초과분 매도) 적용 → 자기보정
 function computeCurrent(){
-  const Dn=BASE.D*MULT.k, Fn=BASE.F*MULT.g, On=BASE.O; // 기타 ~flat
-  const Tn=Dn+Fn+On;
-  return {total:Tn, curw:Dn/Tn*100, Dn, Fn, On};
+  const ks=SERIES.ks, sp=SERIES.sp;
+  if(!ks||!ks.length){ // 시계열 없으면 단순 드리프트 폴백
+    const Dn=BASE.D*MULT.k, Fn=BASE.F*MULT.g, On=BASE.O, Tn=Dn+Fn+On;
+    return {total:Tn, curw:Dn/Tn*100, Dn, Fn, On, rebalanced:false};
+  }
+  let D=BASE.D, F=BASE.F, O=BASE.O;
+  const wT=REAL.tgt/100, band=REAL.band/100, monIn=REAL.flow/12;
+  const ends=monthEnds(BASE.date);
+  let prevK=closeAt(ks,BASE.date), prevG=closeAt(sp,BASE.date);
+  for(const d of ends){
+    const kC=closeAt(ks,d), gC=closeAt(sp,d);
+    const kr=(kC&&prevK)?kC/prevK-1:0, gr=(gC&&prevG)?gC/prevG-1:0;
+    D*=(1+kr); F*=(1+gr); O+=monIn;      // 시장등락 + 신규유입(기타에 편입)
+    let T=D+F+O; const w=D/T;
+    if(w>wT+band){ const sell=(w-(wT+band))*T; D-=sell; O+=sell; }   // 밴드 초과분 매도(NPS 실제 매도 반영)
+    else if(w<wT-band){ const buy=((wT-band)-w)*T; D+=buy; O-=buy; }
+    if(kC)prevK=kC; if(gC)prevG=gC;
+  }
+  const Tn=D+F+O;
+  return {total:Tn, curw:D/Tn*100, Dn:D, Fn:F, On:O, rebalanced:true};
 }
 
 // 핵심 예측 엔진: 주어진 KOSPI 수익률 rk(%)에서 국민연금 국내주식 순매매(조) 계산
@@ -318,11 +346,12 @@ $('resetBtn').addEventListener('click',()=>{
 
 async function init(){
   try{
-    const d=await indices(['^KS11','^GSPC'],'1y');
+    const d=await indices(['^KS11','^GSPC'],'2y');
+    SERIES.ks=d['^KS11']; SERIES.sp=d['^GSPC'];
     const kB=closeAt(d['^KS11'],BASE.date), kN=d['^KS11'][d['^KS11'].length-1].c;
     const gB=closeAt(d['^GSPC'],BASE.date), gN=d['^GSPC'][d['^GSPC'].length-1].c;
     if(kB&&kN) MULT.k=kN/kB; if(gB&&gN) MULT.g=gN/gB;
-    $('liveText').textContent='LIVE · KOSPI '+Math.round(kN).toLocaleString()+' ('+((MULT.k-1)*100>=0?'+':'')+((MULT.k-1)*100).toFixed(0)+'% vs 2026-03)';
+    $('liveText').textContent='LIVE · KOSPI '+Math.round(kN).toLocaleString()+' ('+((MULT.k-1)*100>=0?'+':'')+((MULT.k-1)*100).toFixed(0)+'% vs 2026-03) · 리밸런싱 반영 자동추정';
   }catch(e){ $('liveBadge').className='live err'; $('liveText').textContent='시장데이터 오류 — 기본 배수 사용'; }
   render();
 }
