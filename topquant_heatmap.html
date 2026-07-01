@@ -100,18 +100,20 @@ max-width:1440px;margin:0 auto;padding:20px 22px 50px}
 </div>
 
 <div class="legend">
-  <span class="li"><span class="ls" style="background:#0a7a25"></span>+4%↑</span>
-  <span class="li"><span class="ls" style="background:#129635"></span>+3%</span>
-  <span class="li"><span class="ls" style="background:#1ab345"></span>+2%</span>
-  <span class="li"><span class="ls" style="background:#20cc55"></span>+1%</span>
-  <span class="li"><span class="ls" style="background:#18903e"></span>+0~1%</span>
+  <span class="li" style="margin-right:8px;color:#f2a3a2">상승=빨강</span>
+  <span class="li"><span class="ls" style="background:#e04040"></span>+4%↑</span>
+  <span class="li"><span class="ls" style="background:#c83535"></span>+3%</span>
+  <span class="li"><span class="ls" style="background:#aa2b2b"></span>+2%</span>
+  <span class="li"><span class="ls" style="background:#8c2020"></span>+1%</span>
+  <span class="li"><span class="ls" style="background:#6e2222"></span>+0~1%</span>
   <span class="lsep"></span>
   <span class="li"><span class="ls" style="background:#2d3a4a"></span>0</span>
   <span class="lsep"></span>
-  <span class="li"><span class="ls" style="background:#8c2020"></span>0~-1%</span>
-  <span class="li"><span class="ls" style="background:#aa2b2b"></span>-1%</span>
-  <span class="li"><span class="ls" style="background:#c83535"></span>-2%</span>
-  <span class="li"><span class="ls" style="background:#e04040"></span>-3%↓</span>
+  <span class="li"><span class="ls" style="background:#204a6e"></span>0~-1%</span>
+  <span class="li"><span class="ls" style="background:#22557f"></span>-1%</span>
+  <span class="li"><span class="ls" style="background:#2b6fa8"></span>-2%</span>
+  <span class="li"><span class="ls" style="background:#357fc8"></span>-3%↓</span>
+  <span class="li" style="margin-left:8px;color:#9bc0ff">하락=파랑</span>
 </div>
 
 <div class="mapwrap">
@@ -121,7 +123,7 @@ max-width:1440px;margin:0 auto;padding:20px 22px 50px}
 </div>
 
 <div class="disc">
-  ※ 크기 = 시가총액 비중(나스닥: 2025년 6월 기준 추정 · 코스피: 2025년 6월 기준 추정). 색상 = 직전 거래일 대비 등락률(Yahoo Finance, 1거래일 기준). 코스피는 한국 시간 기준 전일 종가로 1일 지연이 있을 수 있습니다. 투자 참고용.
+  ※ 크기 = 시가총액 비중(추정). 색상(한국식) = 직전 거래일 대비 등락률 — <span style="color:#f2a3a2">빨강 상승</span> / <span style="color:#9bc0ff">파랑 하락</span>(Yahoo Finance). 코스피는 1일 지연이 있을 수 있습니다. 투자 참고용.
 </div>
 
 <div id="tip" class="tip">
@@ -250,17 +252,17 @@ const KOSPI_SECTORS = [
 ];
 
 // ── 색상 ──
-function getColor(pct) {
+function getColor(pct) {   // 한국식: 상승=빨강, 하락=파랑
   if (pct == null) return '#2d3a4a';
-  if (pct >= 4)   return '#0a7a25';
-  if (pct >= 3)   return '#129635';
-  if (pct >= 2)   return '#1ab345';
-  if (pct >= 1)   return '#20cc55';
-  if (pct >= 0)   return '#18903e';
-  if (pct >= -1)  return '#8c2020';
-  if (pct >= -2)  return '#aa2b2b';
-  if (pct >= -3)  return '#c83535';
-  return '#e04040';
+  if (pct >= 4)   return '#e04040';
+  if (pct >= 3)   return '#c83535';
+  if (pct >= 2)   return '#aa2b2b';
+  if (pct >= 1)   return '#8c2020';
+  if (pct >= 0)   return '#6e2222';
+  if (pct >= -1)  return '#204a6e';
+  if (pct >= -2)  return '#22557f';
+  if (pct >= -3)  return '#2b6fa8';
+  return '#357fc8';
 }
 
 // ── API ──
@@ -407,7 +409,7 @@ function renderMap(sectors, priceData) {
       $('tipName').textContent = d.name + ' (' + d.ticker + ')';
       const chgTxt = d.chg != null ? (d.chg >= 0 ? '+' : '') + d.chg.toFixed(2) + '%' : '데이터 없음';
       $('tipChg').textContent = chgTxt;
-      $('tipChg').style.color = d.chg == null ? '#8593ab' : d.chg >= 0 ? '#2dd4bf' : '#f2706e';
+      $('tipChg').style.color = d.chg == null ? '#8593ab' : d.chg >= 0 ? '#f2706e' : '#4f9dff';
       const priceStr = d.price != null
         ? (d.isCurrency ? '₩' + Math.round(d.price).toLocaleString() : '$' + d.price.toFixed(2))
         : '';
