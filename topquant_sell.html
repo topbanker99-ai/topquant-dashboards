@@ -334,9 +334,9 @@ const EXPLAIN={
  NPS:{title:'⑩ 국민연금 리밸런싱 매도 압력', body:`
    <p>국민연금(NPS)은 <b>코스피 최대 기관투자자</b>(기금 ~1,530조)입니다. 자산배분 규칙상 <b>국내주식 목표비중 20.8%</b>를 정해두고, 실제 비중이 <b>상단밴드(전략적자산배분 SAA ±6%p, 전술 TAA 포함 최대 ±8%p)</b>를 벗어나면 <b>기계적으로 리밸런싱 매도</b>합니다.</p>
    <p><b>메커니즘</b>: KOSPI가 급등하면 → NPS 보유 국내주식 평가액↑ → 전체기금 대비 비중이 목표(20.8%) 위로 상승 → 상단밴드(약 26.8~28.8%)를 넘으면 목표로 되돌리려 <b>대규모 매도</b>. 이게 언론의 "국민연금 매도폭탄"입니다.</p>
-   <p><b>추정 방식</b>: 최신 공시(2026년 3월말 국내주식 비중 <b>21.0%</b>, 기금 1,526조)를 기준으로, 그 이후 <b>KOSPI·해외지수 등락</b>을 반영해 현재 비중을 추정합니다. <b>정상</b>: 추정 &lt; 24%. <b>주의</b>: 24~26.8%. <b>경고</b>: 26.8%(+6%p 밴드) 이상 — 강제매도 구간.</p>
-   <p>이건 심리·기술 신호와 <b>완전히 다른 축</b> — 수급(기관 강제매도)입니다. 규칙 기반이라 예측 가능성이 높습니다. 다만 실제 밴드 폭은 <b>일부 비공개</b>이고 추정에 오차가 있으니 보조로만 보세요.</p>
-   <p style="color:var(--faint)">데이터: 국민연금공단 기금 포트폴리오 현황(data.go.kr 15106894, 월별·2~3개월 지연) + KOSPI/S&P500 실시간(Yahoo). 정책수치는 2026년 자산배분안 기준.</p>`},
+   <p><b>추정 방식(자동 자기보정)</b>: 2026년 3월말 공시(국내주식 비중 <b>21.0%</b>, 기금 1,526조)를 base로, 이후 <b>실제 KOSPI·S&P500 경로로 월별로 굴리며 매달 리밸런싱(밴드 초과분 매도)을 적용</b>해 현재 비중을 추정합니다. 즉 그동안 국민연금이 판 물량까지 반영돼(현재 추정 누적매도 표시) 외부 API·수동입력 없이 자동 갱신됩니다. <b>주의</b>: 24~26.8%. <b>경고</b>: 26.8%(+6%p 밴드) 도달 — 강제매도 진행.</p>
+   <p>이건 심리·기술 신호와 <b>완전히 다른 축</b> — 수급(기관 강제매도)입니다. <b>미래 시나리오별 예측</b>은 상단 메뉴 <b>[연금예측]</b> 시뮬레이터에서 KOSPI 수익률을 바꿔가며 확인하세요.</p>
+   <p style="color:var(--faint)">데이터: 국민연금 기금 포트폴리오 공시(data.go.kr 15106894) base + KOSPI/S&P500 실시간(Yahoo). 정책수치는 2026년 자산배분안(목표 20.8%, SAA ±6%p) 기준. 실제 밴드 일부 비공개·추정 오차 있음.</p>`},
  BUFFETT:{title:'⑧ 버핏 지표 — 미국 시장 밸류에이션', body:`
    <p>워런 버핏이 "가장 좋아하는 단일 지표"로 언급한 밸류에이션 척도입니다. <b>미국 주식 총시가총액 ÷ 명목 GDP × 100</b>으로 계산합니다.</p>
    <p>역사적 기준: <b>~100% = 적정 가치, ~150% = 다소 고평가, 190% 이상 = 극단적 고평가</b>. 닷컴 버블 고점(2000년 초)에 ~190%였습니다.</p>
@@ -555,29 +555,46 @@ function renderLeverage(lev,credit){
 
 // ── 신호 ⑩: 국민연금 리밸런싱 매도 압력 ──
 // 기준: 국민연금 기금 포트폴리오 현황(data.go.kr 15106894) 2026-03말 공시(단위 십억원)
-const NPS = { baseDate:'2026-03-31', dom:320913, forn:557003, tot:1526112, target:20.8, band6:26.8, band8:28.8 };
+const NPS = { baseDate:'2026-03-31', dom:320913, forn:557003, tot:1526112, target:20.8, band6:26.8, band8:28.8, flow:15000, monIn:15000/12 };
 function closeAt(arr, ymd){ let b=null; if(!arr)return null; for(const o of arr){ if(o.t<=ymd) b=o; } return b?b.c:null; }
+function npsMonthEnds(fromYmd){
+  const out=[]; let p=fromYmd.split('-').map(Number), y=p[0], m=p[1];
+  const now=new Date(), ny=now.getUTCFullYear(), nm=now.getUTCMonth()+1;
+  while(true){ m++; if(m>12){m=1;y++;} if(y>ny||(y===ny&&m>nm)) break;
+    const last=new Date(Date.UTC(y,m,0)).getUTCDate();
+    out.push(y+'-'+String(m).padStart(2,'0')+'-'+String(last).padStart(2,'0')); }
+  return out;
+}
 function renderNpsRebal(lead){
   const ks=lead&&lead['^KS11'], sp=lead&&lead['^GSPC'];
   const kBase=closeAt(ks,NPS.baseDate), kNow=ks&&ks.length?ks[ks.length-1].c:null;
-  const sBase=closeAt(sp,NPS.baseDate), sNow=sp&&sp.length?sp[sp.length-1].c:null;
   if(!kBase||!kNow){ SIG.nps={st:'green'}; $('nps-big').textContent='KOSPI 데이터 없음 — 추정 불가'; setPill('nps-pill','green'); return; }
-  const km=kNow/kBase, gm=(sBase&&sNow)?sNow/sBase:1;
-  const domN=NPS.dom*km, forN=NPS.forn*gm, rest=NPS.tot-NPS.dom-NPS.forn;
-  const w=domN/(domN+forN+rest)*100;      // 추정 현재 국내주식 비중
-  const w0=NPS.dom/NPS.tot*100;           // 기준(2026-03) 비중
-  const kPct=(km-1)*100;
+  // 실제 KOSPI·S&P 경로로 월별 롤 + 매달 리밸런싱(밴드 초과분 매도) → 자기보정 현재 비중
+  const wT=NPS.target/100, band=0.06;
+  let D=NPS.dom, F=NPS.forn, O=NPS.tot-NPS.dom-NPS.forn, sold=0;
+  let pk=kBase, pg=closeAt(sp,NPS.baseDate);
+  npsMonthEnds(NPS.baseDate).forEach(d=>{
+    const kC=closeAt(ks,d), gC=closeAt(sp,d);
+    const kr=(kC&&pk)?kC/pk-1:0, gr=(gC&&pg)?gC/pg-1:0;
+    D*=(1+kr); F*=(1+gr); O+=NPS.monIn; let T=D+F+O; const w=D/T;
+    if(w>wT+band){ const s=(w-(wT+band))*T; D-=s; O+=s; sold+=s; }
+    else if(w<wT-band){ const b=((wT-band)-w)*T; D+=b; O-=b; }
+    if(kC)pk=kC; if(gC)pg=gC;
+  });
+  const w=D/(D+F+O)*100;                   // 자기보정 추정 현재 비중
+  const w0=NPS.dom/NPS.tot*100;            // 기준(2026-03) 비중
+  const km=kNow/kBase, kPct=(km-1)*100, soldJo=sold/1000;  // 십억→조
   let st='green';
-  if(w>=NPS.band6) st='red'; else if(w>=24) st='amber';
-  SIG.nps={st,w,km,w0};
+  if(w>=NPS.band6-0.3) st='red'; else if(w>=24) st='amber';
+  SIG.nps={st,w,km,w0,soldJo};
   const gap=w-NPS.target;
   $('nps-metrics').innerHTML=
-    `<span class="m ${w>=NPS.band6?'down':(w>=24?'flat':'up')}">추정 국내주식 비중 ${w.toFixed(1)}% <span>목표 20.8%</span></span>`
+    `<span class="m ${w>=NPS.band6-0.3?'down':(w>=24?'flat':'up')}">자기보정 추정 비중 ${w.toFixed(1)}% <span>목표 20.8%</span></span>`
    +`<span class="m ${gap>=6?'down':'flat'}">목표 대비 +${gap.toFixed(1)}%p <span>상단밴드 +6~8%p</span></span>`
-   +`<span class="m ${kPct>=0?'down':'up'}">KOSPI ${kPct>=0?'+':''}${kPct.toFixed(1)}% <span>3월말 대비</span></span>`
-   +`<span class="m mute">기준 ${w0.toFixed(1)}% <span>2026-03 공시</span></span>`;
-  $('nps-big').textContent = st==='red'?`국민연금 국내주식 추정 비중 ${w.toFixed(1)}% — 상단밴드 초과, 리밸런싱 강제매도 구간(수급 악재)`
-    : st==='amber'?`추정 비중 ${w.toFixed(1)}% — 목표(20.8%) 초과, 상단밴드 접근 중(매도 압력 누적)`
+   +`<span class="m ${kPct>=0?'down':'up'}">KOSPI ${kPct>=0?'+':''}${kPct.toFixed(0)}% <span>3월말 대비</span></span>`
+   +`<span class="m ${soldJo>=10?'down':'mute'}">누적 리밸런싱 매도 ≈${soldJo.toFixed(0)}조 <span>3월말 이후 추정</span></span>`;
+  $('nps-big').textContent = st==='red'?`국민연금 국내주식 비중 ${w.toFixed(1)}%(추정) — 상단밴드 도달, 리밸런싱 강제매도 진행(누적 ≈${soldJo.toFixed(0)}조)`
+    : st==='amber'?`추정 비중 ${w.toFixed(1)}% — 목표(20.8%) 초과, 상단밴드 접근(매도 압력 누적)`
     : `추정 비중 ${w.toFixed(1)}% — 목표 부근, 리밸런싱 매도 압력 제한적`;
   setPill('nps-pill',st);
 }
