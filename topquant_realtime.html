@@ -8,14 +8,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
---ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def}
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;
+--up:#f2706e;--down:#4f9dff}   /* 한국식: 상승=빨강, 하락=파랑 */
 body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
-max-width:1180px;margin:0 auto;padding:30px 28px 60px}
+max-width:1180px;margin:0 auto;padding:26px 26px 60px}
 .mono,.px,.chg{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:20px}
+.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
+.topnav a:hover{color:var(--ink);background:var(--panel2)}
+.topnav a.on{background:var(--teal);color:#0d1320}
+.topnav .brand{color:var(--ink);font-weight:700}.topnav .brand .dot{color:var(--teal)}.topnav .sp{flex:1}
 header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
-padding-bottom:16px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
-h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
-h1 .dot{color:var(--teal)}
+padding-bottom:16px;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}h1 .dot{color:var(--teal)}
 .sub{color:var(--mute);font-size:12.5px;margin-top:5px}
 .status{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
 .live{display:inline-flex;align-items:center;gap:7px;color:#7ee7da;font-size:12px;
@@ -24,81 +32,58 @@ background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.4);border-radi
 .live.err{color:#f2a3a2;background:rgba(242,112,110,.12);border-color:rgba(242,112,110,.4)}
 .live.err .pulse{background:#f2706e;animation:none}
 @keyframes p{0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)}70%{box-shadow:0 0 0 7px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
-.banner{background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.3);border-radius:11px;
-padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#a6e8df;line-height:1.6}
-.banner b{color:var(--teal)}
+/* 탭 */
+.tabs{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:16px}
+.tab{padding:9px 26px;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:transparent;
+  color:var(--mute);font-family:inherit;transition:.12s;white-space:nowrap}
+.tab.on{background:var(--teal);color:#0d1320}
+.tab+.tab{border-left:1px solid var(--line)}
+.legend{font-size:11px;color:var(--faint);margin:0 0 14px 4px}
+.legend b{color:var(--up)}.legend i{color:var(--down);font-style:normal}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
 .card.hero{background:linear-gradient(180deg,#16203455,#151d2e)}
-.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:14px;letter-spacing:.2px}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:12px;letter-spacing:.2px}
 .secttl::before{content:"";width:22px;height:1px;background:var(--teal)}
 .secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
-.chip{padding:6px 12px;font-size:12px;font-weight:600;border-radius:9px;border:1px solid var(--line);
-background:var(--panel2);color:var(--mute);cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:.12s}
-.chip:hover{color:var(--ink)}
-.glabel{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-left:6px}
-.chartwrap{position:relative;width:100%}
 .chmeta{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap}
 .chmeta .big{font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;letter-spacing:-.5px}
+.chmeta .nm{font-size:13px;color:var(--mute)}
 .chmeta .delta{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600}
-.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:11px}
-.coin{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px 15px;cursor:pointer;
+.chartwrap{position:relative;width:100%}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+.coin{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 13px;cursor:pointer;
 position:relative;overflow:hidden;transition:.12s}
 .coin:hover{border-color:#3a465f;transform:translateY(-1px)}
-.coin .bar{position:absolute;left:0;top:0;bottom:0;width:3px}
-.coin .nm{font-size:12px;color:var(--mute);display:flex;align-items:center;gap:6px}
-.coin .sym{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink);font-size:12px}
-.coin .px{font-size:17px;font-weight:600;margin-top:9px;letter-spacing:-.3px}
-.coin .chg{font-size:12px;font-weight:600;margin-top:3px}
-.up{color:#2dd4bf}.down{color:#f2706e}.flat{color:var(--mute)}
 .coin.sel{border-color:var(--teal);box-shadow:inset 0 0 0 1px rgba(45,212,191,.3)}
+.coin .bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.coin .nm{font-size:11.5px;color:var(--mute);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coin .sym{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--faint);font-size:10.5px;margin-left:auto}
+.coin .px{font-size:15.5px;font-weight:600;margin-top:8px;letter-spacing:-.3px}
+.coin .chg{font-size:11.5px;font-weight:600;margin-top:2px}
+.up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--mute)}
 .upd{animation:fl .5s ease}
-@keyframes fl{0%{background:rgba(45,212,191,.10)}100%{background:transparent}}
-.proxybar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.proxybar input{flex:1;min-width:240px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;
-padding:9px 12px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:12px}
-.proxybar input:focus{outline:none;border-color:var(--teal)}
-.btn{background:var(--teal);color:#0d1320;border:none;border-radius:9px;padding:9px 16px;font-weight:600;cursor:pointer;font-size:12.5px}
-.btn.ghost{background:var(--panel2);color:var(--mute);border:1px solid var(--line)}
-.pstat{font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:var(--faint);margin-bottom:12px}
-.pstat.ok{color:#7ee7da}.pstat.bad{color:#f2a3a2}
-.help{font-size:12px;color:var(--mute);line-height:1.7}
-.help b{color:var(--ink)}.help code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11.5px}
-.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@keyframes fl{0%{background:rgba(255,255,255,.06)}100%{background:transparent}}
+.disc{margin-top:22px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
 </style>
 </head>
 <body>
-<style>
-.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
-  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:22px}
-.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
-  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
-.topnav a:hover{color:var(--ink);background:var(--panel2)}
-.topnav a.on{background:var(--teal);color:#0d1320}
-.topnav .brand{color:var(--ink);font-weight:700}
-.topnav .brand .dot{color:var(--teal)}
-.topnav .sp{flex:1 1 8px}
-</style>
 <nav class="topnav">
   <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
-  <a href="topquant_macro.html">매크로</a>
-  <a href="topquant_treasury.html">국채</a>
-  <a href="topquant_news.html">뉴스</a>
-  <a href="topquant_realtime.html">실시간</a>
+  <a href="topquant_macro.html">유동성</a>
   <a href="topquant_fx.html">원/달러</a>
   <a href="topquant_sell.html">매도</a>
+  <a href="topquant_heatmap.html">시장맵</a>
+  <a href="topquant_nps.html">연금예측</a>
+  <a href="topquant_buffett.html">버핏예측</a>
+  <a href="topquant_realtime.html" class="on">실시간</a>
   <span class="sp"></span>
 </nav>
-<script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  document.querySelectorAll('.topnav a').forEach(function(a){
-    var h=(a.getAttribute('href')||'').toLowerCase();
-    if(h===f||(f===''&&h==='index.html'))a.classList.add('on');});})();</script>
+
 <header>
   <div>
     <h1>탑퀀트 <span class="dot">·</span> 실시간 시세 보드</h1>
-    <div class="sub">암호화폐 = 업비트 직접 연동(키 불필요) · 주식 = 내 Vercel 프록시(KIS) 연동</div>
+    <div class="sub">코인 · 미국 · 한국을 탭으로 분리, 각 주요 20종목. 코인=업비트 직접, 주식=프록시(Yahoo) 경유.</div>
   </div>
   <div class="status">
     <div id="liveBadge" class="live"><span class="pulse"></span><span id="liveText">연결 중…</span></div>
@@ -106,247 +91,200 @@ padding:9px 12px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-siz
   </div>
 </header>
 
-<div class="banner">
-  <b>● 실시간입니다.</b> 암호화폐는 업비트에서 <b id="ivLabel">5초</b>마다, 주식은 KIS 프록시에서 자동으로 받아옵니다.
-  아래 3개월 차트로 실제 추세(예: 이더리움 하락)를 바로 확인하세요. 업비트가 막히면 자동으로 바이낸스(달러)로 전환됩니다.
+<div class="tabs" id="tabs">
+  <button class="tab on" data-g="coin">코인</button>
+  <button class="tab" data-g="us">미국</button>
+  <button class="tab" data-g="kr">한국</button>
 </div>
+<div class="legend">색상: <b>▲ 빨강 = 상승</b> · <i>▼ 파랑 = 하락</i> (한국식 표기)</div>
 
 <div class="card hero">
   <div class="secttl">3개월 가격 추이 — 실데이터<span class="r" id="srcTag"></span></div>
-  <div class="chips" id="chips"></div>
   <div class="chmeta">
+    <span class="nm" id="mainNm">—</span>
     <span class="big" id="mainPx">—</span>
     <span class="delta" id="mainDelta">—</span>
     <span class="mono" id="mainUnit" style="color:var(--faint);font-size:12px"></span>
   </div>
-  <div class="chartwrap"><canvas id="mainChart" height="108"></canvas></div>
+  <div class="chartwrap"><canvas id="mainChart" height="104"></canvas></div>
 </div>
 
 <div class="card">
-  <div class="secttl">암호화폐 — 실시간 현재가<span class="r">업비트 · 원화</span></div>
-  <div class="grid" id="cryptoGrid"></div>
-</div>
-
-<div class="card">
-  <div class="secttl">주식 — 코스피 · 미국<span class="r" id="stockSrc">프록시 미연결</span></div>
-  <div class="proxybar">
-    <input id="proxyInput" placeholder="https://내프로젝트.vercel.app  (KIS 프록시 주소)" />
-    <button class="btn" id="proxySave">연결</button>
-    <button class="btn ghost" id="proxyClear">해제</button>
-  </div>
-  <div class="pstat" id="proxyStat">KIS 프록시에 자동 연결됨 · 코스피·미국 종목이 실시간으로 표시됩니다. (주소 변경/해제 가능)</div>
-  <div class="grid" id="stockGrid"></div>
-  <div class="help" id="stockHelp" style="margin-top:14px">
-    아직 프록시가 없다면: Vercel에 <code>api/quote.js</code>를 올리고 환경변수 <code>KIS_APPKEY</code>·<code>KIS_APPSECRET</code>를
-    넣은 뒤, 배포된 주소(<code>https://...vercel.app</code>)를 위 칸에 붙여넣고 <b>연결</b>을 누르세요. 함께 드린
-    <code>README.md</code>에 단계별 안내가 있습니다.
-  </div>
+  <div class="secttl"><span id="gridTitle">코인</span> — 실시간 현재가<span class="r" id="gridSrc"></span></div>
+  <div class="grid" id="grid"></div>
 </div>
 
 <div class="disc">
-  ※ 출처: 업비트(api.upbit.com) · 바이낸스(api.binance.com) · KIS(프록시 경유). 투자 참고용이며 수익을 보장하지 않습니다.
-  현재가/캔들은 거래소·증권사 제공 값으로 호가·체결 상황에 따라 지연될 수 있습니다. 프록시 주소는 이 브라우저에만 저장됩니다.
+  ※ 출처: 코인=업비트(api.upbit.com, 원화) → 실패 시 바이낸스(달러) 폴백 · 주식=Vercel 프록시 경유 Yahoo Finance(미국 USD / 한국 KRW). 시세는 거래소·데이터 제공값으로 지연될 수 있습니다(특히 한국 주식 ~15분). 투자 참고용이며 수익을 보장하지 않습니다.
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-const CRYPTO = [
-  {mk:'KRW-BTC', bn:'BTCUSDT', name:'비트코인',  sym:'BTC',  color:'#F7931A'},
-  {mk:'KRW-ETH', bn:'ETHUSDT', name:'이더리움',  sym:'ETH',  color:'#7B8AF7'},
-  {mk:'KRW-XRP', bn:'XRPUSDT', name:'리플',      sym:'XRP',  color:'#27A2DB'},
-  {mk:'KRW-SOL', bn:'SOLUSDT', name:'솔라나',    sym:'SOL',  color:'#14F195'},
-  {mk:'KRW-DOGE',bn:'DOGEUSDT',name:'도지',      sym:'DOGE', color:'#C2A633'},
-  {mk:'KRW-ADA', bn:'ADAUSDT', name:'에이다',    sym:'ADA',  color:'#3468D1'},
-  {mk:'KRW-AVAX',bn:'AVAXUSDT',name:'아발란체',  sym:'AVAX', color:'#E84142'},
-  {mk:'KRW-LINK',bn:'LINKUSDT',name:'체인링크',  sym:'LINK', color:'#2A5ADA'},
+const PROXY='https://fred-proxy-nine.vercel.app';
+const $=id=>document.getElementById(id);
+const C={grid:'#1b2438',line:'#27324a'};
+const PAL=['#F7931A','#7B8AF7','#27A2DB','#14F195','#C2A633','#3468D1','#E84142','#2A5ADA','#5B8DEF','#2DD4BF','#F5B53F','#A78BFA','#84CC16','#F2706E','#34D399','#e3b341','#22d3ee','#fb7185','#a3e635','#c084fc'];
+
+// ── 20종목 × 3그룹 ──
+const COIN=[
+  ['KRW-BTC','BTCUSDT','비트코인','BTC'],['KRW-ETH','ETHUSDT','이더리움','ETH'],['KRW-XRP','XRPUSDT','리플','XRP'],
+  ['KRW-SOL','SOLUSDT','솔라나','SOL'],['KRW-DOGE','DOGEUSDT','도지','DOGE'],['KRW-ADA','ADAUSDT','에이다','ADA'],
+  ['KRW-TRX','TRXUSDT','트론','TRX'],['KRW-AVAX','AVAXUSDT','아발란체','AVAX'],['KRW-LINK','LINKUSDT','체인링크','LINK'],
+  ['KRW-DOT','DOTUSDT','폴카닷','DOT'],['KRW-SUI','SUIUSDT','수이','SUI'],['KRW-BCH','BCHUSDT','비트코인캐시','BCH'],
+  ['KRW-XLM','XLMUSDT','스텔라루멘','XLM'],['KRW-HBAR','HBARUSDT','헤데라','HBAR'],['KRW-ATOM','ATOMUSDT','코스모스','ATOM'],
+  ['KRW-ETC','ETCUSDT','이더리움클래식','ETC'],['KRW-NEAR','NEARUSDT','니어','NEAR'],['KRW-APT','APTUSDT','앱토스','APT'],
+  ['KRW-ARB','ARBUSDT','아비트럼','ARB'],['KRW-SHIB','SHIBUSDT','시바이누','SHIB'],
 ];
-const STOCKS = [
-  {sym:'005930', name:'삼성전자',   color:'#5B8DEF'},
-  {sym:'000660', name:'SK하이닉스', color:'#2DD4BF'},
-  {sym:'035420', name:'NAVER',     color:'#34D399'},
-  {sym:'005380', name:'현대차',     color:'#F5B53F'},
-  {sym:'AAPL',   name:'애플',       color:'#A78BFA'},
-  {sym:'NVDA',   name:'엔비디아',   color:'#84CC16'},
-  {sym:'QQQ',    name:'나스닥100',  color:'#5B8DEF'},
-  {sym:'TSLA',   name:'테슬라',     color:'#F2706E'},
+const US=[
+  ['AAPL','애플'],['MSFT','마이크로소프트'],['NVDA','엔비디아'],['GOOGL','알파벳'],['AMZN','아마존'],
+  ['META','메타'],['TSLA','테슬라'],['AVGO','브로드컴'],['BRK-B','버크셔'],['JPM','JP모건'],
+  ['V','비자'],['WMT','월마트'],['MA','마스터카드'],['ORCL','오라클'],['COST','코스트코'],
+  ['NFLX','넷플릭스'],['AMD','AMD'],['XOM','엑슨모빌'],['JNJ','존슨앤존슨'],['SPY','S&P500 ETF'],
 ];
-const CRYPTO_MS = 5000, STOCK_MS = 12000;
-let cryptoSource = 'upbit';
-// 운영 KIS 프록시 — 기본 연결됨(사용자가 직접 입력/해제 가능)
-const DEFAULT_PROXY = 'https://fred-proxy-nine.vercel.app';
-let PROXY = DEFAULT_PROXY;
-let sel = {kind:'crypto', id:'KRW-ETH'};
-let mainChart = null;
-const C = {grid:'#1b2438', line:'#27324a'};
+const KR=[
+  ['005930.KS','삼성전자'],['000660.KS','SK하이닉스'],['373220.KS','LG에너지솔루션'],['207940.KS','삼성바이오로직스'],
+  ['005380.KS','현대차'],['000270.KS','기아'],['068270.KS','셀트리온'],['035420.KS','NAVER'],
+  ['105560.KS','KB금융'],['005490.KS','POSCO홀딩스'],['035720.KS','카카오'],['051910.KS','LG화학'],
+  ['006400.KS','삼성SDI'],['055550.KS','신한지주'],['012330.KS','현대모비스'],['028260.KS','삼성물산'],
+  ['066570.KS','LG전자'],['015760.KS','한국전력'],['017670.KS','SK텔레콤'],['003550.KS','LG'],
+];
+// 그룹 정규화: {id, sym, name, color}
+function mk(list,isCoin){ return list.map((x,i)=>isCoin
+  ? {id:x[0], bn:x[1], name:x[2], sym:x[3], color:PAL[i%PAL.length]}
+  : {id:x[0], sym:x[0].replace('.KS',''), name:x[1], color:PAL[i%PAL.length]}); }
+const GROUPS={
+  coin:{label:'코인', cur:'KRW', src:'업비트', items:mk(COIN,true)},
+  us:  {label:'미국', cur:'USD', src:'Yahoo', items:mk(US,false)},
+  kr:  {label:'한국', cur:'KRW', src:'Yahoo', items:mk(KR,false)},
+};
+let G='coin';                 // 활성 그룹
+let sel={g:'coin', id:'KRW-BTC'};
+let cryptoSource='upbit';
+let mainChart=null;
+const DATA={coin:{},us:{},kr:{}};   // 그룹별 {id:{price,chg}}
 
-const $ = id => document.getElementById(id);
-const isDom = s => /^[0-9]{6}$/.test(s);
-const fmtKRW = v => v>=1000 ? Math.round(v).toLocaleString('ko-KR') : v.toLocaleString('ko-KR',{maximumFractionDigits:2});
-const fmtUSD = v => v>=1000 ? v.toLocaleString('en-US',{maximumFractionDigits:0}) : v.toLocaleString('en-US',{maximumFractionDigits:4});
-const money = (v,cur) => (cur==='USD'?'$':'₩') + (cur==='USD'?fmtUSD(v):fmtKRW(v));
-function dlt(el,pct,suffix){ el.className='delta '+(pct>=0?'up':'down'); el.textContent=(pct>=0?'▲ +':'▼ ')+Math.abs(pct).toFixed(suffix?1:2)+'%'+(suffix||''); }
+const fmtKRW=v=>v>=1000?Math.round(v).toLocaleString('ko-KR'):v.toLocaleString('ko-KR',{maximumFractionDigits:4});
+const fmtUSD=v=>v>=1000?v.toLocaleString('en-US',{maximumFractionDigits:0}):v.toLocaleString('en-US',{maximumFractionDigits:2});
+const money=(v,cur)=>v==null?'—':(cur==='USD'?'$'+fmtUSD(v):'₩'+fmtKRW(v));
+function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
+function dirCls(c){return c>0.01?'up':(c<-0.01?'down':'flat');}
+function arrow(c){return c>0.01?'▲':(c<-0.01?'▼':'·');}
 
-// 저장된 값이 있으면 우선(빈 문자열=사용자가 명시적으로 해제). 없으면 기본 운영 프록시.
-try{ const saved = localStorage.getItem('kisProxy'); if(saved!==null) PROXY = saved; }catch(_){}
-const norm = u => (u||'').trim().replace(/\/+$/,'');
-
-function setLive(ok,txt){ const b=$('liveBadge'); b.className=ok?'live':'live err'; $('liveText').textContent=txt; }
-
-// ───────── 암호화폐 (업비트 → 바이낸스 폴백) ─────────
-async function cryptoTickers(){
-  const markets = CRYPTO.map(c=>c.mk).join(',');
+// ── 데이터 소스 ──
+async function upbitTickers(){
+  const markets=COIN.map(c=>c[0]).join(',');
   try{
     const r=await fetch('https://api.upbit.com/v1/ticker?markets='+markets,{headers:{accept:'application/json'}});
-    if(!r.ok) throw 0;
-    const arr=await r.json(); cryptoSource='upbit';
-    const m={}; arr.forEach(t=> m[t.market]={price:t.trade_price,chg:t.signed_change_rate*100}); return m;
+    if(!r.ok)throw 0; const arr=await r.json(); cryptoSource='upbit';
+    const m={}; arr.forEach(t=>m[t.market]={price:t.trade_price,chg:t.signed_change_rate*100}); return m;
   }catch(e){
     cryptoSource='binance'; const m={};
-    await Promise.all(CRYPTO.map(async c=>{ try{
-      const r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+c.bn); if(!r.ok)throw 0;
-      const t=await r.json(); m[c.mk]={price:parseFloat(t.lastPrice),chg:parseFloat(t.priceChangePercent)};
-    }catch(_){}}));
-    if(!Object.keys(m).length) throw e; return m;
+    await Promise.all(COIN.map(async c=>{try{
+      const r=await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol='+c[1]); if(!r.ok)throw 0;
+      const t=await r.json(); m[c[0]]={price:parseFloat(t.lastPrice),chg:parseFloat(t.priceChangePercent)};
+    }catch(_){}})); return m;
   }
 }
-async function cryptoCandles(mk){
-  const coin=CRYPTO.find(c=>c.mk===mk);
-  if(cryptoSource==='upbit'){ try{
+async function upbitCandles(mk){
+  const coin=COIN.find(c=>c[0]===mk);
+  if(cryptoSource==='upbit'){try{
     const r=await fetch('https://api.upbit.com/v1/candles/days?market='+mk+'&count=90',{headers:{accept:'application/json'}});
-    if(!r.ok)throw 0; const arr=await r.json();
-    return arr.reverse().map(x=>({t:x.candle_date_time_kst.slice(2,10),c:x.trade_price}));
+    if(!r.ok)throw 0; const arr=await r.json(); return arr.reverse().map(x=>({t:x.candle_date_time_kst.slice(2,10),c:x.trade_price}));
   }catch(_){}}
-  const r=await fetch('https://api.binance.com/api/v3/klines?symbol='+coin.bn+'&interval=1d&limit=90');
+  const r=await fetch('https://api.binance.com/api/v3/klines?symbol='+coin[1]+'&interval=1d&limit=90');
   const arr=await r.json(); return arr.map(k=>({t:new Date(k[0]).toISOString().slice(2,10),c:parseFloat(k[4])}));
 }
-
-// ───────── 주식 (Vercel 프록시) ─────────
-async function stockQuotes(){
-  if(!PROXY) return null;
-  const r=await fetch(PROXY+'/api/quote?symbols='+STOCKS.map(s=>s.sym).join(','));
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  const d=await r.json(); if(!d.ok) throw new Error(d.error||'proxy error');
-  const m={}; (d.quotes||[]).forEach(q=> m[q.symbol]={price:q.price,chg:q.changePct,cur:q.currency,name:q.name}); return m;
+async function yahooQuotes(syms){
+  const r=await fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range=5d',{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status); const j=await r.json(); if(!j.ok)throw new Error('idx');
+  const m={}; Object.keys(j.data||{}).forEach(k=>{const a=j.data[k]; if(a&&a.length>=2){
+    const last=a[a.length-1].c, prev=a[a.length-2].c; m[k]={price:last,chg:prev?(last/prev-1)*100:0};}}); return m;
 }
-async function stockCandles(sym){
-  const r=await fetch(PROXY+'/api/quote?type=candles&symbol='+sym+'&days=90');
-  const d=await r.json(); if(!d.ok||!d.candles) return [];
-  const fmt=t=>String(t).replace(/(\d{4})(\d{2})(\d{2})/, (m,y,mo,da)=>y.slice(2)+'/'+mo+'/'+da);
-  return d.candles.map(x=>({t:fmt(x.t),c:x.c}));
+async function yahooCandles(sym){
+  const r=await fetch(PROXY+'/api/indices?symbols='+encodeURIComponent(sym)+'&range=3mo',{cache:'no-store'});
+  const j=await r.json(); const a=(j.data||{})[sym]||[]; return a.map(x=>({t:x.t.slice(2),c:x.c}));
 }
 
-// ───────── UI 빌드 ─────────
-function chipEl(kind,id,label,color,on){
-  const b=document.createElement('button'); b.className='chip'; b.id='chip-'+kind+'-'+id; b.textContent=label;
-  if(on){ b.style.background=color; b.style.color='#0d1320'; }
-  b.onclick=()=>selectAsset(kind,id); return b;
-}
-function buildChips(){
-  const w=$('chips'); w.innerHTML='';
-  const l1=document.createElement('span'); l1.className='glabel'; l1.textContent='코인'; w.appendChild(l1);
-  CRYPTO.forEach(c=> w.appendChild(chipEl('crypto',c.mk,c.sym,c.color, sel.kind==='crypto'&&sel.id===c.mk)));
-  const l2=document.createElement('span'); l2.className='glabel'; l2.textContent='주식'; w.appendChild(l2);
-  STOCKS.forEach(s=> w.appendChild(chipEl('stock',s.sym,s.sym,s.color, sel.kind==='stock'&&sel.id===s.sym)));
-}
-function cardEl(kind,id,name,sym,color){
-  const el=document.createElement('div'); el.className='coin'; el.id='cd-'+kind+'-'+id; el.onclick=()=>selectAsset(kind,id);
-  el.innerHTML=`<span class="bar" style="background:${color}"></span>
-    <div class="nm"><span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block"></span>
-    ${name} <span class="sym">${sym}</span></div>
-    <div class="px" id="px-${kind}-${id}">—</div><div class="chg" id="chg-${kind}-${id}">—</div>`;
-  return el;
-}
-function buildGrids(){
-  const cg=$('cryptoGrid'); cg.innerHTML='';
-  CRYPTO.forEach(c=> cg.appendChild(cardEl('crypto',c.mk,c.name,c.sym,c.color)));
-  const sg=$('stockGrid'); sg.innerHTML='';
-  STOCKS.forEach(s=> sg.appendChild(cardEl('stock',s.sym,s.name,s.sym,s.color)));
-  markSelected();
-}
-function markSelected(){
-  document.querySelectorAll('.coin').forEach(e=>e.classList.remove('sel'));
-  $('cd-'+sel.kind+'-'+sel.id)?.classList.add('sel');
-  document.querySelectorAll('.chip').forEach(b=>{ b.style.background=''; b.style.color=''; });
-  const arr = sel.kind==='crypto'?CRYPTO:STOCKS, key=sel.kind==='crypto'?'mk':'sym';
-  const a = arr.find(x=>x[key]===sel.id); const cb=$('chip-'+sel.kind+'-'+sel.id);
-  if(a&&cb){ cb.style.background=a.color; cb.style.color='#0d1320'; }
-}
-
-function paint(kind, m){
-  const arr = kind==='crypto'?CRYPTO:STOCKS, key = kind==='crypto'?'mk':'sym';
-  arr.forEach(a=>{
-    const id=a[key]; const d=m[id]; if(!d) return;
-    const cur = kind==='crypto' ? (cryptoSource==='upbit'?'KRW':'USD') : d.cur;
-    const pxEl=$('px-'+kind+'-'+id), chgEl=$('chg-'+kind+'-'+id);
-    if(pxEl){ const t=money(d.price,cur); if(pxEl.textContent!==t){ pxEl.textContent=t;
-      const card=$('cd-'+kind+'-'+id); card.classList.remove('upd'); void card.offsetWidth; card.classList.add('upd'); } }
-    if(chgEl){ const cls=d.chg>0.01?'up':(d.chg<-0.01?'down':'flat'); const ar=d.chg>0.01?'▲':(d.chg<-0.01?'▼':'·');
-      chgEl.className='chg '+cls; chgEl.textContent=`${ar} ${d.chg>=0?'+':''}${d.chg.toFixed(2)}%`; }
-    if(sel.kind===kind && sel.id===id){
-      $('mainPx').textContent=money(d.price,cur);
-      $('mainUnit').textContent = kind==='crypto' ? (cryptoSource==='upbit'?'(업비트·원화)':'(바이낸스·달러)') : (cur==='KRW'?'(KIS·원화)':'(KIS·달러)');
-    }
+// ── UI ──
+function buildGrid(){
+  const g=GROUPS[G]; $('gridTitle').textContent=g.label; $('gridSrc').textContent=g.src+' · '+(g.cur==='USD'?'달러':'원화');
+  const w=$('grid'); w.innerHTML='';
+  g.items.forEach(a=>{
+    const el=document.createElement('div'); el.className='coin'; el.id='cd-'+a.id; el.onclick=()=>selectAsset(G,a.id);
+    el.innerHTML=`<span class="bar" style="background:${a.color}"></span>
+      <div class="nm"><span style="width:8px;height:8px;border-radius:50%;background:${a.color};display:inline-block"></span>
+      ${a.name}<span class="sym">${a.sym}</span></div>
+      <div class="px" id="px-${a.id}">—</div><div class="chg" id="chg-${a.id}">—</div>`;
+    w.appendChild(el);
   });
+  markSel();
+}
+function markSel(){
+  document.querySelectorAll('.coin').forEach(e=>e.classList.remove('sel'));
+  if(sel.g===G){ const e=$('cd-'+sel.id); if(e)e.classList.add('sel'); }
+}
+function paint(){
+  const g=GROUPS[G], m=DATA[G], cur=(G==='coin'&&cryptoSource==='binance')?'USD':g.cur;
+  g.items.forEach(a=>{
+    const d=m[a.id]; const pxEl=$('px-'+a.id), chgEl=$('chg-'+a.id); if(!d||!pxEl) return;
+    const t=money(d.price,cur);
+    if(pxEl.textContent!==t){ pxEl.textContent=t; const c=$('cd-'+a.id); if(c){c.classList.remove('upd');void c.offsetWidth;c.classList.add('upd');} }
+    if(chgEl){ chgEl.className='chg '+dirCls(d.chg); chgEl.textContent=`${arrow(d.chg)} ${d.chg>=0?'+':''}${d.chg.toFixed(2)}%`; }
+  });
+  if(sel.g===G){ const d=m[sel.id]; if(d){ $('mainPx').textContent=money(d.price,cur);
+    $('mainDelta').className='delta '+dirCls(d.chg); $('mainDelta').textContent=`${arrow(d.chg)} ${d.chg>=0?'+':''}${d.chg.toFixed(2)}% (당일)`;
+    $('mainUnit').textContent=G==='coin'?(cryptoSource==='upbit'?'(업비트·원화)':'(바이낸스·달러)'):(cur==='USD'?'(Yahoo·달러)':'(Yahoo·원화)'); } }
 }
 
-// ───────── 메인 차트 ─────────
 async function drawMain(){
-  const arr=sel.kind==='crypto'?CRYPTO:STOCKS, key=sel.kind==='crypto'?'mk':'sym';
-  const a=arr.find(x=>x[key]===sel.id); const color=a?a.color:'#2dd4bf';
-  let data=[], cur;
-  if(sel.kind==='crypto'){ try{data=await cryptoCandles(sel.id);}catch(_){ } cur=cryptoSource==='upbit'?'KRW':'USD'; }
-  else{
-    if(!PROXY){ if(mainChart)mainChart.destroy(); mainChart=null; $('mainDelta').className='delta'; $('mainDelta').textContent='— 주식 프록시를 먼저 연결하세요'; $('mainPx').textContent='—'; $('mainUnit').textContent=''; return; }
-    try{data=await stockCandles(sel.id);}catch(_){ } cur=isDom(sel.id)?'KRW':'USD';
-  }
-  if(!data.length){ $('mainDelta').textContent='데이터 없음'; return; }
+  const g=GROUPS[sel.g]; const a=g.items.find(x=>x.id===sel.id); if(!a)return;
+  $('mainNm').textContent=a.name+' · '+a.sym;
+  $('srcTag').textContent=g.src;
+  let data=[], cur=g.cur;
+  if(sel.g==='coin'){ try{data=await upbitCandles(sel.id);}catch(_){}} else { try{data=await yahooCandles(sel.id);}catch(_){}}
+  if(G==='coin'&&cryptoSource==='binance')cur='USD';
+  if(!data.length){ if(mainChart){mainChart.destroy();mainChart=null;} $('mainDelta').textContent='데이터 없음'; return; }
   const labels=data.map(d=>d.t), vals=data.map(d=>d.c);
-  const pct=((vals[vals.length-1]/vals[0])-1)*100; dlt($('mainDelta'),pct,' (3개월)');
-  if(mainChart) mainChart.destroy();
+  const pct=((vals[vals.length-1]/vals[0])-1)*100;
+  $('mainDelta').className='delta '+dirCls(pct); $('mainDelta').textContent=`${arrow(pct)} ${pct>=0?'+':''}${pct.toFixed(1)}% (3개월)`;
+  const col=a.color;
+  if(mainChart)mainChart.destroy();
   mainChart=new Chart($('mainChart'),{type:'line',
-    data:{labels,datasets:[{data:vals,borderColor:color,backgroundColor:color+'1f',borderWidth:2,fill:true,pointRadius:0,tension:.12}]},
+    data:{labels,datasets:[{data:vals,borderColor:col,backgroundColor:col+'22',borderWidth:2,fill:true,pointRadius:0,tension:.12}]},
     options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},tooltip:{backgroundColor:'#1b2438',borderColor:C.line,borderWidth:1,callbacks:{label:c=>money(c.raw,cur)}}},
-      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:8,color:'#8593ab'}},
-              y:{grid:{color:C.grid},ticks:{color:'#8593ab',callback:v=>(cur==='USD'?'$':'₩')+(v>=1000?(v/1000).toFixed(0)+'k':v)}}}}});
+      scales:{x:{grid:{color:C.grid},ticks:{maxTicksLimit:8,color:'#8593ab',font:{size:9.5}}},
+        y:{grid:{color:C.grid},ticks:{color:'#8593ab',font:{size:9.5},callback:v=>(cur==='USD'?'$':'₩')+(v>=1000?(v/1000).toFixed(0)+'k':v)}}}}});
 }
-function selectAsset(kind,id){ sel={kind,id}; markSelected(); drawMain(); }
+function selectAsset(g,id){ sel={g,id}; markSel(); drawMain(); paint(); }
 
-// ───────── 루프 ─────────
-async function cryptoTick(){
-  try{ const m=await cryptoTickers(); paint('crypto',m);
+// ── 로딩 루프 ──
+async function tickCoin(){
+  try{ DATA.coin=await upbitTickers();
     setLive(true, cryptoSource==='upbit'?'LIVE · 업비트':'LIVE · 바이낸스');
-    $('srcTag').textContent = sel.kind==='crypto' ? (cryptoSource==='upbit'?'업비트':'바이낸스') : 'KIS';
     $('lastUpd').textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR');
-  }catch(e){ setLive(false,'코인 연결 실패'); }
+    if(G==='coin')paint();
+  }catch(e){ if(G==='coin')setLive(false,'코인 연결 실패'); }
 }
-async function stockTick(){
-  if(!PROXY){ return; }
-  try{ const m=await stockQuotes(); paint('stock',m);
-    $('stockSrc').textContent='KIS 연결됨'; $('stockSrc').style.color='#7ee7da';
-    $('proxyStat').className='pstat ok'; $('proxyStat').textContent='● KIS 프록시 연결됨 · '+Object.keys(m).length+'종목 수신';
-    $('stockHelp').style.display='none';
-  }catch(e){
-    $('stockSrc').textContent='프록시 오류'; $('stockSrc').style.color='#f2a3a2';
-    $('proxyStat').className='pstat bad'; $('proxyStat').textContent='✕ 프록시 연결 실패: '+e.message+' — 주소/환경변수(KIS 키)를 확인하세요.';
-    $('stockHelp').style.display='block';
-  }
+async function tickStocks(){
+  for(const key of ['us','kr']){ try{ DATA[key]=await yahooQuotes(GROUPS[key].items.map(a=>a.id)); if(G===key){paint();setLive(true,'LIVE · Yahoo');} }catch(e){ if(G===key)setLive(false,'주식 연결 실패'); } }
+  $('lastUpd').textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR');
 }
 
-$('proxySave').onclick=()=>{ PROXY=norm($('proxyInput').value); try{localStorage.setItem('kisProxy',PROXY);}catch(_){}
-  if(PROXY){ $('proxyStat').className='pstat'; $('proxyStat').textContent='연결 시도 중…'; stockTick(); if(sel.kind==='stock') drawMain(); } };
-$('proxyClear').onclick=()=>{ PROXY=''; try{localStorage.setItem('kisProxy','');}catch(_){} $('proxyInput').value='';
-  $('stockSrc').textContent='프록시 미연결'; $('stockSrc').style.color=''; $('proxyStat').className='pstat';
-  $('proxyStat').textContent='프록시를 연결하면 코스피·미국 종목이 실시간으로 표시됩니다.'; $('stockHelp').style.display='block';
-  STOCKS.forEach(s=>{ const p=$('px-stock-'+s.sym),c=$('chg-stock-'+s.sym); if(p)p.textContent='—'; if(c){c.textContent='—';c.className='chg';} }); };
+// 탭 전환
+document.querySelectorAll('#tabs .tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs .tab').forEach(x=>x.classList.toggle('on',x===b));
+  G=b.dataset.g; buildGrid();
+  // 그룹 첫 종목 자동선택
+  sel={g:G, id:GROUPS[G].items[0].id}; markSel(); drawMain(); paint();
+  if(G==='coin'&&!Object.keys(DATA.coin).length)tickCoin();
+  if((G==='us'||G==='kr')&&!Object.keys(DATA[G]).length)tickStocks();
+});
 
-$('ivLabel').textContent=(CRYPTO_MS/1000)+'초';
-$('proxyInput').value=PROXY;
-buildChips(); buildGrids();
-cryptoTick(); drawMain();
-if(PROXY) stockTick();
-setInterval(cryptoTick, CRYPTO_MS);
-setInterval(stockTick, STOCK_MS);
+buildGrid(); drawMain();
+tickCoin(); tickStocks();
+setInterval(tickCoin, 5000);
+setInterval(tickStocks, 60000);
 </script>
 </body>
 </html>
