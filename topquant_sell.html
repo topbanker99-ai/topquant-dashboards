@@ -285,8 +285,28 @@ body.show-long [data-hz="short"],body.show-long #hero-short{display:none}
   </div>
 </div>
 
+<!-- SIGNAL 12: 수익률곡선 역전→정상화 -->
+<div class="card clk" data-hz="long" onclick="openExplain('YCURVE')" title="누르면 쉬운 설명">
+  <div class="secttl">⑫ 수익률곡선 역전→정상화 — 침체 선행 시계 ⓘ <span class="r">미 10년−2년 · FRED T10Y2Y</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="yc-big">—</div><div class="desc">장단기 금리차가 <b>마이너스(역전)</b>면 침체 선행 신호이고, 역전됐다가 <b>다시 플러스로 정상화되는 순간</b>이 역사적으로 침체·약세장 <b>6~12개월 전</b> 타이밍이었습니다(2000·2007·2019).</div>
+      <div class="metrics" id="yc-metrics"></div></div>
+    <span class="pill" id="yc-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 13: 고용 둔화 (Sahm Rule) -->
+<div class="card clk" data-hz="long" onclick="openExplain('SAHM')" title="누르면 쉬운 설명">
+  <div class="secttl">⑬ 고용 둔화 — Sahm Rule 침체 룰 ⓘ <span class="r">미 실업률 급등 감지 · FRED SAHMREALTIME</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="sahm-big">—</div><div class="desc">실업률 3개월 평균이 <b>지난 1년 최저 대비 +0.5%p</b> 오르면(Sahm Rule) 과거 예외 없이 <b>침체 진입</b>이었습니다. 가격·밸류가 아닌 <b>실물경제(고용)</b>가 꺾이는지 보는 축 — 구조적 약세장의 최종 확인.</div>
+      <div class="metrics" id="sahm-metrics"></div></div>
+    <span class="pill" id="sahm-pill">—</span>
+  </div>
+</div>
+
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더·원/달러(KRW=X)·KOSPI Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP·SAHMREALTIME), 글로벌 주가지수·반도체/AI 리더·원/달러(KRW=X)·KOSPI Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
   <b>11개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱·환율수급을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
@@ -336,9 +356,9 @@ const EXPLAIN={
    <p>최대 ${5*2}점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. <b>결정적 조합</b>: ④변동성 급등 + ⑥과열 극단이 <b>동시에</b> 빨간불이면 바로 '매도검토'.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  TIER_L:{title:'🟠 중장기 매도 시그널이란? (3~6개월)', body:`
-   <p><b>느린 밸류·금리·이익·레버리지·수급 사이클</b> 6개를 합산합니다 — ①미국 쏠림 · ③금리 사이클 · ⑤이익 엔진 · ⑧버핏지표 · ⑨레버리지·신용 · ⑩국민연금 리밸런싱. 수개월에 걸쳐 서서히 방향이 바뀌는 지표라, "구조적 고점/약세장 국면인가"를 봅니다.</p>
+   <p><b>느린 밸류·금리·이익·레버리지·수급·거시 사이클</b> 8개를 합산합니다 — ①미국 쏠림 · ③금리 사이클 · ⑤이익 엔진 · ⑧버핏지표 · ⑨레버리지·신용 · ⑩국민연금 리밸런싱 · ⑫수익률곡선 역전→정상화 · ⑬고용 둔화(Sahm). 수개월에 걸쳐 서서히 방향이 바뀌는 지표라, "구조적 고점/약세장 국면인가"를 봅니다.</p>
    <p><b>연준 긴축(2018.12)·인플레 약세장(2022)</b>처럼 회복까지 수개월~1년 걸린 구조적 하락이 이 유형입니다.</p>
-   <p>최대 ${6*2}점 / 5단계. <b>결정적 조합</b>: ⑤이익 엔진 둔화 + ③금리 긴축이 <b>동시에</b> 빨간불이면 '매도검토'(밸류를 받치던 이익이 꺾이는데 할인율은 높은 국면).</p>
+   <p>최대 ${8*2}점 / 5단계. <b>결정적 조합</b>: ⑤이익 엔진 둔화 + ③금리 긴축이 <b>동시에</b> 빨간불이면 '매도검토'(밸류를 받치던 이익이 꺾이는데 할인율은 높은 국면).</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
    <p>버블의 정의는 "가격이 펀더멘탈(추세)을 얼마나 앞섰나"입니다. 이를 <b>S&P500·나스닥이 200일 이동평균선보다 얼마나 위에 있는지</b>(괴리율)로 측정합니다.</p>
@@ -403,6 +423,16 @@ const EXPLAIN={
    <p>두 축을 함께 봅니다 — ① <b>원/달러</b>: 200일 평균 대비 위치(약세권 여부)와 <b>최근 1개월 변화</b>(급등=이탈 가속), ② <b>KOSPI</b>: 200일선 이탈 여부와 최근 1년 고점 대비 낙폭.</p>
    <p><b>정상</b>: 원화 안정 + KOSPI 추세 유지. <b>주의</b>: 원화 약세권/급등, 또는 KOSPI 200일선 이탈·고점 대비 −10% 조정 중 하나. <b>경고</b>: <b>원화 1개월 급등(+2.5%↑, 외국인 이탈 가속) + KOSPI 추세 훼손</b>이 동시에.</p>
    <p style="color:var(--faint)">데이터: Yahoo Finance 원/달러(KRW=X)·KOSPI(^KS11) — Vercel 프록시 경유. 개인 신용융자잔고(레버리지 되감기)는 깨끗한 공개 API 확보 후 추가 예정.</p>`},
+ YCURVE:{title:'⑫ 수익률곡선 역전→정상화 — 침체 선행 시계', body:`
+   <p><b>10년물 − 2년물 국채 금리차</b>입니다. 정상은 장기금리가 더 높아 <b>플러스(+)</b>, 이게 <b>마이너스(−)</b>가 되면 '역전'입니다.</p>
+   <p>역전 자체도 침체 선행 신호지만, 핵심 타이밍은 <b>역전됐다가 다시 플러스로 "정상화"되는 순간</b>입니다 — 2000·2007·2019년 모두 정상화 후 <b>6~12개월 내</b> 침체·약세장이 왔습니다(연준이 급히 금리를 내리며 단기금리가 빠질 때 나타남).</p>
+   <p><b>정상</b>: 최근 1년 역전 이력 없음. <b>주의</b>: 현재 역전 중, 또는 역전 후 막 정상화 초입. <b>경고</b>: 역전 이력 + 플러스 복귀 + 정상화 진행(가팔라짐).</p>
+   <p style="color:var(--faint)">데이터: FRED T10Y2Y(일간). ④ 금융환경에도 금리차가 들어가지만, 여기선 <b>역전→정상화 전환 타이밍</b>만 따로 봅니다.</p>`},
+ SAHM:{title:'⑬ 고용 둔화 — Sahm Rule 침체 룰', body:`
+   <p>클라우디아 샴이 제안한 <b>실시간 침체 판별 규칙</b>입니다. <b>실업률 3개월 이동평균</b>이 <b>지난 12개월 최저치 대비 +0.5%p</b> 이상 오르면 지표값이 0.5를 넘는데, 과거 미국 침체마다 <b>예외 없이</b> 이 선을 넘었습니다.</p>
+   <p>가격·밸류에이션이 아니라 <b>실물경제(고용)</b>가 실제로 꺾이는지 보는 축이라, 구조적 약세장의 <b>최종 확인</b> 성격입니다(고용은 후행이라 '이미 시작됐다'는 확인에 가까움).</p>
+   <p><b>정상</b>: 0.25 미만. <b>주의</b>: 0.25 이상이거나 최근 상승세. <b>경고</b>: <b>0.50 이상(Sahm Rule 발동)</b> — 침체 진입 신호.</p>
+   <p style="color:var(--faint)">데이터: FRED SAHMREALTIME(월간, 실시간 버전). 월 1회 갱신되어 후행성이 있습니다.</p>`},
 };
 function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
 function closeModal(){$('modal').style.display='none';}
@@ -790,11 +820,53 @@ function renderKrFxSupply(lead){
   setPill('krfx-pill',st);
 }
 
+// ── 신호 ⑫: 수익률곡선 역전→정상화 (T10Y2Y) ──
+function renderYieldCurve(hist){
+  // hist: FRED desc [{date,v}] (미 10년−2년 스프레드, %p). 음수=역전.
+  if(!hist||!hist.length){ SIG.ycurve={st:'green'}; $('yc-big').textContent='데이터 없음'; setPill('yc-pill','green'); return; }
+  const cur=hist[0].v;
+  const win=hist.slice(0,Math.min(252,hist.length));
+  const minV=Math.min.apply(null,win.map(o=>o.v));        // 최근 1년 최저(역전 깊이)
+  const past=hist[Math.min(63,hist.length-1)].v;          // 약 3개월 전
+  const chg=cur-past, steepening=chg>0.1;                 // 정상화(가팔라짐) 방향
+  const wasInv=minV<-0.05, inv=cur<0;                     // 최근 1년 내 역전 이력 / 현재 역전
+  let st='green';
+  if(wasInv && cur>=0 && steepening) st='red';            // 역전 해소 + 정상화 진행 = 침체 임박 구간
+  else if(inv || (wasInv && cur>=0)) st='amber';          // 역전 지속 or 막 해소
+  SIG.ycurve={st,cur,minV,inv,wasInv};
+  $('yc-metrics').innerHTML=
+    `<span class="m ${inv?'down':'up'}">현재 금리차 ${cur>=0?'+':''}${cur.toFixed(2)}%p <span>${inv?'역전':'정상'}</span></span>`
+   +`<span class="m ${wasInv?'down':'flat'}">1년 최저 ${minV>=0?'+':''}${minV.toFixed(2)}%p <span>${wasInv?'역전 이력':'역전 없음'}</span></span>`
+   +`<span class="m ${steepening?'down':'flat'}">3개월 변화 ${(chg>=0?'+':'')+chg.toFixed(2)}%p <span>${steepening?'정상화↑':'—'}</span></span>`;
+  $('yc-big').textContent = st==='red'?'역전 해소·정상화 진행 — 침체 6~12개월 선행 경고'
+    : st==='amber'?(inv?'수익률곡선 역전 중 — 침체 선행 신호':'역전 후 정상화 초입 — 관찰')
+    : '수익률곡선 정상(역전 이력 없음) — 침체 선행 신호 없음';
+  setPill('yc-pill',st);
+}
+// ── 신호 ⑬: 고용 둔화 (Sahm Rule) ──
+function renderSahm(sahm){
+  const cur=sahm&&sahm.length?sahm[0].v:null;
+  if(cur==null){ SIG.sahm={st:'green'}; $('sahm-big').textContent='데이터 없음'; setPill('sahm-pill','green'); return; }
+  const past=sahm&&sahm.length>3?sahm[3].v:null;          // 약 3개월 전
+  const chg=past!=null?cur-past:null, rising=chg!=null&&chg>=0.1;
+  let st='green';
+  if(cur>=0.5) st='red';                                  // Sahm Rule 발동 = 침체
+  else if(cur>=0.25 || (rising&&cur>=0.2)) st='amber';    // 고용 둔화 진행
+  SIG.sahm={st,cur,rising};
+  $('sahm-metrics').innerHTML=
+    `<span class="m ${cur>=0.5?'down':(cur>=0.25?'flat':'up')}">Sahm 지표 ${cur.toFixed(2)} <span>발동선 0.50</span></span>`
+   +(chg!=null?`<span class="m ${rising?'down':'flat'}">3개월 변화 ${(chg>=0?'+':'')+chg.toFixed(2)} <span>${rising?'상승(둔화)':'안정'}</span></span>`:'');
+  $('sahm-big').textContent = st==='red'?'Sahm Rule 발동(≥0.50) — 미국 침체 진입 신호'
+    : st==='amber'?'실업률 상승 중 — 고용 둔화 진행(침체 룰 접근)'
+    : '고용 견조 — Sahm 침체 룰 미발동';
+  setPill('sahm-pill',st);
+}
+
 // ── 종합 (시간지평 2분할) ──
 // 각 신호를 단기(급락 취약성)·중장기(구조적 고점) 지평으로 버킷팅 → 독립 게이지 2개.
 // 버킷 변경은 아래 배열에서 한 줄만 옮기면 됨. 카드 표시는 HTML data-hz 로 제어.
 const HZ_SHORT=[['risk','금융환경/변동성'],['breadth','글로벌 시장폭'],['overheat','과열도'],['krconc','한국 반도체·대차'],['krfx','한국 수급·환율']];
-const HZ_LONG=[['conc','미국 쏠림'],['rate','금리 사이클'],['engine','이익 엔진'],['buffett','버핏지표'],['leverage','레버리지·신용'],['nps','국민연금 수급']];
+const HZ_LONG=[['conc','미국 쏠림'],['rate','금리 사이클'],['engine','이익 엔진'],['buffett','버핏지표'],['leverage','레버리지·신용'],['nps','국민연금 수급'],['ycurve','수익률곡선'],['sahm','고용(Sahm)']];
 const _V={green:0,amber:1,red:2};
 function _tier(score,max,combo){
   const r=max?score/max:0;
@@ -850,13 +922,13 @@ async function load(){
   setLive(true,'불러오는 중…');
   try{
     const OVH=['^GSPC','^IXIC','^KS11','KRW=X'];
-    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp,slbData]=await Promise.all([
+    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp,slbData,sahm]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
       fred('NFCILEVERAGE',60), fred('NFCICREDIT',60),
-      fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5),
+      fred('T10Y2Y',260), fred('NFCI',5), fred('STLFSI4',5),
       semiExport(), krxFetch('005930'), krxFetch('000660'),
-      fred('NCBEILQ027S',8), fred('GDP',8), slbFetch()
+      fred('NCBEILQ027S',8), fred('GDP',8), slbFetch(), fred('SAHMREALTIME',18)
     ]);
     const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
       return Object.assign({},m,{r2w:ok?retAsc(a,10):null,r1:ok?retAsc(a,21):null,r2m:ok?retAsc(a,42):null,r3:ok?retAsc(a,63):null});});
@@ -872,6 +944,8 @@ async function load(){
     renderLeverage(levSub,credSub);
     renderNpsRebal(leadOvh);
     renderKrFxSupply(leadOvh);
+    renderYieldCurve(curve);
+    renderSahm(sahm);
     renderCompositeShort();
     renderCompositeLong();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
