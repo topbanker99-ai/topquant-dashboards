@@ -125,7 +125,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 
 <div class="banner">
   <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 이 보드는 닷컴 고점에서 실제로 나타났던
-  신호들이 지금 얼마나 켜졌는지 <b>10개 신호 / 20점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
+  신호들이 지금 얼마나 켜졌는지 <b>11개 신호 / 22점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
 </div>
 
 <!-- COMPOSITE -->
@@ -243,9 +243,19 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
   </div>
 </div>
 
+<!-- SIGNAL 11: 한국 수급·환율 스트레스 -->
+<div class="card clk" onclick="openExplain('KRFX')" title="누르면 쉬운 설명">
+  <div class="secttl">⑪ 한국 수급·환율 스트레스 — 원/달러 + KOSPI 추세 ⓘ <span class="r">원화 약세=외국인 이탈 · Yahoo</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="krfx-big">—</div><div class="desc">원화가 급하게 약해지면(원/달러↑) <b>외국인 자금이 빠져나가는 신호</b>입니다. 여기에 <b>KOSPI가 200일선을 이탈</b>하거나 고점 대비 조정이 겹치면 한국 증시 매도 압력이 커집니다.</div>
+      <div class="metrics" id="krfx-metrics"></div></div>
+    <span class="pill" id="krfx-pill">—</span>
+  </div>
+</div>
+
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
-  <b>10개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더·원/달러(KRW=X)·KOSPI Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
+  <b>11개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱·환율수급을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -289,8 +299,8 @@ const SIG={}; // 각 신호 상태 저장
 
 const EXPLAIN={
  TIER:{title:'매도 경계 단계란?', body:`
-   <p>아래 <b>10개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림·버핏지표·레버리지/신용·국민연금 리밸런싱)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
-   <p>최대 20점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
+   <p>아래 <b>11개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림·버핏지표·레버리지/신용·국민연금 리밸런싱·한국 수급/환율)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
+   <p>최대 22점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
    <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
@@ -351,6 +361,11 @@ const EXPLAIN={
    <p>시총 역전(하이닉스 > 삼성) 자체는 '꼭지' 신호로 보기 어렵습니다(참고 카드 설명). 이 신호는 역전이 아니라 <b>추세 이탈·성과 분화</b>를 봅니다.</p>
    <p><b>대차잔고 = 공매도 대기물량.</b> 공매도를 하려면 먼저 주식을 빌려야(대차) 하므로, <b>대차잔고 급증은 하락 베팅 자금이 쌓이는 신호</b>입니다. 예탁결제원 데이터로 삼성·하이닉스 대차잔고금액을 추적해, 최근 1개월 <b>둘 다 +15%↑ 급증</b>하면 경계를 한 단계 올립니다.</p>
    <p style="color:var(--faint)">데이터: 공공데이터포털 금융위원회_주식시세정보(시총·종가) + 한국예탁결제원 증권대차(대차잔고, 15157426) + Yahoo Finance 주가추세.</p>`},
+ KRFX:{title:'⑪ 한국 수급·환율 스트레스 — 원/달러 + KOSPI 추세', body:`
+   <p>한국 증시의 상당 부분을 외국인이 쥐고 있어, <b>원화 가치</b>는 외국인 수급의 체온계입니다. 원/달러가 오르면(원화 약세) 외국인은 <b>환차손</b> 때문에 한국 주식을 팔고 나가려는 압력이 커집니다 — 실제 위기 국면마다 <b>원화 급락 + 외국인 순매도</b>가 함께 왔습니다.</p>
+   <p>두 축을 함께 봅니다 — ① <b>원/달러</b>: 200일 평균 대비 위치(약세권 여부)와 <b>최근 1개월 변화</b>(급등=이탈 가속), ② <b>KOSPI</b>: 200일선 이탈 여부와 최근 1년 고점 대비 낙폭.</p>
+   <p><b>정상</b>: 원화 안정 + KOSPI 추세 유지. <b>주의</b>: 원화 약세권/급등, 또는 KOSPI 200일선 이탈·고점 대비 −10% 조정 중 하나. <b>경고</b>: <b>원화 1개월 급등(+2.5%↑, 외국인 이탈 가속) + KOSPI 추세 훼손</b>이 동시에.</p>
+   <p style="color:var(--faint)">데이터: Yahoo Finance 원/달러(KRW=X)·KOSPI(^KS11) — Vercel 프록시 경유. 개인 신용융자잔고(레버리지 되감기)는 깨끗한 공개 API 확보 후 추가 예정.</p>`},
 };
 function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
 function closeModal(){$('modal').style.display='none';}
@@ -701,25 +716,62 @@ function renderBuffett(mktcap, gdp){
   setPill('bf-pill',st);
 }
 
+// ── 신호 ⑪: 한국 수급·환율 스트레스 (원/달러 + KOSPI 추세) ──
+function renderKrFxSupply(lead){
+  const fx=lead&&lead['KRW=X'], ks=lead&&lead['^KS11'];
+  const fxOk=Array.isArray(fx)&&fx.length>200, ksOk=Array.isArray(ks)&&ks.length>200;
+  // 원/달러: 현재·200일선 이격·1개월 변화 (원화 약세=외국인 자금 이탈 압력)
+  const fxNow=fxOk?fx[fx.length-1].c:null;
+  const fx200=fxOk?(fx.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+  const fxDev=(fxNow!=null&&fx200)?(fxNow/fx200-1)*100:null;      // +면 원화 약세(200일 평균보다 높음)
+  const fx1m=fxOk?retAsc(fx,21):null;                             // +면 최근 1개월 원화 약세 진행
+  // KOSPI: 200일선 이격 + 최근 1년 고점 대비 낙폭
+  const ksNow=ksOk?ks[ks.length-1].c:null;
+  const ks200=ksOk?(ks.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+  const ksDev=(ksNow!=null&&ks200)?(ksNow/ks200-1)*100:null;      // -면 200일선 이탈
+  const ksHi=ksOk?Math.max.apply(null,ks.map(x=>x.c)):null;       // 최근 1년 고점
+  const ksDD=(ksNow!=null&&ksHi)?(ksNow/ksHi-1)*100:null;         // 고점 대비 낙폭(≤0)
+  // 플래그
+  const wonWeak=fxDev!=null&&fxDev>=0&&fx1m!=null&&fx1m>=1.0;     // 200일 위 + 최근 약세 진행
+  const wonSurge=fx1m!=null&&fx1m>=2.5;                           // 1개월 급등(외국인 이탈 가속)
+  const ksBelow=ksDev!=null&&ksDev<0;                            // 코스피 추세 이탈
+  const ksCorrection=ksDD!=null&&ksDD<=-10;                       // 고점 대비 -10%↑ 조정
+  let st='green';
+  if(wonSurge&&(ksBelow||ksCorrection)) st='red';                // 환율 급등 + 코스피 추세훼손 동반
+  else if(wonWeak||wonSurge||ksBelow||ksCorrection) st='amber';
+  SIG.krfx={st,fxNow,fxDev,fx1m,ksDev,ksDD};
+  const won=v=>v==null?'—':Math.round(v).toLocaleString()+'원';
+  $('krfx-metrics').innerHTML=[
+    `<span class="m ${fxDev!=null&&fxDev>=0?'down':'up'}">원/달러 ${won(fxNow)} <span>200일 ${fxDev!=null?(fxDev>=0?'+':'')+fxDev.toFixed(1)+'%':'—'}</span></span>`,
+    `<span class="m ${fx1m!=null&&fx1m>=0?'down':'up'}">원화 1개월 ${fx1m!=null?(fx1m>=0?'+':'')+fx1m.toFixed(1)+'%':'—'}<span> ${fx1m==null?'':(fx1m>=0?'약세(이탈 압력)':'강세')}</span></span>`,
+    `<span class="m ${ksBelow?'down':'up'}">KOSPI 200일선 ${ksDev!=null?(ksDev>=0?'+':'')+ksDev.toFixed(1)+'%':'—'}<span> ${ksDev==null?'':(ksBelow?'▼이탈':'▲위')}</span></span>`,
+    `<span class="m ${ksCorrection?'down':'flat'}">고점 대비 ${ksDD!=null?ksDD.toFixed(1)+'%':'—'}<span> 1년 내</span></span>`,
+  ].join('');
+  $('krfx-big').textContent = st==='red'?'원화 급속 약세(외국인 이탈) + KOSPI 추세 훼손 동반 — 한국 수급 경고'
+    : st==='amber'?(wonSurge?'원화 급등 — 외국인 자금 이탈 압력':((ksBelow||ksCorrection)?'KOSPI 추세 약화 — 수급 주의':'원화 약세권 — 관찰'))
+    : '원화 안정 + KOSPI 추세 유지 — 외국인 수급 양호';
+  setPill('krfx-pill',st);
+}
+
 // ── 종합 ──
 function renderComposite(){
   const v={green:0,amber:1,red:2};
-  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett,SIG.leverage,SIG.nps].filter(Boolean);
-  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..20
+  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett,SIG.leverage,SIG.nps,SIG.krfx].filter(Boolean);
+  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..22
   let lvl,col,posPct;
   const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
-  if(combo||score>=15){lvl='매도 검토';col='#f2706e';posPct=94;}
-  else if(score>=11){lvl='경계';col='#f2706e';posPct=76;}
-  else if(score>=6){lvl='주의';col='#f5b53f';posPct=52;}
+  if(combo||score>=16){lvl='매도 검토';col='#f2706e';posPct=94;}
+  else if(score>=12){lvl='경계';col='#f2706e';posPct=76;}
+  else if(score>=7){lvl='주의';col='#f5b53f';posPct=52;}
   else if(score>=1){lvl='관찰';col='#5b8def';posPct=26;}
   else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
   $('lvl').textContent=lvl; $('lvl').style.color=col;
-  $('score').textContent='경계 점수 '+score+'/20 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/10';
+  $('score').textContent='경계 점수 '+score+'/22 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/11';
   $('mk').style.left=posPct+'%';
   renderNarrative(lvl,score,combo);
 }
 function renderNarrative(lvl,score,combo){
-  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도',krconc:'한국 반도체',buffett:'버핏지표',leverage:'레버리지·신용',nps:'국민연금 수급'};
+  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도',krconc:'한국 반도체',buffett:'버핏지표',leverage:'레버리지·신용',nps:'국민연금 수급',krfx:'한국 수급·환율'};
   const fired=Object.keys(names).filter(k=>SIG[k]&&SIG[k].st!=='green').map(k=>names[k]+'('+PILL[SIG[k].st]+')');
   const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, lg=SIG.leverage||{}, np=SIG.nps||{};
   let line1, line2;
@@ -734,14 +786,14 @@ function renderNarrative(lvl,score,combo){
     line2=`${e.st==='red'?'<b class="r">주도주 이익 엔진 둔화 조짐</b>이 핵심 — 박사가 말한 진짜 매도 트리거입니다. ':''}박사의 결정적 조합(글로벌 폭+금리 동시)은 아직 아니니, 보루(대만·유럽)·금리 방향·이익 엔진을 집중 관찰하세요.`;
   }
   const npsTxt = np.w!=null ? `국민연금 수급: 국내주식 추정 비중 <b>${np.w.toFixed(1)}%</b>(목표 20.8%)${np.st==='red'?' → <b class="r">상단밴드 초과, 리밸런싱 강제매도 구간</b>':np.st==='amber'?' → 밴드 접근(매도 압력 누적)':' → 매도 압력 제한적'}` : '';
-  const levTxt = `<span class="narr-foot">${npsTxt?npsTxt+' · ':''}10개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>`;
+  const levTxt = `<span class="narr-foot">${npsTxt?npsTxt+' · ':''}11개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>`;
   $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}<br>${levTxt}`;
 }
 
 async function load(){
   setLive(true,'불러오는 중…');
   try{
-    const OVH=['^GSPC','^IXIC','^KS11'];
+    const OVH=['^GSPC','^IXIC','^KS11','KRW=X'];
     const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp,slbData]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
@@ -763,6 +815,7 @@ async function load(){
     renderBuffett(buffMktcap,buffGdp);
     renderLeverage(levSub,credSub);
     renderNpsRebal(leadOvh);
+    renderKrFxSupply(leadOvh);
     renderComposite();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
   }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
