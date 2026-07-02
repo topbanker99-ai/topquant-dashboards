@@ -171,6 +171,12 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
     <span>1개월 <span class="mono" id="d20">—</span></span>
     <span style="color:var(--faint)">▲ = 원화 약세(달러 강세) · ▼ = 원화 강세</span>
   </div>
+  <div class="deltas" id="fxAvgs" style="border-top:1px dashed var(--line);padding-top:9px;margin-top:2px">
+    <span>3개월 평균 <b class="mono" id="avg3m">—</b> <span class="mono" id="dev3m" style="font-size:11.5px"></span></span>
+    <span>6개월 평균 <b class="mono" id="avg6m">—</b> <span class="mono" id="dev6m" style="font-size:11.5px"></span></span>
+    <span>1년 평균 <b class="mono" id="avg12m">—</b> <span class="mono" id="dev12m" style="font-size:11.5px"></span></span>
+    <span style="color:var(--faint)">( ) = 현재가의 평균 대비 편차 · ▲평균보다 약세 ▼강세</span>
+  </div>
   <div class="chartwrap"><canvas id="fxChart" height="104"></canvas></div>
 </div>
 
@@ -347,7 +353,7 @@ const cls=p=> p>0.001?'down':(p<-0.001?'up':'flat'); // 원/달러↑(약세)=ro
 function fmtNum(v,unit){ if(v==null)return '—'; const d=Math.abs(v)>=100?0:(Math.abs(v)>=10?2:2); return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})+(unit||''); }
 
 async function loadHero(days){
-  const data=await fred('DEXKOUS', Math.max(days+15,130)); // SMA60·RSI 계산 여유분 확보
+  const data=await fred('DEXKOUS', Math.max(days+15,275)); // SMA60·RSI + 1년 평균(252거래일) 여유분 확보
   fxData=data;
   const px=data[0].v;
   $('fxPx').textContent=px.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -355,6 +361,15 @@ async function loadHero(days){
   const setD=(el,p)=>{const e=$(el);e.className='mono '+cls(p);e.textContent=arrow(p)+' '+fmtPct(p);};
   $('fxDay').className='d '+cls(d1); $('fxDay').textContent=arrow(d1)+' '+(d1==null?'—':fmtPct(d1));
   setD('d1',d1);setD('d5',d5);setD('d20',d20);
+  // ── 기간 평균 (거래일 기준: 3M≈63, 6M≈126, 1Y≈252) + 현재가의 평균 대비 편차 ──
+  const avgN=n=>{ const m=Math.min(n,data.length); if(m<5)return null; let s=0; for(let i=0;i<m;i++)s+=data[i].v; return s/m; };
+  const wonFmt=v=> v==null?'—':v.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const setAvg=(avgEl,devEl,n)=>{
+    const a=avgN(n); $(avgEl).textContent=wonFmt(a);
+    const dev=(a&&px)?(px/a-1)*100:null; const e=$(devEl);
+    e.className='mono '+cls(dev); e.textContent=dev==null?'':'('+arrow(dev)+fmtPct(dev)+')';
+  };
+  setAvg('avg3m','dev3m',63); setAvg('avg6m','dev6m',126); setAvg('avg12m','dev12m',252);
   // chart (오래된→최신)
   const slice=data.slice(0,days).reverse();
   const labels=slice.map(d=>d.date.slice(2)),vals=slice.map(d=>d.v);
