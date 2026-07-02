@@ -111,7 +111,10 @@ table.tv{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
 <div class="card">
   <div class="secttl"><span class="clk" onclick="openExplain()" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">시리즈 켜기/끄기 ⓘ</span>
     <span class="r">
-      <span class="seg" id="periodSeg">
+      <span class="seg" id="basisSeg" title="지수 환산 기준 통화">
+        <button data-b="local" class="on">자국통화</button><button data-b="usd">달러 $</button><button data-b="krw">원화 ₩</button>
+      </span>
+      &nbsp;<span class="seg" id="periodSeg">
         <button data-r="3mo">3M</button><button data-r="6mo" class="on">6M</button><button data-r="1y">1Y</button><button data-r="2y">2Y</button>
       </span>
       &nbsp;<button class="btn" id="tblBtn">표</button>
@@ -124,13 +127,14 @@ table.tv{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
   <div class="hint">
     실선=주가지수 · <b style="color:var(--mute)">파선=원/달러</b> · <b style="color:var(--mute)">점선 계단=미 연준금리</b>.
     세로축은 <b style="color:var(--mute)">기간 시작일 대비 변화율(%)</b>이며, 연준금리만 <b style="color:var(--mute)">%p 변화</b>(예: 4.3%→3.6% = −0.7)로 표시해 같은 축에서 방향을 비교합니다.
-    마우스를 올리면 각 시리즈의 실제 값이 표시됩니다. 선택한 조합과 기간은 브라우저에 저장됩니다.
+    <b style="color:var(--mute)">기준통화</b>: 자국통화=각 지수 원래 통화 그대로 · 달러/원화=해당 통화로 환산한 수익률(환율 변동 반영 — 예: 원화 약세면 코스피의 달러 환산 수익률은 낮아짐). 환율·금리 시리즈는 기준과 무관.
+    마우스를 올리면 실제 값(자국통화)이 표시됩니다. 선택한 조합·기간·기준은 브라우저에 저장됩니다.
   </div>
 </div>
 
 <div class="disc">
-  ※ 출처: 글로벌 주가지수·원/달러(KRW=X) Yahoo Finance, 미 연준 실효금리(DFF) FRED — 모두 Vercel 프록시 경유.
-  <b>서로 스케일이 다른 시리즈를 한 축에서 비교하기 위해 기간 시작일 기준으로 정규화</b>했습니다. 거래일 차이(휴장)는 직전 값으로 보간됩니다.
+  ※ 출처: 글로벌 주가지수·환율(KRW·JPY·TWD·CNY·EURUSD) Yahoo Finance, 미 연준 실효금리(DFF) FRED — 모두 Vercel 프록시 경유.
+  <b>서로 스케일이 다른 시리즈를 한 축에서 비교하기 위해 기간 시작일 기준으로 정규화</b>했으며, 달러/원화 기준 선택 시 각 지수를 해당 통화로 환산한 뒤 정규화합니다(환율 변동 반영). 거래일 차이(휴장)는 직전 값으로 보간됩니다.
   보조 지표이며 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -143,6 +147,7 @@ table.tv{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
       <p>지수·환율은 값 크기가 제각각(코스피 8천 vs 닛케이 7만)이라 그대로 겹칠 수 없어, <b>기간 시작일=0%</b>로 맞춘 <b>변화율</b>로 그립니다. "누가 더 올랐나"를 보는 차트입니다.</p>
       <p><b>미 연준금리(점선 계단)</b>는 %p 변화로 표시합니다 — 금리 인하기에 지수가 어떻게 반응했는지 겹쳐볼 때 유용합니다.</p>
       <p><b>원/달러(파선)</b>가 오르면(원화 약세) 보통 코스피 외국인 수급에 부담 — 지수와 반대로 움직이는지 확인해 보세요.</p>
+      <p><b>기준통화 버튼:</b> ① <b>자국통화</b> = 각 지수를 원래 통화 그대로(코스피는 원화, 닛케이는 엔화). ② <b>달러 $</b> = 모두 달러로 환산 — 미국 투자자/외국인 관점의 실제 수익률. ③ <b>원화 ₩</b> = 모두 원화로 환산 — 한국 투자자가 해외지수에 투자했을 때 환차손익 포함 수익률. 예: 원화가 약세면 코스피의 달러 환산 수익률은 자국통화보다 낮아지고, 반대로 S&P의 원화 환산 수익률은 높아집니다.</p>
       <p style="color:var(--faint)">색은 색각이상(적록색약)에서도 인접 구분이 가능하도록 검증된 9색 팔레트이며, 환율·금리는 선 모양(파선·점선)으로도 구분됩니다.</p>
     </div>
   </div>
@@ -155,31 +160,35 @@ const $=id=>document.getElementById(id);
 
 // 색은 엔티티 고정(토글해도 불변). CVD 검증 통과 9색 + 환율/금리는 선 스타일 보조 인코딩.
 const SERIES=[
- {key:'ks', sym:'^KS11',    n:'코스피',        col:'#c98500', kind:'idx',  on:true},
- {key:'tw', sym:'^TWII',    n:'대만 가권',      col:'#3987e5', kind:'idx',  on:false},
- {key:'jp', sym:'^N225',    n:'일본 닛케이',    col:'#199e70', kind:'idx',  on:false},
- {key:'eu', sym:'^STOXX50E',n:'유럽 STOXX50',  col:'#9085e9', kind:'idx',  on:false},
- {key:'cn', sym:'000001.SS',n:'중국 상하이',    col:'#e05252', kind:'idx',  on:false},
- {key:'sp', sym:'^GSPC',    n:'미국 S&P500',   col:'#0d9488', kind:'idx',  on:true},
- {key:'nq', sym:'^IXIC',    n:'미국 나스닥',    col:'#d55181', kind:'idx',  on:true},
+ {key:'ks', sym:'^KS11',    n:'코스피',        col:'#c98500', kind:'idx',  ccy:'KRW', on:true},
+ {key:'tw', sym:'^TWII',    n:'대만 가권',      col:'#3987e5', kind:'idx',  ccy:'TWD', on:false},
+ {key:'jp', sym:'^N225',    n:'일본 닛케이',    col:'#199e70', kind:'idx',  ccy:'JPY', on:false},
+ {key:'eu', sym:'^STOXX50E',n:'유럽 STOXX50',  col:'#9085e9', kind:'idx',  ccy:'EUR', on:false},
+ {key:'cn', sym:'000001.SS',n:'중국 상하이',    col:'#e05252', kind:'idx',  ccy:'CNY', on:false},
+ {key:'sp', sym:'^GSPC',    n:'미국 S&P500',   col:'#0d9488', kind:'idx',  ccy:'USD', on:true},
+ {key:'nq', sym:'^IXIC',    n:'미국 나스닥',    col:'#d55181', kind:'idx',  ccy:'USD', on:true},
  {key:'fx', sym:'KRW=X',    n:'원/달러 환율',   col:'#0284c7', kind:'fx',   on:false, dash:[7,4]},
  {key:'dff',sym:'DFF',      n:'미 연준금리',    col:'#d95926', kind:'rate', on:false, dash:[2,3], step:true},
 ];
-let period='6mo', cache={}, chart=null, showTbl=false;
+// 지수 환산용 환율 (모두 'USD당 해당 통화' 로 저장; EURUSD는 역수 처리)
+const FXSYMS={KRW:'KRW=X',JPY:'JPY=X',TWD:'TWD=X',CNY:'CNY=X',EUR:'EURUSD=X'};
+let period='6mo', basis='local', cache={}, fxMap={}, chart=null, showTbl=false;
 
 // 선택 상태 복원
 try{ const s=JSON.parse(localStorage.getItem('cmp_sel')||'null');
   if(Array.isArray(s)) SERIES.forEach(x=>x.on=s.includes(x.key));
   const p=localStorage.getItem('cmp_period'); if(p) period=p;
+  const b=localStorage.getItem('cmp_basis'); if(['local','usd','krw'].includes(b)) basis=b;
 }catch(e){}
 
 function persist(){ localStorage.setItem('cmp_sel',JSON.stringify(SERIES.filter(x=>x.on).map(x=>x.key)));
-  localStorage.setItem('cmp_period',period); }
+  localStorage.setItem('cmp_period',period); localStorage.setItem('cmp_basis',basis); }
 
 function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
 
 async function fetchAll(){
-  const syms=SERIES.filter(x=>x.kind!=='rate').map(x=>x.sym);
+  const syms=SERIES.filter(x=>x.kind!=='rate').map(x=>x.sym)
+    .concat(Object.values(FXSYMS).filter(s=>s!=='KRW=X')); // KRW=X는 시리즈로 이미 포함
   const days={ '3mo':70, '6mo':135, '1y':260, '2y':520 }[period]||260;
   const [idx,dffRaw]=await Promise.all([
     fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range='+period,{cache:'no-store'}).then(r=>{
@@ -198,6 +207,12 @@ async function fetchAll(){
       cache[s.key]=(idx.data&&idx.data[s.sym])||[];
     }
   });
+  // 환산용 환율: 'USD당 통화' 로 통일 (EURUSD=X 는 USD/EUR 이므로 역수)
+  fxMap={};
+  Object.entries(FXSYMS).forEach(([ccy,sym])=>{
+    const arr=(idx.data&&idx.data[sym])||[];
+    fxMap[ccy]=arr.map(o=>({t:o.t,c:ccy==='EUR'?(o.c?1/o.c:null):o.c})).filter(o=>o.c!=null);
+  });
 }
 
 // 마스터 날짜축 = 켜진 지수/환율 시리즈 날짜 합집합(금리는 일별이라 축 생성엔 제외)
@@ -207,15 +222,30 @@ function build(){
   act.filter(s=>s.kind!=='rate').forEach(s=>(cache[s.key]||[]).forEach(o=>dset.add(o.t)));
   if(!dset.size && act.length) (cache[act[0].key]||[]).forEach(o=>dset.add(o.t));
   const dates=[...dset].sort();
+  // 통화별 'USD당 환율'을 마스터 날짜축에 전진보간(ffill)
+  const rateArr=ccy=>{
+    if(ccy==='USD') return dates.map(()=>1);
+    const m={}; (fxMap[ccy]||[]).forEach(o=>m[o.t]=o.c);
+    let last=null; return dates.map(d=>{ if(m[d]!=null)last=m[d]; return last; });
+  };
+  const rates={}; act.forEach(s=>{ if(s.kind==='idx'&&!rates[s.ccy]) rates[s.ccy]=rateArr(s.ccy); });
+  const krwRate=basis==='krw'?rateArr('KRW'):null;
   const datasets=act.map(s=>{
     const m={}; (cache[s.key]||[]).forEach(o=>m[o.t]=o.c);
     let last=null, base=null;
-    const raw=[], ys=dates.map(d=>{
+    const raw=[], ys=dates.map((d,i)=>{
       if(m[d]!=null) last=m[d];
       raw.push(last);
       if(last==null) return null;
-      if(base==null) base=last;
-      return s.kind==='rate' ? +(last-base).toFixed(2) : +((last/base-1)*100).toFixed(2);
+      let v=last;
+      // 지수만 기준통화 환산: 자국통화→USD(÷ USD당통화) →원화(× USD당원)
+      if(s.kind==='idx' && basis!=='local'){
+        const r=rates[s.ccy][i]; if(r==null) return null;
+        v=v/r;
+        if(basis==='krw'){ const k=krwRate[i]; if(k==null) return null; v=v*k; }
+      }
+      if(base==null) base=v;
+      return s.kind==='rate' ? +(v-base).toFixed(2) : +((v/base-1)*100).toFixed(2);
     });
     return { label:s.n, data:ys, _raw:raw, _s:s,
       borderColor:s.col, backgroundColor:s.col, borderWidth:2,
@@ -255,7 +285,7 @@ function render(){
             return ` ${s.n}  ${rtxt}  (${ntxt})`;}}}},
       scales:{x:{grid:{color:'#1b2438'},ticks:{maxTicksLimit:9,color:'#8593ab',font:{family:'IBM Plex Mono'}}},
         y:{grid:{color:'#1b2438'},ticks:{color:'#8593ab',font:{family:'IBM Plex Mono'},callback:v=>(v>=0?'+':'')+v+'%'},
-          title:{display:true,text:'기간 시작 대비 변화 (지수·환율 % · 금리 %p)',color:'#5d6b85',font:{size:11}}}}},
+          title:{display:true,text:'기간 시작 대비 변화 · '+({local:'자국통화 기준',usd:'달러($) 환산 기준',krw:'원화(₩) 환산 기준'}[basis])+' (지수·환율 % · 금리 %p)',color:'#5d6b85',font:{size:11}}}}},
     plugins:[endLabel]});
   renderChips(); renderTable(dates,datasets);
 }
@@ -292,6 +322,11 @@ $('periodSeg').addEventListener('click',e=>{
   [...$('periodSeg').children].forEach(x=>x.classList.remove('on')); b.classList.add('on');
   period=b.dataset.r; persist(); load();
 });
+$('basisSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  [...$('basisSeg').children].forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  basis=b.dataset.b; persist(); render(); // 환율은 이미 캐시에 있어 재조회 불필요
+});
 $('tblBtn').onclick=()=>{showTbl=!showTbl;$('tblBtn').classList.toggle('on',showTbl);const {dates,datasets}=build();renderTable(dates,datasets);};
 $('refreshBtn').onclick=()=>load();
 function openExplain(){$('modal').style.display='flex';}
@@ -301,8 +336,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modal').style.dis
 
 async function load(){
   setLive(true,'불러오는 중…');
-  // 기간 세그 표시 동기화(복원 대비)
+  // 기간·기준 세그 표시 동기화(복원 대비)
   [...$('periodSeg').children].forEach(x=>x.classList.toggle('on',x.dataset.r===period));
+  [...$('basisSeg').children].forEach(x=>x.classList.toggle('on',x.dataset.b===basis));
   try{
     await fetchAll(); render();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
