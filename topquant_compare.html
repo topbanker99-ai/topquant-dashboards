@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 글로벌 비교차트</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1180px;margin:0 auto;padding:30px 28px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:16px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--rose)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.status{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.live{display:inline-flex;align-items:center;gap:7px;color:#7ee7da;font-size:12px;
+background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.4);border-radius:8px;padding:4px 11px}
+.live .pulse{width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:p 1.6s infinite}
+.live.err{color:#f2a3a2;background:rgba(242,112,110,.12);border-color:rgba(242,112,110,.4)}
+.live.err .pulse{background:#f2706e;animation:none}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)}70%{box-shadow:0 0 0 7px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:14px;letter-spacing:.2px;flex-wrap:wrap}
+.secttl::before{content:"";width:22px;height:1px;background:var(--rose)}
+.secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.clk{cursor:pointer}
+.btn{background:var(--panel2);color:var(--mute);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:600;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace}
+.btn:hover{color:var(--ink)}
+.btn.on{color:#0d1320;background:var(--teal);border-color:var(--teal)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{background:transparent;color:var(--mute);border:0;padding:6px 13px;font-weight:600;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace}
+.seg button.on{background:var(--teal);color:#0d1320}
+/* series toggle chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);
+border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--faint);cursor:pointer;transition:.12s;user-select:none}
+.chip .sw{width:14px;height:0;border-top-width:3px;border-top-style:solid;border-radius:2px;opacity:.35;transition:.12s}
+.chip.on{color:var(--ink)}
+.chip.on .sw{opacity:1}
+.chip:hover{border-color:var(--faint)}
+.chip.on{border-color:currentColor}
+.chip .lv{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint);font-weight:400}
+.chartwrap{position:relative;height:430px}
+@media(max-width:760px){.chartwrap{height:330px}}
+.hint{font-size:11.5px;color:var(--faint);margin-top:10px;line-height:1.6}
+/* table view */
+table.tv{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+.tv th{color:var(--faint);font-weight:600;text-align:right;padding:7px 10px;border-bottom:1px solid var(--line);font-size:11.5px}
+.tv th:first-child,.tv td:first-child{text-align:left}
+.tv td{padding:8px 10px;border-bottom:1px solid var(--panel2);text-align:right;font-family:'IBM Plex Mono',monospace}
+.tv td:first-child{font-family:'Space Grotesk',sans-serif;font-weight:600}
+.tv .dotc{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:1px}
+.up{color:#2dd4bf}.down{color:#f2706e}.flat{color:var(--mute)}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.disc b{color:var(--mute)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(5,9,16,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:470px;width:100%;padding:20px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:var(--ink)}
+.modal-head button{background:transparent;border:none;color:var(--mute);font-size:16px;cursor:pointer}
+.modal-body{font-size:13px;color:var(--mute);line-height:1.7;margin-top:12px}
+.modal-body p{margin-bottom:9px}.modal-body b{color:var(--ink)}
+.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:22px}
+.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
+.topnav a:hover{color:var(--ink);background:var(--panel2)}
+.topnav a.on{background:var(--teal);color:#0d1320}
+.topnav .brand{color:var(--ink);font-weight:700}
+.topnav .brand .dot{color:var(--teal)}
+.topnav .sp{flex:1 1 8px}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
+  <a href="topquant_macro.html">매크로</a>
+  <a href="topquant_treasury.html">국채</a>
+  <a href="topquant_news.html">뉴스</a>
+  <a href="topquant_realtime.html">실시간</a>
+  <a href="topquant_compare.html">비교차트</a>
+  <a href="topquant_fx.html">원/달러</a>
+  <a href="topquant_sell.html">매도</a>
+  <a href="topquant_heatmap.html">시장맵</a>
+  <a href="topquant_nps.html">연금예측</a>
+  <a href="topquant_buffett.html">버핏예측</a>
+  <span class="sp"></span>
+</nav>
+<script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  document.querySelectorAll('.topnav a').forEach(function(a){
+    var h=(a.getAttribute('href')||'').toLowerCase();
+    if(h===f||(f===''&&h==='index.html'))a.classList.add('on');});})();</script>
+
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 글로벌 비교차트</h1>
+    <div class="sub">지수·환율·금리를 원하는 조합으로 겹쳐보기 — 기간 시작일 기준 변화율로 정규화 (Yahoo·FRED, 프록시 경유)</div>
+  </div>
+  <div class="status">
+    <div id="liveBadge" class="live"><span class="pulse"></span><span id="liveText">불러오는 중…</span></div>
+    <div id="lastUpd" style="margin-top:6px">—</div>
+  </div>
+</header>
+
+<div class="card">
+  <div class="secttl"><span class="clk" onclick="openExplain()" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">시리즈 켜기/끄기 ⓘ</span>
+    <span class="r">
+      <span class="seg" id="periodSeg">
+        <button data-r="3mo">3M</button><button data-r="6mo" class="on">6M</button><button data-r="1y">1Y</button><button data-r="2y">2Y</button>
+      </span>
+      &nbsp;<button class="btn" id="tblBtn">표</button>
+      <button class="btn" id="refreshBtn">새로고침</button>
+    </span>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="chartwrap" id="chartwrap"><canvas id="cmp"></canvas></div>
+  <div id="tblwrap" style="display:none"></div>
+  <div class="hint">
+    실선=주가지수 · <b style="color:var(--mute)">파선=원/달러</b> · <b style="color:var(--mute)">점선 계단=미 연준금리</b>.
+    세로축은 <b style="color:var(--mute)">기간 시작일 대비 변화율(%)</b>이며, 연준금리만 <b style="color:var(--mute)">%p 변화</b>(예: 4.3%→3.6% = −0.7)로 표시해 같은 축에서 방향을 비교합니다.
+    마우스를 올리면 각 시리즈의 실제 값이 표시됩니다. 선택한 조합과 기간은 브라우저에 저장됩니다.
+  </div>
+</div>
+
+<div class="disc">
+  ※ 출처: 글로벌 주가지수·원/달러(KRW=X) Yahoo Finance, 미 연준 실효금리(DFF) FRED — 모두 Vercel 프록시 경유.
+  <b>서로 스케일이 다른 시리즈를 한 축에서 비교하기 위해 기간 시작일 기준으로 정규화</b>했습니다. 거래일 차이(휴장)는 직전 값으로 보간됩니다.
+  보조 지표이며 투자 판단과 책임은 본인에게 있습니다.
+</div>
+
+<!-- 설명 모달 -->
+<div id="modal" class="modal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-head"><span>비교차트 읽는 법</span><button id="m-close" type="button">✕</button></div>
+    <div class="modal-body">
+      <p><b>칩을 눌러</b> 원하는 시리즈만 켜고 끕니다. 색은 시리즈마다 고정이라 조합을 바꿔도 같은 색을 유지합니다.</p>
+      <p>지수·환율은 값 크기가 제각각(코스피 8천 vs 닛케이 7만)이라 그대로 겹칠 수 없어, <b>기간 시작일=0%</b>로 맞춘 <b>변화율</b>로 그립니다. "누가 더 올랐나"를 보는 차트입니다.</p>
+      <p><b>미 연준금리(점선 계단)</b>는 %p 변화로 표시합니다 — 금리 인하기에 지수가 어떻게 반응했는지 겹쳐볼 때 유용합니다.</p>
+      <p><b>원/달러(파선)</b>가 오르면(원화 약세) 보통 코스피 외국인 수급에 부담 — 지수와 반대로 움직이는지 확인해 보세요.</p>
+      <p style="color:var(--faint)">색은 색각이상(적록색약)에서도 인접 구분이 가능하도록 검증된 9색 팔레트이며, 환율·금리는 선 모양(파선·점선)으로도 구분됩니다.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const PROXY='https://fred-proxy-nine.vercel.app';
+const $=id=>document.getElementById(id);
+
+// 색은 엔티티 고정(토글해도 불변). CVD 검증 통과 9색 + 환율/금리는 선 스타일 보조 인코딩.
+const SERIES=[
+ {key:'ks', sym:'^KS11',    n:'코스피',        col:'#c98500', kind:'idx',  on:true},
+ {key:'tw', sym:'^TWII',    n:'대만 가권',      col:'#3987e5', kind:'idx',  on:false},
+ {key:'jp', sym:'^N225',    n:'일본 닛케이',    col:'#199e70', kind:'idx',  on:false},
+ {key:'eu', sym:'^STOXX50E',n:'유럽 STOXX50',  col:'#9085e9', kind:'idx',  on:false},
+ {key:'cn', sym:'000001.SS',n:'중국 상하이',    col:'#e05252', kind:'idx',  on:false},
+ {key:'sp', sym:'^GSPC',    n:'미국 S&P500',   col:'#0d9488', kind:'idx',  on:true},
+ {key:'nq', sym:'^IXIC',    n:'미국 나스닥',    col:'#d55181', kind:'idx',  on:true},
+ {key:'fx', sym:'KRW=X',    n:'원/달러 환율',   col:'#0284c7', kind:'fx',   on:false, dash:[7,4]},
+ {key:'dff',sym:'DFF',      n:'미 연준금리',    col:'#d95926', kind:'rate', on:false, dash:[2,3], step:true},
+];
+let period='6mo', cache={}, chart=null, showTbl=false;
+
+// 선택 상태 복원
+try{ const s=JSON.parse(localStorage.getItem('cmp_sel')||'null');
+  if(Array.isArray(s)) SERIES.forEach(x=>x.on=s.includes(x.key));
+  const p=localStorage.getItem('cmp_period'); if(p) period=p;
+}catch(e){}
+
+function persist(){ localStorage.setItem('cmp_sel',JSON.stringify(SERIES.filter(x=>x.on).map(x=>x.key)));
+  localStorage.setItem('cmp_period',period); }
+
+function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
+
+async function fetchAll(){
+  const syms=SERIES.filter(x=>x.kind!=='rate').map(x=>x.sym);
+  const days={ '3mo':70, '6mo':135, '1y':260, '2y':520 }[period]||260;
+  const [idx,dffRaw]=await Promise.all([
+    fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range='+period,{cache:'no-store'}).then(r=>{
+      if(!r.ok)throw new Error('지수 HTTP '+r.status); return r.json();}),
+    fetch(PROXY+'/api/fred?series_id=DFF&limit='+Math.round(days*1.5)+'&sort_order=desc',{cache:'no-store'}).then(r=>{
+      if(!r.ok)throw new Error('FRED HTTP '+r.status); return r.json();})
+  ]);
+  if(!idx.ok) throw new Error(idx.error||'index err');
+  cache={};
+  SERIES.forEach(s=>{
+    if(s.kind==='rate'){
+      cache[s.key]=((dffRaw&&dffRaw.observations)||[])
+        .map(o=>({t:o.date,c:o.value==='.'?null:parseFloat(o.value)}))
+        .filter(o=>o.c!=null).reverse(); // 오래된→최신
+    }else{
+      cache[s.key]=(idx.data&&idx.data[s.sym])||[];
+    }
+  });
+}
+
+// 마스터 날짜축 = 켜진 지수/환율 시리즈 날짜 합집합(금리는 일별이라 축 생성엔 제외)
+function build(){
+  const act=SERIES.filter(x=>x.on);
+  const dset=new Set();
+  act.filter(s=>s.kind!=='rate').forEach(s=>(cache[s.key]||[]).forEach(o=>dset.add(o.t)));
+  if(!dset.size && act.length) (cache[act[0].key]||[]).forEach(o=>dset.add(o.t));
+  const dates=[...dset].sort();
+  const datasets=act.map(s=>{
+    const m={}; (cache[s.key]||[]).forEach(o=>m[o.t]=o.c);
+    let last=null, base=null;
+    const raw=[], ys=dates.map(d=>{
+      if(m[d]!=null) last=m[d];
+      raw.push(last);
+      if(last==null) return null;
+      if(base==null) base=last;
+      return s.kind==='rate' ? +(last-base).toFixed(2) : +((last/base-1)*100).toFixed(2);
+    });
+    return { label:s.n, data:ys, _raw:raw, _s:s,
+      borderColor:s.col, backgroundColor:s.col, borderWidth:2,
+      pointRadius:0, pointHoverRadius:4, tension:.12, spanGaps:true,
+      borderDash:s.dash||[], stepped:!!s.step };
+  });
+  return {dates,datasets};
+}
+
+// 켜진 시리즈 ≤5개일 때 선 끝에 이름 직접 라벨(겹침 방지 위해 소수일 때만)
+const endLabel={ id:'endLabel', afterDatasetsDraw(c){
+  if(c.data.datasets.length>5) return;
+  const ctx=c.ctx; ctx.save(); ctx.font='600 11px "IBM Plex Mono",monospace';
+  c.data.datasets.forEach((ds,i)=>{
+    const meta=c.getDatasetMeta(i); if(!meta.visible) return;
+    let pt=null; for(let j=meta.data.length-1;j>=0;j--){ if(ds.data[j]!=null){pt=meta.data[j];break;} }
+    if(!pt) return;
+    ctx.fillStyle=ds.borderColor;
+    ctx.fillText(ds._s.key.toUpperCase(), Math.min(pt.x+6, c.chartArea.right-34), pt.y+4);
+  });
+  ctx.restore();
+}};
+
+function render(){
+  const {dates,datasets}=build();
+  if(chart)chart.destroy();
+  chart=new Chart($('cmp'),{type:'line',
+    data:{labels:dates.map(d=>d.slice(2)),datasets},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},
+        tooltip:{backgroundColor:'#1b2438',borderColor:'#27324a',borderWidth:1,
+          itemSort:(a,b)=>(b.parsed.y??-1e9)-(a.parsed.y??-1e9),
+          callbacks:{label:c=>{
+            const s=c.dataset._s, rv=c.dataset._raw[c.dataIndex];
+            const rtxt=rv==null?'':(s.kind==='rate'?rv.toFixed(2)+'%':(s.kind==='fx'?Math.round(rv).toLocaleString()+'원':Math.round(rv).toLocaleString()));
+            const ntxt=c.parsed.y==null?'—':(c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(2)+(s.kind==='rate'?'%p':'%');
+            return ` ${s.n}  ${rtxt}  (${ntxt})`;}}}},
+      scales:{x:{grid:{color:'#1b2438'},ticks:{maxTicksLimit:9,color:'#8593ab',font:{family:'IBM Plex Mono'}}},
+        y:{grid:{color:'#1b2438'},ticks:{color:'#8593ab',font:{family:'IBM Plex Mono'},callback:v=>(v>=0?'+':'')+v+'%'},
+          title:{display:true,text:'기간 시작 대비 변화 (지수·환율 % · 금리 %p)',color:'#5d6b85',font:{size:11}}}}},
+    plugins:[endLabel]});
+  renderChips(); renderTable(dates,datasets);
+}
+
+function chgCls(v){return v==null?'flat':(v>0.001?'up':(v<-0.001?'down':'flat'));}
+function renderChips(){
+  $('chips').innerHTML=SERIES.map(s=>{
+    const a=cache[s.key]||[]; const lastO=a.length?a[a.length-1]:null;
+    const lv=lastO==null?'':(s.kind==='rate'?lastO.c.toFixed(2)+'%':(s.kind==='fx'?Math.round(lastO.c).toLocaleString():Math.round(lastO.c).toLocaleString()));
+    const dashCss=s.step?'dotted':(s.dash?'dashed':'solid');
+    return `<span class="chip${s.on?' on':''}" data-k="${s.key}" style="${s.on?'color:'+s.col:''}">
+      <span class="sw" style="border-top-color:${s.col};border-top-style:${dashCss}"></span>${s.n}<span class="lv">${lv}</span></span>`;
+  }).join('');
+}
+function renderTable(dates,datasets){
+  if(!showTbl){$('tblwrap').style.display='none';$('chartwrap').style.display='';return;}
+  $('chartwrap').style.display='none';$('tblwrap').style.display='';
+  const rows=datasets.map(ds=>{
+    const s=ds._s; let lastN=null,lastR=null;
+    for(let j=ds.data.length-1;j>=0;j--){ if(ds.data[j]!=null){lastN=ds.data[j];lastR=ds._raw[j];break;} }
+    const rtxt=lastR==null?'—':(s.kind==='rate'?lastR.toFixed(2)+'%':(s.kind==='fx'?Math.round(lastR).toLocaleString()+'원':Math.round(lastR).toLocaleString()));
+    const ntxt=lastN==null?'—':(lastN>=0?'+':'')+lastN.toFixed(2)+(s.kind==='rate'?'%p':'%');
+    return `<tr><td><span class="dotc" style="background:${s.col}"></span>${s.n}</td><td>${rtxt}</td><td class="${chgCls(lastN)}">${ntxt}</td></tr>`;
+  }).join('');
+  $('tblwrap').innerHTML=`<table class="tv"><thead><tr><th>시리즈</th><th>현재값</th><th>기간 변화</th></tr></thead><tbody>${rows||'<tr><td colspan=3 style="color:var(--faint)">켜진 시리즈가 없습니다</td></tr>'}</tbody></table>`;
+}
+
+$('chips').addEventListener('click',e=>{
+  const c=e.target.closest('.chip'); if(!c)return;
+  const s=SERIES.find(x=>x.key===c.dataset.k); s.on=!s.on; persist(); render();
+});
+$('periodSeg').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return;
+  [...$('periodSeg').children].forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  period=b.dataset.r; persist(); load();
+});
+$('tblBtn').onclick=()=>{showTbl=!showTbl;$('tblBtn').classList.toggle('on',showTbl);const {dates,datasets}=build();renderTable(dates,datasets);};
+$('refreshBtn').onclick=()=>load();
+function openExplain(){$('modal').style.display='flex';}
+$('m-close').onclick=()=>$('modal').style.display='none';
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').style.display='none';});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modal').style.display='none';});
+
+async function load(){
+  setLive(true,'불러오는 중…');
+  // 기간 세그 표시 동기화(복원 대비)
+  [...$('periodSeg').children].forEach(x=>x.classList.toggle('on',x.dataset.r===period));
+  try{
+    await fetchAll(); render();
+    setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
+  }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
+}
+load();
+setInterval(load, 15*60*1000);
+</script>
+</body>
+</html>
