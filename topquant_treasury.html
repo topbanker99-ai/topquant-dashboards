@@ -80,6 +80,9 @@ td.tk{text-align:left;color:var(--ink);font-family:'IBM Plex Mono',monospace}
   <a href="topquant_realtime.html">실시간</a>
   <a href="topquant_fx.html">원/달러</a>
   <a href="topquant_sell.html">매도</a>
+  <a href="topquant_heatmap.html">시장맵</a>
+  <a href="topquant_nps.html">연금예측</a>
+  <a href="topquant_buffett.html">버핏예측</a>
   <span class="sp"></span>
 </nav>
 <script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
@@ -149,7 +152,9 @@ td.tk{text-align:left;color:var(--ink);font-family:'IBM Plex Mono',monospace}
 <script>
 const TD = 'https://www.treasurydirect.gov/TA_WS/securities';
 const FD = 'https://api.fiscaldata.treasury.gov/services/api/fiscal_service';
+const GOV = 'https://fred-proxy-nine.vercel.app/api/gov?url=';   // 우리 Vercel 프록시(안정적)
 const PROXIES = [
+  u => GOV + encodeURIComponent(u),                              // 1순위: 자체 프록시
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
   u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
   u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
