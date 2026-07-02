@@ -7,6 +7,7 @@
 - **topquant_treasury.html** — 미국채 발행·소화 + 국가부채 (TreasuryDirect·FiscalData)
 - **topquant_news.html** — 시장 영향 인물 18인 뉴스 브리핑 (Google News RSS)
 - **topquant_realtime.html** — 실시간 가격 보드 (코인 Upbit + 주식 KIS)
+- **topquant_compare.html** — 글로벌 비교차트 (지수 7종+환율+연준금리 토글 오버레이, 기간 시작 대비 정규화)
 - **index.html** — 위 4개로 가는 허브 페이지
 
 ## 데이터
