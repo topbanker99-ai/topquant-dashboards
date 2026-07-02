@@ -93,6 +93,17 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 .topnav .brand{color:var(--ink);font-weight:700}
 .topnav .brand .dot{color:var(--teal)}
 .topnav .sp{flex:1 1 8px}
+/* horizon tabs */
+.htab{display:flex;gap:9px;margin-bottom:18px}
+.htab button{flex:1;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;
+  border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:var(--panel);color:var(--mute);transition:.12s;text-align:center;line-height:1.3}
+.htab button .t2{display:block;font-size:11px;font-weight:400;color:var(--faint);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+.htab button:hover{color:var(--ink)}
+.htab button.on{color:var(--ink)}
+.htab button.on.short{border-color:var(--rose);background:rgba(242,112,110,.12)}
+.htab button.on.long{border-color:var(--amber);background:rgba(245,181,63,.12)}
+body.show-short [data-hz="long"],body.show-short #hero-long{display:none}
+body.show-long [data-hz="short"],body.show-long #hero-short{display:none}
 </style>
 <nav class="topnav">
   <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
@@ -124,27 +135,48 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </header>
 
 <div class="banner">
-  <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 이 보드는 닷컴 고점에서 실제로 나타났던
-  신호들이 지금 얼마나 켜졌는지 <b>10개 신호 / 20점</b>으로 보여줄 뿐, 매도 명령이 아닙니다. 결정적 조합은 <b>글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파</b>입니다.
+  <b>● 고점/매도 판단 보조용입니다.</b> 누구도 꼭지를 정확히 맞힐 수 없습니다(박사도 "어렵다"). 매도 신호를 시간지평에 따라 두 갈래로 나눴습니다 —
+  <b class="" style="color:var(--rose)">🔴 단기(≤1개월, 급락 취약성)</b>는 관세·BOJ·집중도 크래시처럼 며칠~2주 만에 터지는 급발진형을,
+  <b style="color:var(--amber)">🟠 중장기(3~6개월, 구조적 고점)</b>는 연준 긴축·인플레 약세장처럼 수개월에 걸친 사이클을 봅니다. 매도 명령이 아니라 경계 수위입니다.
 </div>
 
-<!-- COMPOSITE -->
-<div class="card hero">
-  <div class="secttl"><span class="clk" onclick="openExplain('TIER')" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">종합 — 매도 경계 단계 ⓘ</span>
+<!-- HORIZON TABS -->
+<div class="htab">
+  <button id="tabbtn-short" class="short on" onclick="setTab('short')">🔴 단기 매도 시그널<span class="t2">≤1개월 · 급락 취약성</span></button>
+  <button id="tabbtn-long" class="long" onclick="setTab('long')">🟠 중장기 매도 시그널<span class="t2">3~6개월 · 구조적 고점</span></button>
+</div>
+
+<!-- COMPOSITE · 단기 -->
+<div class="card hero" id="hero-short">
+  <div class="secttl"><span class="clk" onclick="openExplain('TIER_S')" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">🔴 단기 종합 — 향후 4주 급락 취약성 ⓘ</span>
     <span class="r"><button class="btn" id="refreshBtn">새로고침</button></span></div>
   <div class="comptop">
-    <div class="gauge clk" id="gauge" onclick="openExplain('TIER')" title="누르면 설명">
-      <div class="lvl" id="lvl">—</div>
-      <div class="sc" id="score">—</div>
-      <div class="gbar"><div class="mk" id="mk" style="left:6%"></div></div>
+    <div class="gauge clk" onclick="openExplain('TIER_S')" title="누르면 설명">
+      <div class="lvl" id="lvl-s">—</div>
+      <div class="sc" id="score-s">—</div>
+      <div class="gbar"><div class="mk" id="mk-s" style="left:6%"></div></div>
       <div class="gends"><span>관망</span><span>주의</span><span>경계</span><span>매도검토</span></div>
     </div>
-    <div class="narr" id="narr">불러오는 중…</div>
+    <div class="narr" id="narr-s">불러오는 중…</div>
+  </div>
+</div>
+
+<!-- COMPOSITE · 중장기 -->
+<div class="card hero" id="hero-long">
+  <div class="secttl"><span class="clk" onclick="openExplain('TIER_L')" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">🟠 중장기 종합 — 3~6개월 구조적 고점 리스크 ⓘ</span></div>
+  <div class="comptop">
+    <div class="gauge clk" onclick="openExplain('TIER_L')" title="누르면 설명">
+      <div class="lvl" id="lvl-l">—</div>
+      <div class="sc" id="score-l">—</div>
+      <div class="gbar"><div class="mk" id="mk-l" style="left:6%"></div></div>
+      <div class="gends"><span>관망</span><span>주의</span><span>경계</span><span>매도검토</span></div>
+    </div>
+    <div class="narr" id="narr-l">불러오는 중…</div>
   </div>
 </div>
 
 <!-- SIGNAL 1: 미국 주도주 쏠림 -->
-<div class="card clk" onclick="openExplain('CONC')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="long" onclick="openExplain('CONC')" title="누르면 쉬운 설명">
   <div class="secttl">① 미국 주도주 쏠림 (나스닥 vs 다우·S&P) ⓘ <span class="r">최근 3개월 수익률</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="conc-big">—</div><div class="desc" id="conc-desc">닷컴 고점 땐 나스닥만 +40%, 다우·S&P는 이미 마이너스였습니다(쏠림).</div>
@@ -154,7 +186,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 2: 글로벌 시장 폭 -->
-<div class="card">
+<div class="card" data-hz="short">
   <div class="secttl clk" onclick="openExplain('BREADTH')" title="누르면 쉬운 설명">② 글로벌 시장 폭 — 마이너스 국가 ⓘ <span class="r">14개국 · 1·3개월</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="br-big">—</div><div class="desc" id="br-desc">변두리(주변국)부터 마이너스가 늘고, 대만·유럽 같은 보루까지 무너지면 끝에 가깝습니다.</div></div>
@@ -164,7 +196,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 3: 금리 -->
-<div class="card clk" onclick="openExplain('RATE')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="long" onclick="openExplain('RATE')" title="누르면 쉬운 설명">
   <div class="secttl">③ 금리 — 직전 고점 대비 ("마지막 한 방울") ⓘ <span class="r">미 기준금리 DFF</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="rate-big">—</div><div class="desc" id="rate-desc">첫 인상이 아니라 <b>직전 고점을 다시 넘는 순간</b> 무너졌습니다.</div>
@@ -174,7 +206,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 4: 위험선호 -->
-<div class="card clk" onclick="openExplain('FINENV')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="short" onclick="openExplain('FINENV')" title="누르면 쉬운 설명">
   <div class="secttl">④ 금융환경 — 위험선호 종합 ⓘ <span class="r">VIX·신용·금리차·NFCI·스트레스</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="risk-big">—</div><div class="desc" id="risk-desc">공포(VIX)·신용(스프레드)·금리차 역전·금융환경(NFCI)·스트레스를 종합. 여러 축이 함께 나빠질 때가 위험.</div>
@@ -184,7 +216,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 5: 주도주 이익 엔진 -->
-<div class="card clk" onclick="openExplain('ENGINE')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="long" onclick="openExplain('ENGINE')" title="누르면 쉬운 설명">
   <div class="secttl">⑤ 주도주 이익 엔진 — 닷컴과의 결정적 차이 ⓘ <span class="r">반도체·AI 리더 · 추세/3개월</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="eng-big">—</div><div class="desc" id="eng-desc">닷컴은 적자 비전기업, 지금은 막대한 실이익. <b>이익 엔진이 받치는 한 붐 지속, 둔화되면 그게 진짜 매도 트리거.</b></div>
@@ -194,7 +226,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 6: 과열도 (장기추세 괴리) -->
-<div class="card clk" onclick="openExplain('OVERHEAT')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="short" onclick="openExplain('OVERHEAT')" title="누르면 쉬운 설명">
   <div class="secttl">⑥ 과열도 — 장기추세(200일선) 대비 괴리 ⓘ <span class="r">버블의 정의 = 추세 초과분</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="ovh-big">—</div><div class="desc">가격이 200일 이동평균보다 너무 멀리 올라와 있을수록 단기 되돌림 위험이 큽니다.</div>
@@ -204,7 +236,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 7: 한국 반도체 쏠림 -->
-<div class="card clk" onclick="openExplain('KRCONC')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="short" onclick="openExplain('KRCONC')" title="누르면 쉬운 설명">
   <div class="secttl">⑦ 한국 반도체 쏠림 — 삼성·하이닉스 시총·추세·대차잔고 ⓘ <span class="r">공공데이터포털 · 예탁결제원 · Yahoo</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="kr-big">—</div><div class="desc">삼성전자·SK하이닉스가 코스피의 핵심 축. 둘 다 200일선 아래로 꺼지거나 3개월 성과 괴리 20%p↑, 또는 <b>대차잔고(공매도 대기물량) 급증</b>이면 매도 압력 신호입니다.</div>
@@ -214,7 +246,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 8: 버핏 지표 (미국 밸류에이션) -->
-<div class="card clk" onclick="openExplain('BUFFETT')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="long" onclick="openExplain('BUFFETT')" title="누르면 쉬운 설명">
   <div class="secttl">⑧ 미국 밸류에이션 — 버핏 지표 ⓘ <span class="r">미국 주식시총 ÷ GDP · FRED</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="bf-big">—</div><div class="desc">버핏이 "주식시총/GDP를 보라"고 한 지표. 과거 닷컴 버블 직전 190%를 넘었습니다. 현재 수준이 역사적 고점 영역인지 실시간 확인.</div>
@@ -224,7 +256,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 9: 레버리지·신용 사이클 (마진·신용융자) -->
-<div class="card clk" onclick="openExplain('LEVERAGE')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="long" onclick="openExplain('LEVERAGE')" title="누르면 쉬운 설명">
   <div class="secttl">⑨ 레버리지·신용 사이클 — 마진빚 되감기 ⓘ <span class="r">NFCI 레버리지·신용 (역사적 평균 대비)</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="lev-big">—</div><div class="desc">시장 꼭지 부근에서 <b>마진빚(신용융자)이 최고조</b>에 달했다가 되감기(디레버리징)가 시작되면 하락을 가속합니다. 시카고연준 지수는 레버리지·신용 여건이 <b>역사적 평균(0) 대비</b> 어디인지 보여줍니다(+면 긴축·되감기 압력).</div>
@@ -234,7 +266,7 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
 </div>
 
 <!-- SIGNAL 10: 국민연금 리밸런싱 매도 압력 -->
-<div class="card clk" onclick="openExplain('NPS')" title="누르면 쉬운 설명">
+<div class="card clk" data-hz="long" onclick="openExplain('NPS')" title="누르면 쉬운 설명">
   <div class="secttl">⑩ 국민연금 리밸런싱 매도 압력 — 규칙 기반 강제매도 ⓘ <span class="r">국내주식 비중 vs 목표 20.8%+밴드</span></div>
   <div class="sig">
     <div class="main"><div class="big" id="nps-big">—</div><div class="desc">코스피 최대 기관 국민연금은 <b>국내주식 목표비중(20.8%)</b>을 두고, 비중이 <b>상단밴드(+6~8%p)</b>를 넘으면 <b>기계적으로 매도</b>합니다. KOSPI 급등 → NPS 비중 상승 → 밴드 초과 시 "매도폭탄". 심리가 아닌 <b>규칙</b> 기반이라 예측 가능성이 높습니다.</div>
@@ -243,9 +275,39 @@ padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#f0c4c3;line-height:
   </div>
 </div>
 
+<!-- SIGNAL 11: 한국 수급·환율 스트레스 -->
+<div class="card clk" data-hz="short" onclick="openExplain('KRFX')" title="누르면 쉬운 설명">
+  <div class="secttl">⑪ 한국 수급·환율 스트레스 — 원/달러 + KOSPI 추세 ⓘ <span class="r">원화 약세=외국인 이탈 · Yahoo</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="krfx-big">—</div><div class="desc">원화가 급하게 약해지면(원/달러↑) <b>외국인 자금이 빠져나가는 신호</b>입니다. 여기에 <b>KOSPI가 200일선을 이탈</b>하거나 고점 대비 조정이 겹치면 한국 증시 매도 압력이 커집니다.</div>
+      <div class="metrics" id="krfx-metrics"></div></div>
+    <span class="pill" id="krfx-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 12: 수익률곡선 역전→정상화 -->
+<div class="card clk" data-hz="long" onclick="openExplain('YCURVE')" title="누르면 쉬운 설명">
+  <div class="secttl">⑫ 수익률곡선 역전→정상화 — 침체 선행 시계 ⓘ <span class="r">미 10년−2년 · FRED T10Y2Y</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="yc-big">—</div><div class="desc">장단기 금리차가 <b>마이너스(역전)</b>면 침체 선행 신호이고, 역전됐다가 <b>다시 플러스로 정상화되는 순간</b>이 역사적으로 침체·약세장 <b>6~12개월 전</b> 타이밍이었습니다(2000·2007·2019).</div>
+      <div class="metrics" id="yc-metrics"></div></div>
+    <span class="pill" id="yc-pill">—</span>
+  </div>
+</div>
+
+<!-- SIGNAL 13: 고용 둔화 (Sahm Rule) -->
+<div class="card clk" data-hz="long" onclick="openExplain('SAHM')" title="누르면 쉬운 설명">
+  <div class="secttl">⑬ 고용 둔화 — Sahm Rule 침체 룰 ⓘ <span class="r">미 실업률 급등 감지 · FRED SAHMREALTIME</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="sahm-big">—</div><div class="desc">실업률 3개월 평균이 <b>지난 1년 최저 대비 +0.5%p</b> 오르면(Sahm Rule) 과거 예외 없이 <b>침체 진입</b>이었습니다. 가격·밸류가 아닌 <b>실물경제(고용)</b>가 꺾이는지 보는 축 — 구조적 약세장의 최종 확인.</div>
+      <div class="metrics" id="sahm-metrics"></div></div>
+    <span class="pill" id="sahm-pill">—</span>
+  </div>
+</div>
+
 <div class="disc">
-  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP), 글로벌 주가지수·반도체/AI 리더 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
-  <b>10개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
+  ※ 출처: FRED(DFF·VIX·하이일드·T10Y2Y·NFCI·NFCILEVERAGE·NFCICREDIT·STLFSI4·NCBEILQ027S·GDP·SAHMREALTIME), 글로벌 주가지수·반도체/AI 리더·원/달러(KRW=X)·KOSPI Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 공공데이터포털 금융위원회_주식시세정보(삼성·하이닉스 시총)·한국예탁결제원 증권대차(대차잔고=공매도 대기물량) 및 국민연금 기금 포트폴리오(국내주식 목표비중·리밸런싱 규칙) — 모두 Vercel 프록시 경유.
+  <b>11개 신호는 닷컴 붐 패턴·밸류에이션·레버리지·국민연금 리밸런싱·환율수급을 규칙화한 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 단기 고점은 누구도 정확히 예측할 수 없습니다(랜덤워크).
   점 예측이 아니라 경계 수위·행동 점검용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -288,10 +350,15 @@ const LEADERS=[
 const SIG={}; // 각 신호 상태 저장
 
 const EXPLAIN={
- TIER:{title:'매도 경계 단계란?', body:`
-   <p>아래 <b>10개 신호</b>(미국 쏠림·글로벌 폭·금리·금융환경·이익 엔진·과열도·한국 반도체 쏠림·버핏지표·레버리지/신용·국민연금 리밸런싱)가 각각 <b>정상/주의/경고</b> 중 어디인지 합산해 매긴 종합 수위입니다.</p>
-   <p>최대 20점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. 신호가 많이·강하게 켜질수록 위로 갑니다.</p>
-   <p>박사가 말한 <b>결정적 조합</b>: ② 글로벌 시장 폭 붕괴 + ③ 금리 직전 고점 돌파가 <b>동시에</b> 빨간불이면 바로 '매도검토'로 올립니다.</p>
+ TIER_S:{title:'🔴 단기 매도 시그널이란? (≤1개월)', body:`
+   <p><b>빠르게 튀는 스트레스·수급·과열 신호</b> 5개를 합산합니다 — ④금융환경/변동성 · ②글로벌 시장폭(급격 악화) · ⑥과열도(200일선 이격) · ⑦한국 반도체·대차잔고 · ⑪한국 수급/환율. 이들은 <b>며칠~2주</b> 만에 값이 크게 변하는 지표라, "지금 급락에 취약한가"를 봅니다.</p>
+   <p>과거 <b>관세 쇼크(2025.04)·BOJ 기습인상 캐리청산(2024.08)·삼성·하이닉스 집중도 크래시(2026.06)</b>처럼 단기에 터진 급락이 이 유형입니다.</p>
+   <p>최대 ${5*2}점 / 5단계: <b>관망 → 관찰 → 주의 → 경계 → 매도검토</b>. <b>결정적 조합</b>: ④변동성 급등 + ⑥과열 극단이 <b>동시에</b> 빨간불이면 바로 '매도검토'.</p>
+   <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
+ TIER_L:{title:'🟠 중장기 매도 시그널이란? (3~6개월)', body:`
+   <p><b>느린 밸류·금리·이익·레버리지·수급·거시 사이클</b> 8개를 합산합니다 — ①미국 쏠림 · ③금리 사이클 · ⑤이익 엔진 · ⑧버핏지표 · ⑨레버리지·신용 · ⑩국민연금 리밸런싱 · ⑫수익률곡선 역전→정상화 · ⑬고용 둔화(Sahm). 수개월에 걸쳐 서서히 방향이 바뀌는 지표라, "구조적 고점/약세장 국면인가"를 봅니다.</p>
+   <p><b>연준 긴축(2018.12)·인플레 약세장(2022)</b>처럼 회복까지 수개월~1년 걸린 구조적 하락이 이 유형입니다.</p>
+   <p>최대 ${8*2}점 / 5단계. <b>결정적 조합</b>: ⑤이익 엔진 둔화 + ③금리 긴축이 <b>동시에</b> 빨간불이면 '매도검토'(밸류를 받치던 이익이 꺾이는데 할인율은 높은 국면).</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 이 단계만 보고 전량 매매하지 마세요.</p>`},
  OVERHEAT:{title:'⑥ 과열도 — 장기추세 대비 괴리', body:`
    <p>버블의 정의는 "가격이 펀더멘탈(추세)을 얼마나 앞섰나"입니다. 이를 <b>S&P500·나스닥이 200일 이동평균선보다 얼마나 위에 있는지</b>(괴리율)로 측정합니다.</p>
@@ -351,6 +418,21 @@ const EXPLAIN={
    <p>시총 역전(하이닉스 > 삼성) 자체는 '꼭지' 신호로 보기 어렵습니다(참고 카드 설명). 이 신호는 역전이 아니라 <b>추세 이탈·성과 분화</b>를 봅니다.</p>
    <p><b>대차잔고 = 공매도 대기물량.</b> 공매도를 하려면 먼저 주식을 빌려야(대차) 하므로, <b>대차잔고 급증은 하락 베팅 자금이 쌓이는 신호</b>입니다. 예탁결제원 데이터로 삼성·하이닉스 대차잔고금액을 추적해, 최근 1개월 <b>둘 다 +15%↑ 급증</b>하면 경계를 한 단계 올립니다.</p>
    <p style="color:var(--faint)">데이터: 공공데이터포털 금융위원회_주식시세정보(시총·종가) + 한국예탁결제원 증권대차(대차잔고, 15157426) + Yahoo Finance 주가추세.</p>`},
+ KRFX:{title:'⑪ 한국 수급·환율 스트레스 — 원/달러 + KOSPI 추세', body:`
+   <p>한국 증시의 상당 부분을 외국인이 쥐고 있어, <b>원화 가치</b>는 외국인 수급의 체온계입니다. 원/달러가 오르면(원화 약세) 외국인은 <b>환차손</b> 때문에 한국 주식을 팔고 나가려는 압력이 커집니다 — 실제 위기 국면마다 <b>원화 급락 + 외국인 순매도</b>가 함께 왔습니다.</p>
+   <p>두 축을 함께 봅니다 — ① <b>원/달러</b>: 200일 평균 대비 위치(약세권 여부)와 <b>최근 1개월 변화</b>(급등=이탈 가속), ② <b>KOSPI</b>: 200일선 이탈 여부와 최근 1년 고점 대비 낙폭.</p>
+   <p><b>정상</b>: 원화 안정 + KOSPI 추세 유지. <b>주의</b>: 원화 약세권/급등, 또는 KOSPI 200일선 이탈·고점 대비 −10% 조정 중 하나. <b>경고</b>: <b>원화 1개월 급등(+2.5%↑, 외국인 이탈 가속) + KOSPI 추세 훼손</b>이 동시에.</p>
+   <p style="color:var(--faint)">데이터: Yahoo Finance 원/달러(KRW=X)·KOSPI(^KS11) — Vercel 프록시 경유. 개인 신용융자잔고(레버리지 되감기)는 깨끗한 공개 API 확보 후 추가 예정.</p>`},
+ YCURVE:{title:'⑫ 수익률곡선 역전→정상화 — 침체 선행 시계', body:`
+   <p><b>10년물 − 2년물 국채 금리차</b>입니다. 정상은 장기금리가 더 높아 <b>플러스(+)</b>, 이게 <b>마이너스(−)</b>가 되면 '역전'입니다.</p>
+   <p>역전 자체도 침체 선행 신호지만, 핵심 타이밍은 <b>역전됐다가 다시 플러스로 "정상화"되는 순간</b>입니다 — 2000·2007·2019년 모두 정상화 후 <b>6~12개월 내</b> 침체·약세장이 왔습니다(연준이 급히 금리를 내리며 단기금리가 빠질 때 나타남).</p>
+   <p><b>정상</b>: 최근 1년 역전 이력 없음. <b>주의</b>: 현재 역전 중, 또는 역전 후 막 정상화 초입. <b>경고</b>: 역전 이력 + 플러스 복귀 + 정상화 진행(가팔라짐).</p>
+   <p style="color:var(--faint)">데이터: FRED T10Y2Y(일간). ④ 금융환경에도 금리차가 들어가지만, 여기선 <b>역전→정상화 전환 타이밍</b>만 따로 봅니다.</p>`},
+ SAHM:{title:'⑬ 고용 둔화 — Sahm Rule 침체 룰', body:`
+   <p>클라우디아 샴이 제안한 <b>실시간 침체 판별 규칙</b>입니다. <b>실업률 3개월 이동평균</b>이 <b>지난 12개월 최저치 대비 +0.5%p</b> 이상 오르면 지표값이 0.5를 넘는데, 과거 미국 침체마다 <b>예외 없이</b> 이 선을 넘었습니다.</p>
+   <p>가격·밸류에이션이 아니라 <b>실물경제(고용)</b>가 실제로 꺾이는지 보는 축이라, 구조적 약세장의 <b>최종 확인</b> 성격입니다(고용은 후행이라 '이미 시작됐다'는 확인에 가까움).</p>
+   <p><b>정상</b>: 0.25 미만. <b>주의</b>: 0.25 이상이거나 최근 상승세. <b>경고</b>: <b>0.50 이상(Sahm Rule 발동)</b> — 침체 진입 신호.</p>
+   <p style="color:var(--faint)">데이터: FRED SAHMREALTIME(월간, 실시간 버전). 월 1회 갱신되어 후행성이 있습니다.</p>`},
 };
 function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
 function closeModal(){$('modal').style.display='none';}
@@ -701,54 +783,152 @@ function renderBuffett(mktcap, gdp){
   setPill('bf-pill',st);
 }
 
-// ── 종합 ──
-function renderComposite(){
-  const v={green:0,amber:1,red:2};
-  const parts=[SIG.conc,SIG.breadth,SIG.rate,SIG.risk,SIG.engine,SIG.overheat,SIG.krconc,SIG.buffett,SIG.leverage,SIG.nps].filter(Boolean);
-  const score=parts.reduce((a,s)=>a+v[s.st],0); // 0..20
-  let lvl,col,posPct;
-  const combo = SIG.breadth&&SIG.breadth.st==='red' && SIG.rate&&SIG.rate.st==='red';
-  if(combo||score>=15){lvl='매도 검토';col='#f2706e';posPct=94;}
-  else if(score>=11){lvl='경계';col='#f2706e';posPct=76;}
-  else if(score>=6){lvl='주의';col='#f5b53f';posPct=52;}
-  else if(score>=1){lvl='관찰';col='#5b8def';posPct=26;}
-  else{lvl='관망 (정상)';col='#2dd4bf';posPct=6;}
-  $('lvl').textContent=lvl; $('lvl').style.color=col;
-  $('score').textContent='경계 점수 '+score+'/20 · 켜진 신호: '+parts.filter(s=>s.st!=='green').length+'/10';
-  $('mk').style.left=posPct+'%';
-  renderNarrative(lvl,score,combo);
+// ── 신호 ⑪: 한국 수급·환율 스트레스 (원/달러 + KOSPI 추세) ──
+function renderKrFxSupply(lead){
+  const fx=lead&&lead['KRW=X'], ks=lead&&lead['^KS11'];
+  const fxOk=Array.isArray(fx)&&fx.length>200, ksOk=Array.isArray(ks)&&ks.length>200;
+  // 원/달러: 현재·200일선 이격·1개월 변화 (원화 약세=외국인 자금 이탈 압력)
+  const fxNow=fxOk?fx[fx.length-1].c:null;
+  const fx200=fxOk?(fx.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+  const fxDev=(fxNow!=null&&fx200)?(fxNow/fx200-1)*100:null;      // +면 원화 약세(200일 평균보다 높음)
+  const fx1m=fxOk?retAsc(fx,21):null;                             // +면 최근 1개월 원화 약세 진행
+  // KOSPI: 200일선 이격 + 최근 1년 고점 대비 낙폭
+  const ksNow=ksOk?ks[ks.length-1].c:null;
+  const ks200=ksOk?(ks.slice(-200).reduce((s,x)=>s+x.c,0)/200):null;
+  const ksDev=(ksNow!=null&&ks200)?(ksNow/ks200-1)*100:null;      // -면 200일선 이탈
+  const ksHi=ksOk?Math.max.apply(null,ks.map(x=>x.c)):null;       // 최근 1년 고점
+  const ksDD=(ksNow!=null&&ksHi)?(ksNow/ksHi-1)*100:null;         // 고점 대비 낙폭(≤0)
+  // 플래그
+  const wonWeak=fxDev!=null&&fxDev>=0&&fx1m!=null&&fx1m>=1.0;     // 200일 위 + 최근 약세 진행
+  const wonSurge=fx1m!=null&&fx1m>=2.5;                           // 1개월 급등(외국인 이탈 가속)
+  const ksBelow=ksDev!=null&&ksDev<0;                            // 코스피 추세 이탈
+  const ksCorrection=ksDD!=null&&ksDD<=-10;                       // 고점 대비 -10%↑ 조정
+  let st='green';
+  if(wonSurge&&(ksBelow||ksCorrection)) st='red';                // 환율 급등 + 코스피 추세훼손 동반
+  else if(wonWeak||wonSurge||ksBelow||ksCorrection) st='amber';
+  SIG.krfx={st,fxNow,fxDev,fx1m,ksDev,ksDD};
+  const won=v=>v==null?'—':Math.round(v).toLocaleString()+'원';
+  $('krfx-metrics').innerHTML=[
+    `<span class="m ${fxDev!=null&&fxDev>=0?'down':'up'}">원/달러 ${won(fxNow)} <span>200일 ${fxDev!=null?(fxDev>=0?'+':'')+fxDev.toFixed(1)+'%':'—'}</span></span>`,
+    `<span class="m ${fx1m!=null&&fx1m>=0?'down':'up'}">원화 1개월 ${fx1m!=null?(fx1m>=0?'+':'')+fx1m.toFixed(1)+'%':'—'}<span> ${fx1m==null?'':(fx1m>=0?'약세(이탈 압력)':'강세')}</span></span>`,
+    `<span class="m ${ksBelow?'down':'up'}">KOSPI 200일선 ${ksDev!=null?(ksDev>=0?'+':'')+ksDev.toFixed(1)+'%':'—'}<span> ${ksDev==null?'':(ksBelow?'▼이탈':'▲위')}</span></span>`,
+    `<span class="m ${ksCorrection?'down':'flat'}">고점 대비 ${ksDD!=null?ksDD.toFixed(1)+'%':'—'}<span> 1년 내</span></span>`,
+  ].join('');
+  $('krfx-big').textContent = st==='red'?'원화 급속 약세(외국인 이탈) + KOSPI 추세 훼손 동반 — 한국 수급 경고'
+    : st==='amber'?(wonSurge?'원화 급등 — 외국인 자금 이탈 압력':((ksBelow||ksCorrection)?'KOSPI 추세 약화 — 수급 주의':'원화 약세권 — 관찰'))
+    : '원화 안정 + KOSPI 추세 유지 — 외국인 수급 양호';
+  setPill('krfx-pill',st);
 }
-function renderNarrative(lvl,score,combo){
-  const names={conc:'미국 쏠림',breadth:'글로벌 폭',rate:'금리',risk:'금융환경',engine:'이익 엔진',overheat:'과열도',krconc:'한국 반도체',buffett:'버핏지표',leverage:'레버리지·신용',nps:'국민연금 수급'};
-  const fired=Object.keys(names).filter(k=>SIG[k]&&SIG[k].st!=='green').map(k=>names[k]+'('+PILL[SIG[k].st]+')');
-  const b=SIG.breadth||{}, r=SIG.rate||{}, e=SIG.engine||{}, lg=SIG.leverage||{}, np=SIG.nps||{};
-  let line1, line2;
-  if(combo){
-    line1=`<b class="r">결정적 조합 점등</b> — 글로벌 시장 폭 붕괴 + 금리 직전 고점 돌파가 동시에 왔습니다. 박사 기준 가장 위험한 신호.`;
-    line2=`냉정하게 비중 축소(1/3~절반)를 검토할 구간이라는 게 분석의 결론입니다.`;
-  } else if(lvl==='관망 (정상)'){
-    line1=`현재는 <b class="g">관망(정상)</b> 단계. 닷컴식 고점 신호가 뚜렷하게 켜지지 않았습니다.`;
-    line2=`${(b.euNeg===false?'유럽':'주요국')}·인도 등 보루가 ${b.indiaPos?'아직 플러스':'관찰 필요'}, 금리는 직전 고점(${r.peak?r.peak.toFixed(2)+'%':'—'})보다 ${r.dist!=null?r.dist.toFixed(2)+'%p 아래':'아래'}, 주도주 이익 엔진도 ${e.st==='green'?'<b class="g">가동 중</b>(닷컴과 달리 실적이 받침)':'둔화 관찰 필요'}. "신호는 일부 나왔지만 무르익지 않았다"에 가깝습니다.`;
-  } else {
-    line1=`현재 <b class="a">${lvl}</b> 단계 — 켜진 신호: <b>${fired.join(' · ')||'없음'}</b>.`;
-    line2=`${e.st==='red'?'<b class="r">주도주 이익 엔진 둔화 조짐</b>이 핵심 — 박사가 말한 진짜 매도 트리거입니다. ':''}박사의 결정적 조합(글로벌 폭+금리 동시)은 아직 아니니, 보루(대만·유럽)·금리 방향·이익 엔진을 집중 관찰하세요.`;
-  }
-  const npsTxt = np.w!=null ? `국민연금 수급: 국내주식 추정 비중 <b>${np.w.toFixed(1)}%</b>(목표 20.8%)${np.st==='red'?' → <b class="r">상단밴드 초과, 리밸런싱 강제매도 구간</b>':np.st==='amber'?' → 밴드 접근(매도 압력 누적)':' → 매도 압력 제한적'}` : '';
-  const levTxt = `<span class="narr-foot">${npsTxt?npsTxt+' · ':''}10개 신호 보조 판단 · 점 예측 아님 · 각 카드 클릭 시 설명</span>`;
-  $('narr').innerHTML=`<div class="narr-h">📘 지금 읽기</div>${line1}<br>${line2}<br>${levTxt}`;
+
+// ── 신호 ⑫: 수익률곡선 역전→정상화 (T10Y2Y) ──
+function renderYieldCurve(hist){
+  // hist: FRED desc [{date,v}] (미 10년−2년 스프레드, %p). 음수=역전.
+  if(!hist||!hist.length){ SIG.ycurve={st:'green'}; $('yc-big').textContent='데이터 없음'; setPill('yc-pill','green'); return; }
+  const cur=hist[0].v;
+  const win=hist.slice(0,Math.min(252,hist.length));
+  const minV=Math.min.apply(null,win.map(o=>o.v));        // 최근 1년 최저(역전 깊이)
+  const past=hist[Math.min(63,hist.length-1)].v;          // 약 3개월 전
+  const chg=cur-past, steepening=chg>0.1;                 // 정상화(가팔라짐) 방향
+  const wasInv=minV<-0.05, inv=cur<0;                     // 최근 1년 내 역전 이력 / 현재 역전
+  let st='green';
+  if(wasInv && cur>=0 && steepening) st='red';            // 역전 해소 + 정상화 진행 = 침체 임박 구간
+  else if(inv || (wasInv && cur>=0)) st='amber';          // 역전 지속 or 막 해소
+  SIG.ycurve={st,cur,minV,inv,wasInv};
+  $('yc-metrics').innerHTML=
+    `<span class="m ${inv?'down':'up'}">현재 금리차 ${cur>=0?'+':''}${cur.toFixed(2)}%p <span>${inv?'역전':'정상'}</span></span>`
+   +`<span class="m ${wasInv?'down':'flat'}">1년 최저 ${minV>=0?'+':''}${minV.toFixed(2)}%p <span>${wasInv?'역전 이력':'역전 없음'}</span></span>`
+   +`<span class="m ${steepening?'down':'flat'}">3개월 변화 ${(chg>=0?'+':'')+chg.toFixed(2)}%p <span>${steepening?'정상화↑':'—'}</span></span>`;
+  $('yc-big').textContent = st==='red'?'역전 해소·정상화 진행 — 침체 6~12개월 선행 경고'
+    : st==='amber'?(inv?'수익률곡선 역전 중 — 침체 선행 신호':'역전 후 정상화 초입 — 관찰')
+    : '수익률곡선 정상(역전 이력 없음) — 침체 선행 신호 없음';
+  setPill('yc-pill',st);
+}
+// ── 신호 ⑬: 고용 둔화 (Sahm Rule) ──
+function renderSahm(sahm){
+  const cur=sahm&&sahm.length?sahm[0].v:null;
+  if(cur==null){ SIG.sahm={st:'green'}; $('sahm-big').textContent='데이터 없음'; setPill('sahm-pill','green'); return; }
+  const past=sahm&&sahm.length>3?sahm[3].v:null;          // 약 3개월 전
+  const chg=past!=null?cur-past:null, rising=chg!=null&&chg>=0.1;
+  let st='green';
+  if(cur>=0.5) st='red';                                  // Sahm Rule 발동 = 침체
+  else if(cur>=0.25 || (rising&&cur>=0.2)) st='amber';    // 고용 둔화 진행
+  SIG.sahm={st,cur,rising};
+  $('sahm-metrics').innerHTML=
+    `<span class="m ${cur>=0.5?'down':(cur>=0.25?'flat':'up')}">Sahm 지표 ${cur.toFixed(2)} <span>발동선 0.50</span></span>`
+   +(chg!=null?`<span class="m ${rising?'down':'flat'}">3개월 변화 ${(chg>=0?'+':'')+chg.toFixed(2)} <span>${rising?'상승(둔화)':'안정'}</span></span>`:'');
+  $('sahm-big').textContent = st==='red'?'Sahm Rule 발동(≥0.50) — 미국 침체 진입 신호'
+    : st==='amber'?'실업률 상승 중 — 고용 둔화 진행(침체 룰 접근)'
+    : '고용 견조 — Sahm 침체 룰 미발동';
+  setPill('sahm-pill',st);
+}
+
+// ── 종합 (시간지평 2분할) ──
+// 각 신호를 단기(급락 취약성)·중장기(구조적 고점) 지평으로 버킷팅 → 독립 게이지 2개.
+// 버킷 변경은 아래 배열에서 한 줄만 옮기면 됨. 카드 표시는 HTML data-hz 로 제어.
+const HZ_SHORT=[['risk','금융환경/변동성'],['breadth','글로벌 시장폭'],['overheat','과열도'],['krconc','한국 반도체·대차'],['krfx','한국 수급·환율']];
+const HZ_LONG=[['conc','미국 쏠림'],['rate','금리 사이클'],['engine','이익 엔진'],['buffett','버핏지표'],['leverage','레버리지·신용'],['nps','국민연금 수급'],['ycurve','수익률곡선'],['sahm','고용(Sahm)']];
+const _V={green:0,amber:1,red:2};
+function _tier(score,max,combo){
+  const r=max?score/max:0;
+  if(combo||r>=0.75) return {lvl:'매도 검토',col:'#f2706e',pos:94};
+  if(r>=0.55) return {lvl:'경계',col:'#f2706e',pos:76};
+  if(r>=0.30) return {lvl:'주의',col:'#f5b53f',pos:52};
+  if(score>=1) return {lvl:'관찰',col:'#5b8def',pos:26};
+  return {lvl:'관망 (정상)',col:'#2dd4bf',pos:6};
+}
+function _fired(map){ return map.filter(x=>SIG[x[0]]&&SIG[x[0]].st!=='green').map(x=>x[1]+'('+PILL[SIG[x[0]].st]+')'); }
+
+function renderCompositeShort(){
+  const parts=HZ_SHORT.map(x=>SIG[x[0]]).filter(Boolean);
+  const score=parts.reduce((a,s)=>a+_V[s.st],0), max=HZ_SHORT.length*2;
+  const combo = SIG.risk&&SIG.risk.st==='red' && SIG.overheat&&SIG.overheat.st==='red';
+  const t=_tier(score,max,combo);
+  $('lvl-s').textContent=t.lvl; $('lvl-s').style.color=t.col;
+  $('score-s').textContent='단기 점수 '+score+'/'+max+' · 켜진 신호 '+parts.filter(s=>s.st!=='green').length+'/'+HZ_SHORT.length;
+  $('mk-s').style.left=t.pos+'%';
+  const fired=_fired(HZ_SHORT);
+  const body = combo
+    ? `<b class="r">변동성 급등 + 과열 극단 동시 점등</b> — 스트레스가 튀는데 지수는 200일선 위로 과도하게 벌어져 있어, 며칠~2주 내 급락 취약 구간입니다.`
+    : t.lvl==='관망 (정상)'
+    ? `빠르게 튀는 스트레스 신호(변동성·환율·시장폭·과열·대차잔고)가 잠잠합니다. 관세·BOJ·집중도 크래시 같은 <b>단기 급발진</b> 징후는 약함.`
+    : `켜진 단기 신호: <b>${fired.join(' · ')||'없음'}</b>. 변동성·환율 급등이나 시장폭 급격 악화가 겹치면 낙폭이 커집니다 — 단기 방어(헤지·현금비중) 점검 구간.`;
+  $('narr-s').innerHTML=`<div class="narr-h">🔴 단기 — 향후 4주 급락 취약성</div>${body}<span class="narr-foot">단기 ${HZ_SHORT.length}개 신호 · 급발진형(관세·BOJ·집중도) 대응 · 점 예측 아님</span>`;
+}
+function renderCompositeLong(){
+  const parts=HZ_LONG.map(x=>SIG[x[0]]).filter(Boolean);
+  const score=parts.reduce((a,s)=>a+_V[s.st],0), max=HZ_LONG.length*2;
+  const combo = SIG.engine&&SIG.engine.st==='red' && SIG.rate&&SIG.rate.st==='red';
+  const t=_tier(score,max,combo);
+  $('lvl-l').textContent=t.lvl; $('lvl-l').style.color=t.col;
+  $('score-l').textContent='중장기 점수 '+score+'/'+max+' · 켜진 신호 '+parts.filter(s=>s.st!=='green').length+'/'+HZ_LONG.length;
+  $('mk-l').style.left=t.pos+'%';
+  const fired=_fired(HZ_LONG); const e=SIG.engine||{}, np=SIG.nps||{};
+  const body = combo
+    ? `<b class="r">이익 둔화 + 금리 긴축 동시</b> — 밸류를 지탱하던 이익 엔진이 꺾이는데 할인율(금리)은 높은 국면. 2018·2022처럼 <b>수개월에 걸친 구조적 약세</b> 리스크입니다.`
+    : t.lvl==='관망 (정상)'
+    ? `밸류에이션·금리·이익·레버리지·연금수급 등 느린 사이클 신호가 대체로 안정적입니다. 구조적 고점 징후는 아직 무르익지 않음.`
+    : `켜진 중장기 신호: <b>${fired.join(' · ')||'없음'}</b>. ${e.st==='red'?'<b class="r">이익 엔진 둔화</b>가 핵심 트리거입니다. ':''}밸류·금리·이익 사이클을 3~6개월 관점에서 함께 보세요.`;
+  const npsTxt = np.w!=null ? ` · 국민연금 추정 비중 ${np.w.toFixed(1)}%(목표 20.8%)${np.st==='red'?' 강제매도 구간':np.st==='amber'?' 밴드 접근':''}` : '';
+  $('narr-l').innerHTML=`<div class="narr-h">🟠 중장기 — 3~6개월 구조적 고점</div>${body}<span class="narr-foot">중장기 ${HZ_LONG.length}개 신호 · 구조적 사이클(긴축·밸류·이익) 대응${npsTxt}</span>`;
+}
+function setTab(t){
+  document.body.classList.remove('show-short','show-long');
+  document.body.classList.add('show-'+t);
+  $('tabbtn-short').classList.toggle('on',t==='short');
+  $('tabbtn-long').classList.toggle('on',t==='long');
 }
 
 async function load(){
   setLive(true,'불러오는 중…');
   try{
-    const OVH=['^GSPC','^IXIC','^KS11'];
-    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp,slbData]=await Promise.all([
+    const OVH=['^GSPC','^IXIC','^KS11','KRW=X'];
+    const [data,leadOvh,dff,vix,hy,levSub,credSub,curve,nfci,stress,exp,samKrx,hynKrx,buffMktcap,buffGdp,slbData,sahm]=await Promise.all([
       indices(MKT.map(m=>m.s)), indices(LEADERS.map(l=>l.s).concat(OVH),'1y'),
       fred('DFF',900), fred('VIXCLS',60), fred('BAMLH0A0HYM2',60),
       fred('NFCILEVERAGE',60), fred('NFCICREDIT',60),
-      fred('T10Y2Y',5), fred('NFCI',5), fred('STLFSI4',5),
+      fred('T10Y2Y',260), fred('NFCI',5), fred('STLFSI4',5),
       semiExport(), krxFetch('005930'), krxFetch('000660'),
-      fred('NCBEILQ027S',8), fred('GDP',8), slbFetch()
+      fred('NCBEILQ027S',8), fred('GDP',8), slbFetch(), fred('SAHMREALTIME',18)
     ]);
     const rows=MKT.map(m=>{const a=data[m.s]; const ok=Array.isArray(a)&&a.length>64;
       return Object.assign({},m,{r2w:ok?retAsc(a,10):null,r1:ok?retAsc(a,21):null,r2m:ok?retAsc(a,42):null,r3:ok?retAsc(a,63):null});});
@@ -763,7 +943,11 @@ async function load(){
     renderBuffett(buffMktcap,buffGdp);
     renderLeverage(levSub,credSub);
     renderNpsRebal(leadOvh);
-    renderComposite();
+    renderKrFxSupply(leadOvh);
+    renderYieldCurve(curve);
+    renderSahm(sahm);
+    renderCompositeShort();
+    renderCompositeLong();
     setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
   }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
 }
@@ -772,6 +956,7 @@ $('refreshBtn').onclick=load;
 $('m-close').onclick=closeModal;
 $('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+setTab('short');
 load();
 setInterval(load, 15*60*1000);
 </script>
