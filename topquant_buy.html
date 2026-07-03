@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>탑퀀트 · 매수 시점 보드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;
+--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--amber:#f5b53f;--rose:#f2706e;--blue:#5b8def;--violet:#a78bfa}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;
+max-width:1180px;margin:0 auto;padding:30px 28px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--line);
+padding-bottom:16px;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+h1 .dot{color:var(--teal)}
+.sub{color:var(--mute);font-size:12.5px;margin-top:5px}
+.status{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--faint)}
+.live{display:inline-flex;align-items:center;gap:7px;color:#7ee7da;font-size:12px;
+background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.4);border-radius:8px;padding:4px 11px}
+.live .pulse{width:8px;height:8px;border-radius:50%;background:#2dd4bf;animation:p 1.6s infinite}
+.live.err{color:#f2a3a2;background:rgba(242,112,110,.12);border-color:rgba(242,112,110,.4)}
+.live.err .pulse{background:#f2706e;animation:none}
+@keyframes p{0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)}70%{box-shadow:0 0 0 7px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
+.banner{background:rgba(45,212,191,.07);border:1px solid rgba(45,212,191,.28);border-radius:11px;
+padding:11px 15px;margin-bottom:18px;font-size:12.5px;color:#bfe9e2;line-height:1.6}
+.banner b{color:var(--teal)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card.hero{background:linear-gradient(180deg,#122020,#151d2e)}
+.secttl{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;margin-bottom:14px;letter-spacing:.2px}
+.secttl::before{content:"";width:22px;height:1px;background:var(--teal)}
+.secttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.clk{cursor:pointer}
+.grpttl{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;margin:22px 0 12px;color:var(--ink)}
+.grpttl .tag{font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;border-radius:999px;padding:3px 11px}
+.grpttl .tag.s{background:rgba(91,141,239,.15);color:#9dbcf7}
+.grpttl .tag.t{background:rgba(45,212,191,.15);color:#7ee7da}
+.grpttl .r{margin-left:auto;font-weight:400;font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+/* composite */
+.comptop{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:stretch}
+@media(max-width:760px){.comptop{grid-template-columns:1fr}}
+.gauge{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:18px;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.gauge .lvl{font-size:23px;font-weight:800;letter-spacing:-.4px}
+.gauge .sc{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--mute);margin-top:7px}
+.gbar{height:12px;border-radius:7px;margin:14px 0 5px;background:linear-gradient(90deg,#f2706e 0%,#f5b53f 30%,#8593ab 52%,#5b8def 72%,#2dd4bf 100%);position:relative}
+.gbar .mk{position:absolute;top:-5px;width:4px;height:22px;border-radius:2px;background:#e9eef7;box-shadow:0 0 0 2px #1b2438}
+.gends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+.narr{background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.25);border-radius:11px;padding:13px 15px;font-size:13px;color:#cdeee8;line-height:1.7}
+.narr-h{font-size:12px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.narr b{color:#eafffb}.narr .g{color:#2dd4bf}.narr .a{color:#f5b53f}.narr .r{color:#f2706e}
+.narr-foot{display:block;margin-top:7px;font-size:11px;color:var(--faint)}
+/* signal card */
+.sig{display:flex;align-items:flex-start;gap:14px}
+.sig .main{flex:1}
+.sig .big{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;margin-bottom:3px}
+.sig .desc{font-size:12px;color:var(--mute);line-height:1.6}
+.pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.pill.green{background:rgba(45,212,191,.15);color:#7ee7da}
+.pill.amber{background:rgba(133,147,171,.18);color:#a7b2c6}
+.pill.red{background:rgba(242,112,110,.16);color:#f2a3a2}
+.metrics{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.metrics .m span{color:var(--faint);font-size:11px}
+.up{color:#2dd4bf}.down{color:#f2706e}.flat{color:var(--mute)}
+.btn{background:var(--panel2);color:var(--mute);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:600;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace}
+.btn:hover{color:var(--ink)}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.disc b{color:var(--mute)}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(5,9,16,.74);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;max-width:470px;width:100%;padding:20px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:700;color:var(--ink)}
+.modal-head button{background:transparent;border:none;color:var(--mute);font-size:16px;cursor:pointer}
+.modal-body{font-size:13px;color:var(--mute);line-height:1.7;margin-top:12px}
+.modal-body p{margin-bottom:9px}.modal-body b{color:var(--ink)}
+.modal-foot{margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint)}
+.topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+  background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:22px}
+.topnav a{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;text-decoration:none;
+  color:var(--mute);padding:6px 12px;border-radius:8px;transition:.12s;white-space:nowrap}
+.topnav a:hover{color:var(--ink);background:var(--panel2)}
+.topnav a.on{background:var(--teal);color:#0d1320}
+.topnav .brand{color:var(--ink);font-weight:700}
+.topnav .brand .dot{color:var(--teal)}
+.topnav .sp{flex:1 1 8px}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
+  <a href="topquant_macro.html">매크로</a>
+  <a href="topquant_treasury.html">국채</a>
+  <a href="topquant_news.html">뉴스</a>
+  <a href="topquant_realtime.html">실시간</a>
+  <a href="topquant_compare.html">비교차트</a>
+  <a href="topquant_fx.html">원/달러</a>
+  <a href="topquant_buy.html">매수</a>
+  <a href="topquant_sell.html">매도</a>
+  <a href="topquant_heatmap.html">시장맵</a>
+  <a href="topquant_nps.html">연금예측</a>
+  <a href="topquant_buffett.html">버핏예측</a>
+  <span class="sp"></span>
+</nav>
+<script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
+  document.querySelectorAll('.topnav a').forEach(function(a){
+    var h=(a.getAttribute('href')||'').toLowerCase();
+    if(h===f||(f===''&&h==='index.html'))a.classList.add('on');});})();</script>
+
+<header>
+  <div>
+    <h1>탑퀀트 <span class="dot">·</span> 매수 시점 보드</h1>
+    <div class="sub">"환경이 좋을 때, 조정을 산다" — 구조(3~6개월 환경) × 타이밍(1~2개월 트리거) 2단 판정 · 지수 대상 (KODEX200·S&P/나스닥 ETF·삼성·하이닉스)</div>
+  </div>
+  <div class="status">
+    <div id="liveBadge" class="live"><span class="pulse"></span><span id="liveText">불러오는 중…</span></div>
+    <div id="lastUpd" style="margin-top:6px">—</div>
+  </div>
+</header>
+
+<div class="banner">
+  <b>● 진입 판단 보조용입니다.</b> 바닥을 정확히 맞힐 수 없으므로 이 보드는 "지금이 <b>분할매수를 시작할 만한 국면인가</b>"를 두 단계로 봅니다 —
+  <b>구조</b>(금리·금융환경·이익·고용·밸류 5신호)가 "사도 되는 환경인가"를, <b>타이밍</b>(조정·과매도·공포·환율·수급·추세 6신호)이 "지금이 진입점인가"를 판정합니다.
+  구조가 나쁜데 싸다고 사는 건 <b>떨어지는 칼</b>이고, 구조가 좋은데 조정이 없으면 <b>추격매수</b>입니다. 매수 명령이 아니라 국면 판단입니다.
+</div>
+
+<!-- COMPOSITE -->
+<div class="card hero">
+  <div class="secttl"><span class="clk" onclick="openExplain('VERDICT')" title="누르면 설명" style="border-bottom:1px dotted var(--faint)">종합 — 매수 판정 ⓘ</span>
+    <span class="r"><button class="btn" id="refreshBtn">새로고침</button></span></div>
+  <div class="comptop">
+    <div class="gauge clk" onclick="openExplain('VERDICT')" title="누르면 설명">
+      <div class="lvl" id="lvl">—</div>
+      <div class="sc" id="score">—</div>
+      <div class="gbar"><div class="mk" id="mk" style="left:6%"></div></div>
+      <div class="gends"><span>보류</span><span>신중</span><span>관망</span><span>관심</span><span>분할매수</span></div>
+    </div>
+    <div class="narr" id="narr">불러오는 중…</div>
+  </div>
+</div>
+
+<div class="grpttl"><span class="tag s">구조 STRUCTURE</span> 사도 되는 환경인가 <span class="r">전략 3~6개월 · 5신호</span></div>
+
+<!-- S1 금리 사이클 -->
+<div class="card clk" onclick="openExplain('RATE')" title="누르면 쉬운 설명">
+  <div class="secttl">① 금리 사이클 — 인하는 주식의 순풍 ⓘ <span class="r">미 기준금리 DFF</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="rate-big">—</div><div class="desc">연준이 <b>내리는 중</b>이면 유동성 순풍(매수 우호), <b>올리는 중</b>이면 역풍입니다. 매도보드의 "직전 고점 돌파"와 반대 축.</div>
+      <div class="metrics" id="rate-metrics"></div></div>
+    <span class="pill" id="rate-pill">—</span>
+  </div>
+</div>
+
+<!-- S2 금융환경 -->
+<div class="card clk" onclick="openExplain('FIN')" title="누르면 쉬운 설명">
+  <div class="secttl">② 금융환경 — 돈줄이 풀려 있는가 ⓘ <span class="r">NFCI·스트레스·VIX</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="fin-big">—</div><div class="desc">금융환경(NFCI)·스트레스지수가 <b>완화 구간(0 미만)</b>이고 VIX가 안정적이면 위험자산 매수에 우호적인 물밑 환경입니다.</div>
+      <div class="metrics" id="fin-metrics"></div></div>
+    <span class="pill" id="fin-pill">—</span>
+  </div>
+</div>
+
+<!-- S3 이익 엔진 -->
+<div class="card clk" onclick="openExplain('ENGINE')" title="누르면 쉬운 설명">
+  <div class="secttl">③ 이익 엔진 — 실적이 받쳐주는가 ⓘ <span class="r">반도체 수출 YoY · 리더 추세</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="eng-big">—</div><div class="desc">반도체 수출(삼성·하이닉스 이익 선행)과 리더 복합체(필라델피아 반도체·엔비디아·삼성·하이닉스) 추세가 살아 있으면 <b>조정은 매수 기회</b>, 꺾여 있으면 조정이 아니라 하락의 시작일 수 있습니다.</div>
+      <div class="metrics" id="eng-metrics"></div></div>
+    <span class="pill" id="eng-pill">—</span>
+  </div>
+</div>
+
+<!-- S4 고용 -->
+<div class="card clk" onclick="openExplain('SAHM')" title="누르면 쉬운 설명">
+  <div class="secttl">④ 고용 — 침체가 아닌가 ⓘ <span class="r">Sahm Rule · FRED</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="sahm-big">—</div><div class="desc">Sahm 지표가 0.5를 넘으면(침체 발동) 조정 매수가 아니라 <b>약세장 초입</b>일 확률이 높습니다. 0.25 미만이면 실물이 매수를 받쳐줍니다.</div>
+      <div class="metrics" id="sahm-metrics"></div></div>
+    <span class="pill" id="sahm-pill">—</span>
+  </div>
+</div>
+
+<!-- S5 밸류에이션 -->
+<div class="card clk" onclick="openExplain('VALUE')" title="누르면 쉬운 설명">
+  <div class="secttl">⑤ 밸류에이션 부담 — 비싸게 사는가 ⓘ <span class="r">버핏지표 · FRED</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="val-big">—</div><div class="desc">버핏지표(미국 시총/GDP)가 극단 고평가면 같은 조정이라도 <b>기대수익이 낮고 낙폭 위험이 큽니다</b>. 매수 관점의 감점 요소.</div>
+      <div class="metrics" id="val-metrics"></div></div>
+    <span class="pill" id="val-pill">—</span>
+  </div>
+</div>
+
+<div class="grpttl"><span class="tag t">타이밍 TRIGGER</span> 지금이 진입점인가 <span class="r">전술 1~2개월 · 6신호 · KOSPI 중심</span></div>
+
+<!-- T1 조정 깊이 -->
+<div class="card clk" onclick="openExplain('DD')" title="누르면 쉬운 설명">
+  <div class="secttl">⑥ 조정 깊이 — 할인폭이 존재하는가 ⓘ <span class="r">1년 고점 대비 낙폭</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="dd-big">—</div><div class="desc"><b>고점 대비 −5%~−20% 조정</b>이 있어야 "싸게 사는" 진입입니다. 조정이 없으면 추격매수, −20% 넘게 급락 중이면 구조 신호부터 확인해야 합니다.</div>
+      <div class="metrics" id="dd-metrics"></div></div>
+    <span class="pill" id="dd-pill">—</span>
+  </div>
+</div>
+
+<!-- T2 과매도 반전 -->
+<div class="card clk" onclick="openExplain('RSI')" title="누르면 쉬운 설명">
+  <div class="secttl">⑦ 과매도 반전 — 팔 사람은 다 팔았나 ⓘ <span class="r">KOSPI RSI(14)</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="rsi-big">—</div><div class="desc">RSI가 <b>과매도권(35 미만)까지 밀렸다가 반등</b>하면 매도 압력이 소진됐다는 신호. 반대로 70 이상 과열이면 지금 사는 건 과열 추격입니다.</div>
+      <div class="metrics" id="rsi-metrics"></div></div>
+    <span class="pill" id="rsi-pill">—</span>
+  </div>
+</div>
+
+<!-- T3 공포 정점 통과 -->
+<div class="card clk" onclick="openExplain('FEAR')" title="누르면 쉬운 설명">
+  <div class="secttl">⑧ 공포 정점 통과 — VIX 스파이크 후 진정 ⓘ <span class="r">VIX 60일 내 고점 대비</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="fear-big">—</div><div class="desc">"공포에 사라"의 규칙화 — VIX가 <b>25 이상 치솟은 뒤 고점 대비 20% 이상 내려오면</b> 패닉 매도가 지나간 신호입니다. 공포가 확산 중일 땐 이릅니다.</div>
+      <div class="metrics" id="fear-metrics"></div></div>
+    <span class="pill" id="fear-pill">—</span>
+  </div>
+</div>
+
+<!-- T4 원화 안정화 -->
+<div class="card clk" onclick="openExplain('WON')" title="누르면 쉬운 설명">
+  <div class="secttl">⑨ 원화 안정화 — 외국인 복귀 여건 ⓘ <span class="r">원/달러 1개월 방향</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="won-big">—</div><div class="desc">원/달러가 <b>꺾여 내려오기 시작</b>하면(원화 강세 전환) 외국인 자금이 돌아올 여건입니다. 급등 진행 중이면 코스피 매수는 이릅니다.</div>
+      <div class="metrics" id="won-metrics"></div></div>
+    <span class="pill" id="won-pill">—</span>
+  </div>
+</div>
+
+<!-- T5 수급 리셋 -->
+<div class="card clk" onclick="openExplain('FLOW')" title="누르면 쉬운 설명">
+  <div class="secttl">⑩ 수급 리셋 — 공매도·연금 매도압력 소멸 ⓘ <span class="r">대차잔고 · 국민연금 비중</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="flow-big">—</div><div class="desc">삼성·하이닉스 <b>대차잔고 감소(숏커버)</b> + 국민연금 비중이 목표 근처로 내려와 <b>기계적 매도가 끝난 상태</b>면 수급의 바닥 신호입니다.</div>
+      <div class="metrics" id="flow-metrics"></div></div>
+    <span class="pill" id="flow-pill">—</span>
+  </div>
+</div>
+
+<!-- T6 추세 회복 -->
+<div class="card clk" onclick="openExplain('TREND')" title="누르면 쉬운 설명">
+  <div class="secttl">⑪ 추세 회복 확인 — 떨어지는 칼 방지 ⓘ <span class="r">KOSPI 20일선 복귀</span></div>
+  <div class="sig">
+    <div class="main"><div class="big" id="trend-big">—</div><div class="desc">바닥 예측 대신 <b>20일선 위로 복귀 + 20일선 상승 전환</b>을 확인하고 들어가면 최저점은 놓쳐도 하락 중 진입을 피합니다.</div>
+      <div class="metrics" id="trend-metrics"></div></div>
+    <span class="pill" id="trend-pill">—</span>
+  </div>
+</div>
+
+<div class="disc">
+  ※ 출처: FRED(DFF·VIXCLS·NFCI·STLFSI4·SAHMREALTIME·NCBEILQ027S·GDP), KOSPI·S&P500·리더주·원/달러 Yahoo Finance, 한국은행 ECOS(반도체 수출금액지수), 한국예탁결제원 증권대차(대차잔고), 국민연금 기금 포트폴리오 — 모두 Vercel 프록시 경유.
+  <b>구조 5신호 × 타이밍 6신호의 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 바닥은 누구도 정확히 맞힐 수 없습니다.
+  분할매수 전제의 국면 판단용으로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
+</div>
+
+<!-- 모달 -->
+<div id="modal" class="modal" style="display:none">
+  <div class="modal-card">
+    <div class="modal-head"><span id="m-title"></span><button id="m-close" type="button">✕</button></div>
+    <div id="m-body" class="modal-body"></div>
+    <div class="modal-foot">규칙 기반 일반 설명 · 시장 상황에 따라 예외가 있을 수 있어요 · 투자 판단은 본인 책임</div>
+  </div>
+</div>
+
+<script>
+const PROXY='https://fred-proxy-nine.vercel.app';
+const $=id=>document.getElementById(id);
+const SIG={};
+const PILL={green:'우호',amber:'중립',red:'불리'};
+function setPill(id,st){const e=$(id);e.className='pill '+st;e.textContent=PILL[st];}
+function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
+const pct=v=>v==null?'—':(v>=0?'+':'')+v.toFixed(1)+'%';
+
+const EXPLAIN={
+ VERDICT:{title:'매수 판정 읽는 법', body:`
+   <p>두 게이트를 <b>순서대로</b> 통과해야 매수입니다.</p>
+   <p><b>1) 구조(5신호)</b> — 금리·금융환경·이익·고용·밸류. "이 환경에서 사도 되는가". 구조 점수가 낮으면 아무리 싸도 <b>매수 보류(떨어지는 칼)</b>.</p>
+   <p><b>2) 타이밍(6신호)</b> — 조정 깊이·과매도 반전·공포 통과·원화·수급·추세 회복. "지금이 진입점인가". 구조가 좋아도 트리거가 없으면 <b>관망(추격 자제)</b>.</p>
+   <p><b>판정 5단계</b>: 보류 → 신중 → 관망 → 관심(분할 준비) → 분할매수 검토.</p>
+   <p><b>역발상 조합</b>: ⑥조정 존재 + ⑦과매도 반전 + ⑧공포 정점 통과가 <b>동시에</b> 켜지면 트리거 점수와 무관하게 '분할매수 검토'로 올립니다(패닉 저점의 고전적 패턴).</p>
+   <p style="color:var(--rose)">⚠ 한 번에 다 사지 말고 분할 전제. 보조 지표입니다.</p>`},
+ RATE:{title:'① 금리 사이클', body:`
+   <p>연준 기준금리(DFF)의 <b>방향</b>을 봅니다. 최근 3개월간 <b>내렸으면 인하 사이클</b>(할인율↓·유동성↑ = 매수 순풍), 올렸으면 긴축(역풍).</p>
+   <p><b>우호</b>: 인하 진행. <b>중립</b>: 동결. <b>불리</b>: 인상 진행.</p>`},
+ FIN:{title:'② 금융환경', body:`
+   <p>시카고연준 <b>NFCI</b>와 세인트루이스 <b>금융스트레스(STLFSI4)</b>는 0보다 낮으면 "돈줄 완화·스트레스 낮음"입니다. 여기에 <b>VIX</b>가 25 미만으로 안정적이면 위험자산 매수에 우호적 환경.</p>
+   <p><b>우호</b>: NFCI·스트레스 모두 완화 + VIX 안정. <b>불리</b>: 둘 다 긴축이거나 VIX 30↑.</p>`},
+ ENGINE:{title:'③ 이익 엔진', body:`
+   <p>매도보드 ⑤와 같은 데이터를 매수 관점으로 봅니다 — <b>이익이 받쳐주면 조정은 기회, 이익이 꺾이면 조정은 하락의 시작</b>입니다.</p>
+   <p>① 리더 복합체(필라델피아 반도체·엔비디아·삼성전자·SK하이닉스) 200일선 위 개수, ② 한국은행 반도체 수출금액지수 YoY.</p>
+   <p><b>우호</b>: 리더 3/4 이상 추세 위 + 수출 증가. <b>불리</b>: 리더 대부분 이탈 또는 수출 역성장 동반.</p>`},
+ SAHM:{title:'④ 고용 (Sahm Rule)', body:`
+   <p>실업률 3개월 평균이 1년 최저 대비 +0.5%p면 침체 발동 — 이때의 하락은 조정이 아니라 <b>약세장</b>일 확률이 높아 매수를 보류합니다.</p>
+   <p><b>우호</b>: 0.25 미만(고용 견조). <b>중립</b>: 0.25~0.5. <b>불리</b>: 0.5 이상(침체 신호).</p>`},
+ VALUE:{title:'⑤ 밸류에이션 부담 (버핏지표)', body:`
+   <p>미국 주식시총 ÷ GDP. 매수 관점에선 <b>출발 밸류가 높을수록 향후 기대수익이 낮다</b>는 감점 요소로 씁니다. 단독 금지 신호는 아니고 강도 조절용.</p>
+   <p><b>우호</b>: 130% 미만. <b>중립</b>: 130~170%. <b>불리</b>: 170% 이상(극단 고평가).</p>`},
+ DD:{title:'⑥ 조정 깊이', body:`
+   <p>KOSPI·S&P500의 <b>최근 1년 고점 대비 낙폭</b>입니다. 싸게 사려면 할인이 존재해야 합니다.</p>
+   <p><b>우호</b>: −5%~−20% 조정(정상 조정 범위의 할인). <b>중립</b>: −5% 이내(조정 없음 — 사면 추격매수). <b>불리</b>: −20% 초과 급락 진행(구조 신호 확인 전 진입 금지).</p>`},
+ RSI:{title:'⑦ 과매도 반전 (RSI14)', body:`
+   <p>RSI는 최근 14일간 상승/하락 강도(0~100). <b>35 미만 과매도까지 밀렸다가 +5p 이상 반등</b>하면 "팔 사람이 소진되고 반전이 시작"된 신호로 봅니다.</p>
+   <p><b>우호</b>: 과매도 후 반등 진행. <b>중립</b>: 특이 없음. <b>불리</b>: RSI 70 이상(지금 사면 과열 추격).</p>`},
+ FEAR:{title:'⑧ 공포 정점 통과 (VIX)', body:`
+   <p>"공포에 사라"를 규칙화 — VIX가 최근 60일 내 <b>25 이상으로 치솟은 뒤 고점 대비 20% 이상 하락</b>하면 패닉이 지나간 것으로 봅니다(2020.3, 2024.8 패턴).</p>
+   <p><b>우호</b>: 스파이크 후 진정. <b>중립</b>: 공포 이벤트 없음(평온). <b>불리</b>: VIX 25 이상에서 아직 상승 중(공포 확산).</p>`},
+ WON:{title:'⑨ 원화 안정화', body:`
+   <p>코스피 반등엔 보통 <b>원화 안정/강세 전환</b>(외국인 복귀)이 함께 옵니다. 원/달러 최근 1개월 방향을 봅니다.</p>
+   <p><b>우호</b>: 1개월 −1% 이상 하락(원화 강세 전환). <b>중립</b>: 보합. <b>불리</b>: +1.5% 이상 상승 지속(이탈 진행 — 코스피 매수 이름).</p>`},
+ FLOW:{title:'⑩ 수급 리셋', body:`
+   <p>두 수급 축이 <b>매도 압력 소멸</b>을 가리키는지 봅니다.</p>
+   <p>① 삼성·하이닉스 <b>대차잔고</b>(공매도 대기물량) 1개월 변화 — 둘 다 감소하면 숏커버(공매도 청산) 진행. ② <b>국민연금</b> 국내주식 추정 비중 — 목표(20.8%) 부근이면 기계적 매도 끝.</p>
+   <p><b>우호</b>: 대차 감소 + 연금 압력 없음. <b>불리</b>: 대차 급증 또는 연금 강제매도 구간(비중 26.5%↑).</p>`},
+ TREND:{title:'⑪ 추세 회복 확인', body:`
+   <p>바닥을 맞히는 대신 <b>확인하고 들어가는</b> 장치입니다. KOSPI가 20일 이동평균선 위로 복귀하고 20일선 자체가 상승으로 돌면 단기 하락 추세가 끝났다고 봅니다.</p>
+   <p><b>우호</b>: 20일선 위 + 20일선 상승. <b>중립</b>: 20일선 근처 공방. <b>불리</b>: 20일선·200일선 모두 아래(하락 추세 진행).</p>`},
+};
+function openExplain(k){const e=EXPLAIN[k];if(!e)return;$('m-title').textContent=e.title;$('m-body').innerHTML=e.body;$('modal').style.display='flex';}
+function closeModal(){$('modal').style.display='none';}
+
+async function indices(syms,range){
+  const r=await fetch(PROXY+'/api/indices?symbols='+syms.map(encodeURIComponent).join(',')+'&range='+(range||'1y'),{cache:'no-store'});
+  if(!r.ok)throw new Error('지수 HTTP '+r.status); const j=await r.json(); if(!j.ok)throw new Error(j.error||'index err'); return j.data;
+}
+async function fred(id,limit){
+  const r=await fetch(PROXY+'/api/fred?series_id='+id+'&limit='+limit+'&sort_order=desc',{cache:'no-store'});
+  if(!r.ok)throw new Error('FRED HTTP '+id+' '+r.status); const j=await r.json();
+  return ((j&&j.observations)||[]).map(o=>({date:o.date,v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
+}
+// asc 배열 도우미
+const smaAsc=(a,n)=>{ if(!a||a.length<n)return null; return a.slice(-n).reduce((s,x)=>s+x.c,0)/n; };
+const retAsc=(a,n)=>{ if(!a||a.length<=n)return null; const l=a[a.length-1].c,p=a[a.length-1-n].c; return p?(l/p-1)*100:null; };
+// RSI(14) 시계열 (asc closes) — Wilder 평활
+function rsiSeries(a,p){ p=p||14; if(!a||a.length<p+2)return null;
+  const c=a.map(x=>x.c), out=new Array(c.length).fill(null);
+  let g=0,l=0;
+  for(let i=1;i<=p;i++){ const d=c[i]-c[i-1]; if(d>0)g+=d; else l-=d; }
+  g/=p; l/=p; out[p]= l===0?100:100-100/(1+g/l);
+  for(let i=p+1;i<c.length;i++){ const d=c[i]-c[i-1];
+    g=(g*(p-1)+(d>0?d:0))/p; l=(l*(p-1)+(d<0?-d:0))/p;
+    out[i]= l===0?100:100-100/(1+g/l); }
+  return out;
+}
+
+// 한국은행 ECOS — 반도체 수출금액지수 YoY
+async function semiExport(){
+  try{
+    const y=new Date().getFullYear();
+    const url=PROXY+'/api/kr?path=StatisticSearch/json/kr/1/60/403Y001/M/'+(y-2)+'01/'+y+'12/30911AA';
+    const r=await fetch(url,{cache:'no-store'}); if(!r.ok) return null;
+    const j=await r.json(); const rows=(j&&j.StatisticSearch&&j.StatisticSearch.row)||[];
+    const a=rows.map(x=>({t:x.TIME,v:parseFloat(x.DATA_VALUE)})).filter(x=>!isNaN(x.v));
+    if(a.length<13) return null;
+    const last=a[a.length-1], p12=a[a.length-13];
+    return {t:last.t, yoy:p12.v?(last.v/p12.v-1)*100:null};
+  }catch(e){ return null; }
+}
+// 예탁결제원 증권대차 — 삼성·하이닉스 대차잔고 (매도보드와 동일 로직)
+function _ymd(d){ return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
+async function slbRank(stdDt){
+  try{
+    const r=await fetch(PROXY+'/api/slb?op=getSlbStockRank&stdDt='+stdDt+'&rankTpcd=1',{cache:'no-store'});
+    if(!r.ok) return null; const t=await r.text();
+    const doc=new DOMParser().parseFromString(t,'application/xml');
+    const rc=doc.querySelector('resultCode'); if(!rc||rc.textContent.trim()!=='00') return null;
+    const m={};
+    doc.querySelectorAll('item').forEach(it=>{ const c=it.querySelector('shotnIsin'); if(!c) return;
+      m[c.textContent]={ remAmt:parseInt((it.querySelector('remAmt')||{}).textContent)||0 }; });
+    return Object.keys(m).length?m:null;
+  }catch(e){ return null; }
+}
+async function slbFetch(){
+  const today=new Date();
+  let latest=null, latestDd=null;
+  for(let i=1;i<=8&&!latest;i++){ const d=new Date(today); d.setDate(d.getDate()-i); const s=_ymd(d); const r=await slbRank(s); if(r){latest=r;latestDd=s;} }
+  let prior=null;
+  if(latestDd){ const b=new Date(+latestDd.slice(0,4),+latestDd.slice(4,6)-1,+latestDd.slice(6,8));
+    for(let i=28;i<=40&&!prior;i++){ const d=new Date(b); d.setDate(d.getDate()-i); const r=await slbRank(_ymd(d)); if(r)prior=r; } }
+  return {latest,prior};
+}
+// 국민연금 자기보정 추정 (매도보드 ⑩과 동일 파라미터)
+const NPS={ baseDate:'2026-03-31', dom:320913, forn:557003, tot:1526112, target:20.8, flow:15000, monIn:15000/12 };
+function closeAt(arr,ymd){ let b=null; if(!arr)return null; for(const o of arr){ if(o.t<=ymd) b=o; } return b?b.c:null; }
+function npsMonthEnds(fromYmd){
+  const out=[]; let p=fromYmd.split('-').map(Number), y=p[0], m=p[1];
+  const now=new Date(), ny=now.getUTCFullYear(), nm=now.getUTCMonth()+1;
+  while(true){ m++; if(m>12){m=1;y++;} if(y>ny||(y===ny&&m>nm)) break;
+    const last=new Date(Date.UTC(y,m,0)).getUTCDate();
+    out.push(y+'-'+String(m).padStart(2,'0')+'-'+String(last).padStart(2,'0')); }
+  return out;
+}
+function npsWeight(ks,sp){
+  const kBase=closeAt(ks,NPS.baseDate); if(!kBase||!ks||!ks.length) return null;
+  const wT=NPS.target/100, band=0.06;
+  let D=NPS.dom, F=NPS.forn, O=NPS.tot-NPS.dom-NPS.forn;
+  let pk=kBase, pg=closeAt(sp,NPS.baseDate);
+  npsMonthEnds(NPS.baseDate).forEach(d=>{
+    const kC=closeAt(ks,d), gC=closeAt(sp,d);
+    const kr=(kC&&pk)?kC/pk-1:0, gr=(gC&&pg)?gC/pg-1:0;
+    D*=(1+kr); F*=(1+gr); O+=NPS.monIn; let T=D+F+O; const w=D/T;
+    if(w>wT+band){ const s=(w-(wT+band))*T; D-=s; O+=s; }
+    else if(w<wT-band){ const b=((wT-band)-w)*T; D+=b; O-=b; }
+    if(kC)pk=kC; if(gC)pg=gC;
+  });
+  return D/(D+F+O)*100;
+}
+
+// ── 구조 S1: 금리 사이클 ──
+function renderRate(dff){
+  if(!dff.length){SIG.rate={st:'amber'};$('rate-big').textContent='데이터 없음';setPill('rate-pill','amber');return;}
+  const cur=dff[0].v, past=dff[Math.min(63,dff.length-1)].v, chg=cur-past;
+  const falling=chg<-0.1, rising=chg>0.1;
+  const st=falling?'green':(rising?'red':'amber');
+  SIG.rate={st};
+  $('rate-metrics').innerHTML=
+    `<span class="m">현재 ${cur.toFixed(2)}% <span>DFF</span></span>`
+   +`<span class="m ${falling?'up':(rising?'down':'flat')}">3개월 ${(chg>=0?'+':'')+chg.toFixed(2)}%p <span>${falling?'인하↓':(rising?'인상↑':'동결')}</span></span>`;
+  $('rate-big').textContent= st==='green'?'인하 사이클 진행 — 유동성 순풍(매수 우호)'
+    : st==='red'?'인상 진행 — 긴축 역풍(매수 불리)':'동결 구간 — 중립';
+  setPill('rate-pill',st);
+}
+// ── 구조 S2: 금융환경 ──
+function renderFin(nfci,stress,vix){
+  const nf=nfci&&nfci[0]?nfci[0].v:null, ss=stress&&stress[0]?stress[0].v:null, vx=vix&&vix[0]?vix[0].v:null;
+  let st='amber';
+  if(nf!=null&&ss!=null&&vx!=null){
+    if(nf<0&&ss<0&&vx<25) st='green';
+    else if((nf>0&&ss>0)||vx>=30) st='red';
+  }
+  SIG.fin={st};
+  $('fin-metrics').innerHTML=
+    `<span class="m ${nf!=null&&nf<0?'up':'down'}">NFCI ${nf!=null?nf.toFixed(2):'—'} <span>${nf!=null?(nf<0?'완화':'긴축'):''}</span></span>`
+   +`<span class="m ${ss!=null&&ss<0?'up':'down'}">스트레스 ${ss!=null?ss.toFixed(2):'—'}</span>`
+   +`<span class="m ${vx!=null&&vx<25?'up':'down'}">VIX ${vx!=null?vx.toFixed(1):'—'}</span>`;
+  $('fin-big').textContent= st==='green'?'돈줄 완화 + 스트레스 낮음 — 매수 우호 환경'
+    : st==='red'?'긴축/고변동성 — 위험자산 매수 불리':'금융환경 혼조 — 중립';
+  setPill('fin-pill',st);
+}
+// ── 구조 S3: 이익 엔진 ──
+function renderEngine(lead,exp){
+  const L=[['^SOX','필라 반도체'],['NVDA','엔비디아'],['005930.KS','삼성전자'],['000660.KS','SK하이닉스']];
+  let aboveN=0, valid=0;
+  const parts=L.map(([s,n])=>{
+    const a=lead[s]; const ok=Array.isArray(a)&&a.length>200;
+    if(!ok) return `<span class="m flat">${n} —</span>`;
+    valid++;
+    const sma=smaAsc(a,200), above=a[a.length-1].c>sma; if(above)aboveN++;
+    return `<span class="m ${above?'up':'down'}">${n} <span>${above?'200일 위':'이탈'}</span></span>`;
+  }).join('');
+  const ey=exp?exp.yoy:null;
+  let st='amber';
+  if(valid>=3){
+    if(aboveN>=3&&(ey==null||ey>0)) st='green';
+    else if(aboveN<=1||(ey!=null&&ey<0&&aboveN<=2)) st='red';
+  }
+  SIG.engine={st};
+  $('eng-metrics').innerHTML=parts
+   +`<span class="m ${ey==null?'flat':(ey>0?'up':'down')}">반도체 수출 ${ey==null?'—':pct(ey)} <span>YoY</span></span>`;
+  $('eng-big').textContent= st==='green'?'이익 엔진 가동 — 조정은 매수 기회 성격'
+    : st==='red'?'이익 둔화 — 하락이 조정이 아닐 위험(매수 불리)':'이익 신호 혼조 — 중립';
+  setPill('eng-pill',st);
+}
+// ── 구조 S4: 고용 ──
+function renderSahm(sahm){
+  const cur=sahm&&sahm.length?sahm[0].v:null;
+  const st=cur==null?'amber':(cur<0.25?'green':(cur>=0.5?'red':'amber'));
+  SIG.sahm={st};
+  $('sahm-metrics').innerHTML=`<span class="m ${st==='green'?'up':(st==='red'?'down':'flat')}">Sahm ${cur!=null?cur.toFixed(2):'—'} <span>발동선 0.50</span></span>`;
+  $('sahm-big').textContent= st==='green'?'고용 견조 — 실물이 매수를 받쳐줌'
+    : st==='red'?'침체 룰 발동 — 조정 매수 아닌 약세장 위험':'고용 둔화 조짐 — 중립';
+  setPill('sahm-pill',st);
+}
+// ── 구조 S5: 밸류에이션 ──
+function renderValue(mktcap,gdp){
+  if(!mktcap||!mktcap.length||!gdp||!gdp.length){SIG.value={st:'amber'};$('val-big').textContent='데이터 없음';setPill('val-pill','amber');return;}
+  const ratio=mktcap[0].v/(gdp[0].v*1000)*100;
+  const st=ratio<130?'green':(ratio>=170?'red':'amber');
+  SIG.value={st,ratio};
+  $('val-metrics').innerHTML=`<span class="m ${st==='green'?'up':(st==='red'?'down':'flat')}">버핏지표 ${ratio.toFixed(0)}% <span>${ratio>=170?'극단 고평가':ratio>=130?'고평가':'적정'}</span></span>`;
+  $('val-big').textContent= st==='green'?'밸류 부담 낮음 — 기대수익 여지'
+    : st==='red'?'극단 고평가에서의 매수 — 기대수익 낮고 낙폭 위험':'고평가 구간 — 강도 조절 필요';
+  setPill('val-pill',st);
+}
+// ── 타이밍 T1: 조정 깊이 ──
+function renderDD(ks,sp){
+  const dd=a=>{ if(!Array.isArray(a)||a.length<30) return null;
+    const hi=Math.max.apply(null,a.map(x=>x.c)); return (a[a.length-1].c/hi-1)*100; };
+  const k=dd(ks), s=dd(sp);
+  let st='amber';
+  if(k!=null){ if(k<=-5&&k>=-20) st='green'; else if(k<-20) st='red'; }
+  SIG.dd={st,k,s};
+  $('dd-metrics').innerHTML=
+    `<span class="m ${k!=null&&k<=-5?'up':'flat'}">KOSPI 고점 대비 ${k!=null?k.toFixed(1)+'%':'—'} <span>1년 내</span></span>`
+   +`<span class="m ${s!=null&&s<=-5?'up':'flat'}">S&P500 ${s!=null?s.toFixed(1)+'%':'—'}</span>`;
+  $('dd-big').textContent= st==='green'?'조정 할인 존재 — 진입 가격 매력 구간'
+    : st==='red'?'급락 진행(−20%↑) — 구조 확인 전 진입 금지':'조정 없음 — 지금 사면 추격매수';
+  setPill('dd-pill',st);
+}
+// ── 타이밍 T2: 과매도 반전 ──
+function renderRSI(ks){
+  const rs=rsiSeries(ks,14);
+  if(!rs){SIG.oversold={st:'amber'};$('rsi-big').textContent='데이터 없음';setPill('rsi-pill','amber');return;}
+  const cur=rs[rs.length-1];
+  const win=rs.slice(-20).filter(v=>v!=null);
+  const mn=win.length?Math.min.apply(null,win):null;
+  let st='amber';
+  if(cur!=null){ if(cur>=70) st='red'; else if(mn!=null&&mn<35&&cur>mn+5) st='green'; }
+  SIG.oversold={st,cur,mn};
+  $('rsi-metrics').innerHTML=
+    `<span class="m ${cur>=70?'down':(cur<=35?'up':'flat')}">RSI ${cur!=null?cur.toFixed(0):'—'} <span>현재</span></span>`
+   +`<span class="m ${mn!=null&&mn<35?'up':'flat'}">20일 최저 ${mn!=null?mn.toFixed(0):'—'} <span>과매도&lt;35</span></span>`;
+  $('rsi-big').textContent= st==='green'?'과매도 후 반등 — 매도 압력 소진 신호'
+    : st==='red'?'RSI 과열(70↑) — 지금 매수는 과열 추격':'과매도 이벤트 없음 — 중립';
+  setPill('rsi-pill',st);
+}
+// ── 타이밍 T3: 공포 정점 통과 ──
+function renderFear(vix){
+  if(!vix||!vix.length){SIG.fear={st:'amber'};$('fear-big').textContent='데이터 없음';setPill('fear-pill','amber');return;}
+  const cur=vix[0].v;
+  const peak=Math.max.apply(null,vix.map(o=>o.v));
+  const rising=vix.length>5&&cur>vix[5].v;
+  let st='amber';
+  if(peak>=25&&cur<=peak*0.8) st='green';
+  else if(cur>=25&&rising) st='red';
+  SIG.fear={st,cur,peak};
+  $('fear-metrics').innerHTML=
+    `<span class="m ${cur>=25?'down':'flat'}">VIX ${cur.toFixed(1)} <span>현재</span></span>`
+   +`<span class="m ${peak>=25?'up':'flat'}">60일 고점 ${peak.toFixed(1)} <span>${peak>=25?'스파이크 있었음':'스파이크 없음'}</span></span>`;
+  $('fear-big').textContent= st==='green'?'공포 정점 통과 — 패닉 매도 소화(역발상 우호)'
+    : st==='red'?'공포 확산 중 — 진입 이름':'공포 이벤트 없음 — 중립';
+  setPill('fear-pill',st);
+}
+// ── 타이밍 T4: 원화 안정화 ──
+function renderWon(fx){
+  const chg=retAsc(fx,21);
+  let st='amber';
+  if(chg!=null){ if(chg<=-1) st='green'; else if(chg>=1.5) st='red'; }
+  const cur=Array.isArray(fx)&&fx.length?fx[fx.length-1].c:null;
+  SIG.won={st,chg};
+  $('won-metrics').innerHTML=
+    `<span class="m">원/달러 ${cur!=null?Math.round(cur).toLocaleString()+'원':'—'}</span>`
+   +`<span class="m ${chg!=null&&chg<0?'up':'down'}">1개월 ${chg!=null?pct(chg):'—'} <span>${chg==null?'':(chg<=-1?'원화 강세 전환':(chg>=1.5?'약세 진행':'보합'))}</span></span>`;
+  $('won-big').textContent= st==='green'?'원화 강세 전환 — 외국인 복귀 여건'
+    : st==='red'?'원화 급등 진행 — 코스피 매수 이름':'환율 보합 — 중립';
+  setPill('won-pill',st);
+}
+// ── 타이밍 T5: 수급 리셋 ──
+function renderFlow(slb,ks,sp){
+  const L=slb&&slb.latest, P=slb&&slb.prior;
+  const sChg=(L&&P&&L['005930']&&P['005930'])?(L['005930'].remAmt/P['005930'].remAmt-1)*100:null;
+  const hChg=(L&&P&&L['000660']&&P['000660'])?(L['000660'].remAmt/P['000660'].remAmt-1)*100:null;
+  const w=npsWeight(ks,sp);
+  let st='amber';
+  const bothDown=sChg!=null&&hChg!=null&&sChg<=-10&&hChg<=-10;
+  const bothUp=sChg!=null&&hChg!=null&&sChg>=15&&hChg>=15;
+  if(bothDown) st='green'; else if(bothUp) st='red';
+  if(w!=null){ if(w>=26.5) st='red'; else if(w>=24&&st==='green') st='amber'; }
+  SIG.flow={st,sChg,hChg,w};
+  $('flow-metrics').innerHTML=
+    `<span class="m ${sChg!=null&&sChg<0?'up':'down'}">삼성 대차 ${sChg!=null?pct(sChg):'—'} <span>1M</span></span>`
+   +`<span class="m ${hChg!=null&&hChg<0?'up':'down'}">하이닉스 대차 ${hChg!=null?pct(hChg):'—'} <span>1M</span></span>`
+   +`<span class="m ${w!=null&&w<24?'up':(w!=null&&w>=26.5?'down':'flat')}">국민연금 비중 ${w!=null?w.toFixed(1)+'%':'—'} <span>목표 20.8%</span></span>`;
+  $('flow-big').textContent= st==='green'?'숏커버 + 연금 압력 없음 — 수급 바닥 신호'
+    : st==='red'?(w!=null&&w>=26.5?'국민연금 강제매도 구간 — 수급 역풍':'공매도 대기물량 급증 — 수급 역풍')
+    :'수급 혼조 — 중립';
+  setPill('flow-pill',st);
+}
+// ── 타이밍 T6: 추세 회복 ──
+function renderTrend(ks){
+  if(!Array.isArray(ks)||ks.length<210){SIG.trend={st:'amber'};$('trend-big').textContent='데이터 없음';setPill('trend-pill','amber');return;}
+  const cur=ks[ks.length-1].c;
+  const s20=smaAsc(ks,20), s20p=smaAsc(ks.slice(0,-5),20), s200=smaAsc(ks,200);
+  const above20=cur>s20, rising20=s20>s20p;
+  let st='amber';
+  if(above20&&rising20) st='green';
+  else if(cur<s20&&cur<s200) st='red';
+  SIG.trend={st};
+  $('trend-metrics').innerHTML=
+    `<span class="m ${above20?'up':'down'}">20일선 ${above20?'▲위':'▼아래'} <span>${rising20?'상승 중':'하락 중'}</span></span>`
+   +`<span class="m ${cur>s200?'up':'down'}">200일선 ${cur>s200?'▲위':'▼아래'}</span>`;
+  $('trend-big').textContent= st==='green'?'20일선 복귀 + 상승 전환 — 진입 확인 신호'
+    : st==='red'?'20일·200일선 모두 아래 — 하락 추세 진행(칼 잡기 금지)':'20일선 공방 — 확인 대기';
+  setPill('trend-pill',st);
+}
+
+// ── 종합 판정 ──
+const S_KEYS=[['rate','금리'],['fin','금융환경'],['engine','이익'],['sahm','고용'],['value','밸류']];
+const T_KEYS=[['dd','조정'],['oversold','과매도반전'],['fear','공포통과'],['won','원화'],['flow','수급'],['trend','추세']];
+const _V={green:2,amber:1,red:0};
+function renderComposite(){
+  const R=S_KEYS.reduce((a,[k])=>a+(SIG[k]?_V[SIG[k].st]:1),0);   // 0-10
+  const T=T_KEYS.reduce((a,[k])=>a+(SIG[k]?_V[SIG[k].st]:1),0);   // 0-12
+  const contrarian=SIG.dd&&SIG.dd.st==='green'&&SIG.oversold&&SIG.oversold.st==='green'&&SIG.fear&&SIG.fear.st==='green';
+  let lvl,col,pos;
+  if(R>=8&&(T>=8||contrarian)){lvl='분할매수 검토';col='#2dd4bf';pos=94;}
+  else if(R>=8&&T>=5){lvl='관심 — 분할 준비';col='#5b8def';pos=72;}
+  else if(R>=8){lvl='관망 — 추격 자제';col='#8593ab';pos=52;}
+  else if(R>=5){lvl='신중 — 소량만';col='#f5b53f';pos=30;}
+  else{lvl='매수 보류';col='#f2706e';pos=6;}
+  $('lvl').textContent=lvl; $('lvl').style.color=col;
+  $('score').textContent='구조 '+R+'/10 · 타이밍 '+T+'/12'+(contrarian?' · 역발상 조합 ★':'');
+  $('mk').style.left=pos+'%';
+  const sFired=S_KEYS.filter(([k])=>SIG[k]&&SIG[k].st==='green').map(([,n])=>n);
+  const tFired=T_KEYS.filter(([k])=>SIG[k]&&SIG[k].st==='green').map(([,n])=>n);
+  const sBad=S_KEYS.filter(([k])=>SIG[k]&&SIG[k].st==='red').map(([,n])=>n);
+  let body;
+  if(lvl==='분할매수 검토'){
+    body=`구조가 우호(${R}/10)이고 ${contrarian?'<b class="g">역발상 조합(조정+과매도 반전+공포 통과)</b>이 점등':'타이밍 트리거가 충분히 점등('+T+'/12)'}했습니다. <b>한 번에 사지 말고 2~4회 분할</b>로, 지수 ETF(또는 삼성·하이닉스) 기준 진입을 검토할 구간입니다.`;
+  } else if(lvl==='관심 — 분할 준비'){
+    body=`구조는 우호(${R}/10)인데 트리거가 부분 점등(${T}/12)입니다. 우호 트리거: <b>${tFired.join(' · ')||'없음'}</b>. ⑦과매도 반전·⑪추세 회복이 마저 켜지면 분할 1회차를 시작할 준비를 하세요.`;
+  } else if(lvl==='관망 — 추격 자제'){
+    body=`환경(구조 ${R}/10)은 좋지만 <b>조정·트리거가 없습니다</b>. 지금 사는 건 추격매수입니다. 조정(⑥)이 오면 이 보드가 관심→분할매수로 올라갑니다 — 그때를 기다리는 게 이 보드의 용도입니다.`;
+  } else if(lvl==='신중 — 소량만'){
+    body=`구조가 중립(${R}/10)입니다${sBad.length?' — 불리: <b class="r">'+sBad.join(' · ')+'</b>':''}. 확신 구간이 아니므로 사더라도 계획 물량의 일부만, 트리거(${T}/12) 확인 후에.`;
+  } else {
+    body=`<b class="r">구조가 불리(${R}/10)</b>합니다${sBad.length?' — '+sBad.join(' · '):''}. 싸 보여도 지금 하락은 조정이 아니라 <b>구조적 하락일 위험</b>이 있습니다. 매도보드가 진정되고 구조 신호가 회복될 때까지 매수 보류.`;
+  }
+  $('narr').innerHTML=`<div class="narr-h">📗 지금 읽기</div>${body}<span class="narr-foot">구조 우호 ${sFired.length}/5(${sFired.join('·')||'—'}) · 타이밍 우호 ${tFired.length}/6(${tFired.join('·')||'—'}) · 분할매수 전제 · 점 예측 아님 · 카드 클릭 시 설명</span>`;
+}
+
+async function load(){
+  setLive(true,'불러오는 중…');
+  try{
+    const [mkt,dff,vix,nfci,stress,sahm,mktcap,gdp,exp,slb]=await Promise.all([
+      indices(['^KS11','^GSPC','KRW=X','^SOX','NVDA','005930.KS','000660.KS'],'1y'),
+      fred('DFF',900), fred('VIXCLS',60), fred('NFCI',5), fred('STLFSI4',5),
+      fred('SAHMREALTIME',6), fred('NCBEILQ027S',8), fred('GDP',8),
+      semiExport(), slbFetch()
+    ]);
+    const ks=mkt['^KS11'], sp=mkt['^GSPC'], fx=mkt['KRW=X'];
+    renderRate(dff);
+    renderFin(nfci,stress,vix);
+    renderEngine(mkt,exp);
+    renderSahm(sahm);
+    renderValue(mktcap,gdp);
+    renderDD(ks,sp);
+    renderRSI(ks);
+    renderFear(vix);
+    renderWon(fx);
+    renderFlow(slb,ks,sp);
+    renderTrend(ks);
+    renderComposite();
+    setLive(true,'LIVE'); $('lastUpd').textContent='업데이트 '+new Date().toLocaleString('ko-KR');
+  }catch(e){ setLive(false,'데이터 오류'); $('lastUpd').textContent=(e&&e.message)||String(e); }
+}
+$('refreshBtn').onclick=load;
+$('m-close').onclick=closeModal;
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+load();
+setInterval(load, 15*60*1000);
+</script>
+</body>
+</html>
