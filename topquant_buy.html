@@ -69,7 +69,22 @@ body.show-us [data-mkt="kr"]{display:none}
 .plan .tr b{color:var(--teal)}
 .plan .tr span{display:block;font-size:10.5px;color:var(--faint)}
 .plan .off{font-size:12px;color:var(--faint)}
-.guard{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;background:rgba(245,181,63,.16);color:#f5cd7e;border-radius:999px;padding:2px 10px}
+.guard{display:inline-block;position:relative;margin-left:8px;font-size:11px;font-weight:700;background:rgba(245,181,63,.16);color:#f5cd7e;border-radius:999px;padding:2px 10px;cursor:help}
+/* 리서치 이식 배지 + 호버 설명 툴팁 */
+.rtag{position:relative;display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;
+  font-family:'IBM Plex Mono',monospace;background:rgba(167,139,250,.14);color:#c9bdf7;
+  border:1px solid rgba(167,139,250,.35);border-radius:999px;padding:2px 9px;cursor:help;white-space:nowrap}
+.tipbox{display:none;position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  width:330px;max-width:82vw;background:#1b2438;border:1px solid var(--violet);border-radius:12px;
+  padding:12px 14px;font-size:12px;font-weight:400;font-family:'Space Grotesk',sans-serif;color:var(--mute);
+  line-height:1.65;z-index:60;box-shadow:0 14px 40px rgba(0,0,0,.55);white-space:normal;text-align:left;cursor:default}
+.tipbox b{color:var(--ink)}
+.tipbox .th{display:block;font-size:11.5px;font-weight:700;color:var(--violet);margin-bottom:5px}
+.rtag:hover .tipbox,.guard:hover .tipbox,.whyq:hover .tipbox{display:block}
+.rtag .tipbox{left:auto;right:-10px;transform:none}
+.guard .tipbox{left:auto;right:-10px;transform:none;font-weight:400;color:var(--mute)}
+.whyq{position:relative;display:inline-block;margin-left:6px;font-size:11px;color:var(--violet);cursor:help;border-bottom:1px dotted var(--violet);font-weight:600}
+@media(max-width:640px){.tipbox{width:270px}}
 /* signal card */
 .sig{display:flex;align-items:flex-start;gap:14px}
 .sig .main{flex:1}
@@ -236,6 +251,27 @@ const CARDS=[
 ];
 const S_KEYS=['rate','fin','engine','sahm','value'];
 const T_KEYS={kr:['dd','oversold','fear','won','flow','trend'],us:['dd','oversold','fear','yield','credit','trend']};
+// 리서치 이식 신호 — 마우스 호버 시 "왜 이것이 매수 신호인가" 상세 근거
+const WHY={
+ dd:`<span class="th">💡 왜 이것이 매수 신호인가 — 눌림목 (리서치 최다 공통 규칙)</span>
+   상승추세(200일선 위)가 살아 있는 시장의 <b>−4~−20% 조정은 '추세는 그대로, 가격만 할인'</b>된 상태입니다.
+   추세는 관성이 있어 복귀 확률이 높으므로, 이 자리는 <b>싸게 사면서 방향성은 그대로 취하는 — 손익비가 가장 좋은 진입점</b>입니다.
+   반대로 <b>200일선이 무너진 하락은 새 하락추세의 시작</b>일 확률이 높아, 같은 낙폭이라도 '싼 것'이 아니라 '떨어지는 칼'입니다.
+   리서치 30편이 공통으로 경고한 지점: <b>하락추세의 눌림목 매수는 실패 시 급락</b>.`,
+ oversold:`<span class="th">💡 왜 이것이 매수 신호인가 — 과매도 반전</span>
+   <b>RSI 35 미만</b> = 최근 2주 매도 강도가 통계적 극단 → <b>팔 사람이 거의 소진</b>된 상태.
+   <b>볼린저 하단(−2σ) 이탈</b> = 정상 변동범위(약 95%)를 벗어난 투매 — 여기서 <b>밴드 안으로 복귀</b>하면 평균회귀(되돌림)가 시작됐다는 신호입니다.
+   핵심은 '과매도라서'가 아니라 <b>'과매도 후 반등이 시작돼서'</b> 사는 것 — 떨어지는 중이 아니라 <b>매도 소진 + 방향 전환을 확인한 뒤</b> 진입하므로 바닥 근처를 확률적으로 포착합니다.`,
+};
+const WHY_PLAN=`<span class="th">💡 왜 분할매수인가 (리서치 'N분할' 규칙)</span>
+   바닥은 맞힐 수 없으므로 <b>한 번에 사면 평단이 운에 좌우</b>됩니다. 4회 분할(0/−4/−8/−13%)이면
+   더 내려갈수록 <b>자동으로 더 싸게 사서 평단이 낮아지고</b>, 바로 반등하면 1회차가 이미 수익 —
+   <b>어느 쪽으로 가도 후회를 줄이는 구조</b>입니다.
+   단, <b>200일선 붕괴(추세 훼손) 시엔 분할이 아니라 물타기</b>가 되므로 플랜을 폐기합니다 — 리서치 공통 경고 "물타기 금지".`;
+const WHY_GUARD=`<span class="th">💡 왜 급락일엔 대기하는가</span>
+   당일 <b>−3% 급락일은 패닉 매도·마진콜 강제청산이 연쇄</b>되는 날이라, 다음 1~2일 추가 하락 확률이 높습니다.
+   리서치 공통 리스크 규칙 <b>"급락 장대음봉일 진입 회피"</b> — 하루 기다려 투매가 진정된 걸 확인하고 들어가도 늦지 않습니다.
+   트리거가 켜져 있어도 이 날만은 <b>'내일 다시 확인'</b>이 정답입니다.`;
 // 카드 DOM 생성 (시장별)
 (function(){
   let html='';
@@ -247,8 +283,9 @@ const T_KEYS={kr:['dd','oversold','fear','won','flow','trend'],us:['dd','oversol
   });
   document.getElementById('cards').innerHTML=html;
   function cardHTML(m,[key,,title,rlabel,desc]){
+    const why=WHY[key]?`<span class="rtag" onclick="event.stopPropagation()">리서치 · 왜 매수신호?<span class="tipbox">${WHY[key]}</span></span>`:'';
     return `<div class="card clk" data-mkt="${m}" onclick="openExplain('${key.toUpperCase()}')" title="누르면 쉬운 설명">
-      <div class="secttl">${title} ⓘ <span class="r">${rlabel}</span></div>
+      <div class="secttl">${title} ⓘ ${why}<span class="r">${rlabel}</span></div>
       <div class="sig"><div class="main"><div class="big" id="${m}-${key}-big">—</div>
         <div class="desc">${desc}</div><div class="metrics" id="${m}-${key}-metrics"></div></div>
       <span class="pill" id="${m}-${key}-pill">—</span></div></div>`;
@@ -590,20 +627,21 @@ function renderComposite(mkt,idxArr){
   } else {
     body=`${nm} <b class="r">구조 불리(${R}/10)</b>${sBad.length?' — '+sBad.join(' · '):''}. 싸 보여도 지금 하락은 <b>구조적 하락일 위험</b>. 구조 신호 회복까지 매수 보류.`;
   }
-  $(mkt+'-narr').innerHTML=`<div class="narr-h">📗 ${mkt==='kr'?'🇰🇷 코스피':'🇺🇸 나스닥'} 지금 읽기${crash?'<span class="guard">급락일 가드</span>':''}</div>${body}<span class="narr-foot">타이밍 우호 ${tFired.length}/6(${tFired.join('·')||'—'}) · 분할매수 전제 · 점 예측 아님 · 카드 클릭 시 설명</span>`;
+  $(mkt+'-narr').innerHTML=`<div class="narr-h">📗 ${mkt==='kr'?'🇰🇷 코스피':'🇺🇸 나스닥'} 지금 읽기${crash?`<span class="guard">급락일 가드 ⓘ<span class="tipbox">${WHY_GUARD}</span></span>`:''}</div>${body}<span class="narr-foot">타이밍 우호 ${tFired.length}/6(${tFired.join('·')||'—'}) · 분할매수 전제 · 점 예측 아님 · 카드 클릭 시 설명 · 보라 배지에 마우스를 올리면 매수 근거</span>`;
   // 분할매수 플랜 (관심 이상 + 급락일 아님)
   const showPlan=(lvl==='분할매수 검토'||lvl==='관심 — 분할 준비');
   const px=Array.isArray(idxArr)&&idxArr.length?idxArr[idxArr.length-1].c:null;
   const el=$(mkt+'-plan');
+  const planWhy=`<span class="rtag">리서치 · 왜 분할?<span class="tipbox">${WHY_PLAN}</span></span>`;
   if(showPlan&&px){
     const lv=[0,-4,-8,-13];
     el.style.display='';
-    el.innerHTML=`<div class="ph">💧 분할매수 플랜 <span>· 총 예정금액을 4회 분할, 내려올 때마다 1회분 (리서치 'N분할' 규칙 이식)</span></div>
+    el.innerHTML=`<div class="ph">💧 분할매수 플랜 ${planWhy} <span>· 총 예정금액을 4회 분할, 내려올 때마다 1회분</span></div>
       <div class="rows">${lv.map((p,i)=>`<div class="tr"><b>${i+1}차</b> ${Math.round(px*(1+p/100)).toLocaleString()} <span>${p===0?'현재가':'현재가 '+p+'%'}</span></div>`).join('')}
       <div class="tr"><b>중단</b> — <span>200일선 붕괴 시 플랜 폐기</span></div></div>`;
   } else {
     el.style.display='';
-    el.innerHTML=`<div class="ph">💧 분할매수 플랜 <span>· 판정이 '관심' 이상으로 올라오면 1~4차 분할 가격이 표시됩니다</span></div>
+    el.innerHTML=`<div class="ph">💧 분할매수 플랜 ${planWhy} <span>· 판정이 '관심' 이상으로 올라오면 1~4차 분할 가격이 표시됩니다</span></div>
       <div class="off">지금은 ${lvl} 단계 — 플랜 비활성. ${lvl==='관망 — 추격 자제'?'조정(눌림목)이 생기면 활성화됩니다.':'구조/트리거 회복을 기다립니다.'}</div>`;
   }
 }
