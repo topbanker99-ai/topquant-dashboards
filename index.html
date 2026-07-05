@@ -4,29 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>탑퀀트 대시보드</title>
+<meta name="description" content="탑퀀트 — 매수·매도 시점 판단과 글로벌 시장 모니터링 대시보드">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;--teal:#2dd4bf;--blue:#5b8def;--amber:#f5b53f;--violet:#a78bfa}
-body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;max-width:1000px;margin:0 auto;padding:48px 26px 60px}
-h1{font-size:28px;font-weight:700;letter-spacing:-.5px}
-h1 .dot{color:var(--teal)}
-.sub{color:var(--mute);font-size:13.5px;margin-top:8px;margin-bottom:34px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;transition:.14s;position:relative;overflow:hidden}
-a.card:hover{border-color:var(--teal);transform:translateY(-2px)}
-a.card .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
-.card .t{font-size:17px;font-weight:600;display:flex;align-items:center;gap:9px}
-.card .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-.card .d{font-size:12.5px;color:var(--mute);margin-top:9px;line-height:1.55}
-.card .meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--faint);margin-top:13px}
-.card .go{position:absolute;top:20px;right:22px;color:var(--faint);font-size:18px}
-.foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);line-height:1.6}
-@media(max-width:720px){.grid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<style>
+:root{--bg:#0d1320;--panel:#151d2e;--panel2:#1b2438;--line:#27324a;--ink:#e9eef7;--mute:#8593ab;--faint:#5d6b85;
+--teal:#2dd4bf;--blue:#5b8def;--amber:#f5b53f;--violet:#a78bfa;--rose:#f2706e}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;line-height:1.5;max-width:1100px;margin:0 auto;padding:30px 26px 60px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
 .topnav{position:sticky;top:0;z-index:40;display:flex;gap:6px;align-items:center;flex-wrap:wrap;
   background:rgba(13,19,32,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:22px}
@@ -37,7 +22,80 @@ a.card .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
 .topnav .brand{color:var(--ink);font-weight:700}
 .topnav .brand .dot{color:var(--teal)}
 .topnav .sp{flex:1 1 8px}
+/* ── 히어로 ── */
+.hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;
+  background:radial-gradient(1100px 420px at 15% -10%,rgba(45,212,191,.14),transparent 60%),
+             radial-gradient(900px 400px at 95% 0%,rgba(91,141,239,.12),transparent 55%),
+             linear-gradient(180deg,#121a2c,#0f1626);
+  padding:44px 42px 38px;margin-bottom:30px}
+.hero .gridbg{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(39,50,74,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(39,50,74,.35) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:radial-gradient(720px 320px at 30% 20%,#000 30%,transparent 75%)}
+.hero svg.spark{position:absolute;right:-20px;bottom:-6px;width:62%;max-width:660px;height:auto;opacity:.85;pointer-events:none}
+.hero .emblem{display:inline-flex;align-items:center;gap:13px;margin-bottom:16px}
+.hero .mark{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#2dd4bf,#5b8def);
+  display:flex;align-items:center;justify-content:center;box-shadow:0 8px 26px rgba(45,212,191,.35)}
+.hero .mark svg{width:26px;height:26px}
+.hero .bname{font-size:15px;font-weight:700;letter-spacing:.5px;color:var(--mute);font-family:'IBM Plex Mono',monospace}
+.hero h1{font-size:clamp(26px,4.4vw,40px);font-weight:700;letter-spacing:-1px;line-height:1.16;position:relative}
+.hero h1 .hl{background:linear-gradient(90deg,#2dd4bf,#5b8def);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .tag{margin-top:12px;font-size:14px;color:var(--mute);max-width:560px;position:relative}
+.hero .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;position:relative}
+.hero .cta a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:13.5px;
+  border-radius:11px;padding:11px 18px;transition:.14s;border:1px solid transparent}
+.hero .cta .primary{background:var(--teal);color:#0d1320}
+.hero .cta .primary:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(45,212,191,.35)}
+.hero .cta .danger{background:rgba(242,112,110,.14);color:#f2a3a2;border-color:rgba(242,112,110,.4)}
+.hero .cta .danger:hover{background:rgba(242,112,110,.22);transform:translateY(-2px)}
+.hero .cta .ghost{background:var(--panel2);color:var(--mute);border-color:var(--line)}
+.hero .cta .ghost:hover{color:var(--ink);transform:translateY(-2px)}
+/* 라이브 티커 */
+.ticker{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px;position:relative}
+.tk{display:inline-flex;align-items:baseline;gap:8px;background:rgba(13,19,32,.6);border:1px solid var(--line);
+  border-radius:10px;padding:7px 13px;font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+.tk .n{color:var(--faint);font-size:11px}
+.tk .v{font-weight:600}
+.tk .c{font-size:11.5px;font-weight:600}
+.up{color:#2dd4bf}.down{color:#f2706e}.flat{color:var(--mute)}
+/* ── 섹션 ── */
+.sect{display:flex;align-items:center;gap:12px;margin:30px 0 14px}
+.sect .ic{font-size:17px}
+.sect h2{font-size:16.5px;font-weight:700;letter-spacing:-.2px}
+.sect .ln{flex:1;height:1px;background:var(--line)}
+.sect .r{font-size:11px;color:var(--faint);font-family:'IBM Plex Mono',monospace}
+/* 주력 카드 (매매 판단) */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:860px){.grid3{grid-template-columns:1fr}}
+a.fcard{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);
+  border-radius:18px;padding:24px;transition:.16s;position:relative;overflow:hidden}
+a.fcard::before{content:"";position:absolute;inset:0;opacity:0;transition:.16s;
+  background:radial-gradient(420px 160px at 50% -20%,var(--glow),transparent 70%)}
+a.fcard:hover{transform:translateY(-3px);border-color:var(--ac)}
+a.fcard:hover::before{opacity:1}
+.fcard .fic{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;background:var(--panel2);border:1px solid var(--line);margin-bottom:14px;position:relative}
+.fcard .t{font-size:18px;font-weight:700;letter-spacing:-.3px;position:relative}
+.fcard .t small{font-size:11px;color:var(--faint);font-weight:600;font-family:'IBM Plex Mono',monospace;margin-left:8px}
+.fcard .d{font-size:12.5px;color:var(--mute);margin-top:8px;line-height:1.6;position:relative}
+.fcard .go{position:absolute;top:22px;right:22px;color:var(--faint);font-size:18px;transition:.16s}
+.fcard:hover .go{color:var(--ac);transform:translateX(3px)}
+/* 일반 카드 */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+@media(max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;padding:17px 18px;transition:.14s;position:relative}
+a.card:hover{border-color:var(--ac);transform:translateY(-2px)}
+.card .ic{font-size:19px;margin-bottom:9px;display:block}
+.card .t{font-size:14px;font-weight:700;letter-spacing:-.2px}
+.card .d{font-size:11.5px;color:var(--mute);margin-top:6px;line-height:1.55}
+.card .go{position:absolute;top:15px;right:15px;color:var(--faint);font-size:14px;transition:.14s}
+.card:hover .go{color:var(--ac)}
+.foot{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);line-height:1.7}
+.foot b{color:var(--mute)}
 </style>
+</head>
+<body>
 <nav class="topnav">
   <a class="brand" href="index.html">탑퀀트 <span class="dot">·</span></a>
   <a href="topquant_macro.html">매크로</a>
@@ -48,76 +106,132 @@ a.card .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
   <a href="topquant_fx.html">원/달러</a>
   <a href="topquant_buy.html">매수</a>
   <a href="topquant_sell.html">매도</a>
+  <a href="topquant_heatmap.html">시장맵</a>
+  <a href="topquant_nps.html">연금예측</a>
+  <a href="topquant_buffett.html">버핏예측</a>
   <span class="sp"></span>
 </nav>
 <script>(function(){var f=(location.pathname.split('/').pop()||'index.html').toLowerCase();
   document.querySelectorAll('.topnav a').forEach(function(a){
     var h=(a.getAttribute('href')||'').toLowerCase();
     if(h===f||(f===''&&h==='index.html'))a.classList.add('on');});})();</script>
-  <h1>탑퀀트 <span class="dot">·</span> 대시보드</h1>
-  <div class="sub">금융 시장 모니터링 보드 모음 — 카드를 눌러 이동</div>
 
-  <div class="grid">
-    <a class="card" href="topquant_macro.html">
-      <span class="bar" style="background:var(--teal)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--teal)"></span>매크로 · 유동성</div>
-      <div class="d">금리·수익률곡선·연준 유동성·인플레·고용·신용·통화·실물 — FRED 30개 지표. 타일을 누르면 현재 상황 해석.</div>
-      <div class="meta">FRED · Vercel 프록시 연동</div>
-    </a>
-
-    <a class="card" href="topquant_treasury.html">
-      <span class="bar" style="background:var(--blue)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--blue)"></span>미국채 발행 · 소화</div>
-      <div class="d">장단기 국채 발행량·응찰배율(시장 소화력)·간접입찰 + 미 국가부채 추이.</div>
-      <div class="meta">TreasuryDirect · FiscalData</div>
-    </a>
-
-    <a class="card" href="topquant_news.html">
-      <span class="bar" style="background:var(--amber)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--amber)"></span>인물 뉴스 브리핑</div>
-      <div class="d">트럼프·연준·중앙은행·정상·빅테크 등 시장 영향 인물 18인의 최근 발언을 한 화면에.</div>
-      <div class="meta">Google News RSS</div>
-    </a>
-
-    <a class="card" href="topquant_realtime.html">
-      <span class="bar" style="background:var(--violet)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--violet)"></span>실시간 가격 보드</div>
-      <div class="d">암호화폐(업비트) + 주식(KIS) 실시간 시세와 차트.</div>
-      <div class="meta">Upbit · KIS</div>
-    </a>
-
-    <a class="card" href="topquant_compare.html">
-      <span class="bar" style="background:var(--blue)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--blue)"></span>글로벌 비교차트</div>
-      <div class="d">코스피·대만·일본·유럽·중국·S&P500·나스닥 + 환율·연준금리를 버튼으로 켜고 끄며 한 차트에 겹쳐보기.</div>
-      <div class="meta">Yahoo · FRED · Vercel 프록시</div>
-    </a>
-
-    <a class="card" href="topquant_fx.html">
-      <span class="bar" style="background:var(--amber)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--amber)"></span>원/달러 방향 보드</div>
-      <div class="d">USD/KRW 방향성 트레이딩용. 달러지수·금리차·위안화·위험선호 5개 동인으로 원화 강세/약세 편향과 강도를 종합.</div>
-      <div class="meta">FRED · Vercel 프록시 연동</div>
-    </a>
-
-    <a class="card" href="topquant_buy.html">
-      <span class="bar" style="background:var(--teal)"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:var(--teal)"></span>매수 시점 보드</div>
-      <div class="d">"환경이 좋을 때, 조정을 산다" — 구조(금리·금융환경·이익·고용·밸류) × 타이밍(조정·과매도·공포·환율·수급·추세) 2단 판정으로 분할매수 국면을 종합.</div>
-      <div class="meta">FRED · Yahoo · ECOS · 예탁결제원 · Vercel 프록시</div>
-    </a>
-
-    <a class="card" href="topquant_sell.html">
-      <span class="bar" style="background:#f2706e"></span><span class="go">→</span>
-      <div class="t"><span class="dot" style="background:#f2706e"></span>매도 시점 보드</div>
-      <div class="d">"버블의 끝은 변두리에서 먼저 온다" — 미국 쏠림·글로벌 시장 폭·금리 직전 고점·위험선호 4개 신호로 매도 경계 단계를 종합.</div>
-      <div class="meta">FRED · 글로벌지수 · Vercel 프록시</div>
-    </a>
+<!-- HERO -->
+<section class="hero">
+  <div class="gridbg"></div>
+  <svg class="spark" viewBox="0 0 660 240" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#2dd4bf" stop-opacity="0"/><stop offset=".6" stop-color="#2dd4bf" stop-opacity=".8"/><stop offset="1" stop-color="#5b8def"/>
+      </linearGradient>
+      <linearGradient id="lg2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2dd4bf" stop-opacity=".16"/><stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="M0 208 L60 196 L110 202 L170 168 L220 178 L280 140 L330 152 L390 108 L440 122 L500 78 L560 92 L620 40 L660 52" stroke="url(#lg1)" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M0 208 L60 196 L110 202 L170 168 L220 178 L280 140 L330 152 L390 108 L440 122 L500 78 L560 92 L620 40 L660 52 L660 240 L0 240 Z" fill="url(#lg2)"/>
+    <circle cx="620" cy="40" r="4" fill="#5b8def"/><circle cx="620" cy="40" r="8" fill="#5b8def" opacity=".3"/>
+  </svg>
+  <div class="emblem">
+    <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 L9 11 L13 14 L20 5" stroke="#0d1320" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5 H20 V10" stroke="#0d1320" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span class="bname">TOPQUANT DASHBOARDS</span>
   </div>
-
-  <div class="foot">
-    ※ 각 보드는 단일 HTML로 독립 작동합니다. 매크로 보드는 회장님 Vercel 프록시(fred-proxy)를 통해 FRED 데이터를 받아옵니다.
-    투자 참고용이며 수익을 보장하지 않습니다.
+  <h1>시장의 신호를 한 화면에.<br><span class="hl">매수와 매도, 데이터로 판단</span>합니다</h1>
+  <div class="tag">FRED·Yahoo·한국은행·예탁결제원 데이터를 규칙 기반 신호로 종합 — 구조×타이밍 매수 판정, 단기/중장기 매도 경계, 글로벌 지수 비교까지.</div>
+  <div class="cta">
+    <a class="primary" href="topquant_buy.html">📈 매수 시점 보드</a>
+    <a class="danger" href="topquant_sell.html">🛡️ 매도 시점 보드</a>
+    <a class="ghost" href="topquant_compare.html">📊 글로벌 비교차트</a>
   </div>
+  <div class="ticker" id="ticker" style="display:none"></div>
+</section>
+
+<!-- 매매 판단 -->
+<div class="sect"><span class="ic">🎯</span><h2>매매 판단</h2><span class="ln"></span><span class="r">규칙 기반 신호 · 지수 대상 · 주 1회 점검</span></div>
+<div class="grid3">
+  <a class="fcard" href="topquant_buy.html" style="--ac:var(--teal);--glow:rgba(45,212,191,.16)">
+    <span class="go">→</span><span class="fic">📈</span>
+    <div class="t">매수 시점 <small>KOSPI · NASDAQ</small></div>
+    <div class="d">"환경이 좋을 때, 눌림목을 산다" — 구조(금리·금융환경·이익·고용·밸류) × 타이밍(눌림목·과매도·공포·수급·추세) 2단 판정. 분할매수 플랜 자동 제시.</div>
+  </a>
+  <a class="fcard" href="topquant_sell.html" style="--ac:var(--rose);--glow:rgba(242,112,110,.15)">
+    <span class="go">→</span><span class="fic">🛡️</span>
+    <div class="t">매도 시점 <small>단기 · 중장기</small></div>
+    <div class="d">"버블의 끝은 변두리에서 먼저 온다" — 급락 취약성(≤1개월) 5신호와 구조적 고점(3~6개월) 8신호를 분리한 이중 경계 게이지.</div>
+  </a>
+  <a class="fcard" href="topquant_compare.html" style="--ac:var(--blue);--glow:rgba(91,141,239,.16)">
+    <span class="go">→</span><span class="fic">📊</span>
+    <div class="t">글로벌 비교차트 <small>9개 시리즈</small></div>
+    <div class="d">코스피·대만·일본·유럽·중국·S&P500·나스닥 + 환율·연준금리를 켜고 끄며 한 축에서 비교. 자국통화/달러/원화 기준 전환.</div>
+  </a>
+</div>
+
+<!-- 시장 모니터링 -->
+<div class="sect"><span class="ic">🛰️</span><h2>시장 모니터링</h2><span class="ln"></span><span class="r">매크로 · 수급 · 뉴스 · 시뮬레이터</span></div>
+<div class="grid">
+  <a class="card" href="topquant_macro.html" style="--ac:var(--teal)">
+    <span class="go">→</span><span class="ic">🌊</span>
+    <div class="t">매크로 · 유동성</div>
+    <div class="d">금리·수익률곡선·연준 유동성·인플레·고용·신용 — FRED 30개 지표 + 클릭 해석.</div>
+  </a>
+  <a class="card" href="topquant_treasury.html" style="--ac:var(--blue)">
+    <span class="go">→</span><span class="ic">🏛️</span>
+    <div class="t">미국채 발행 · 소화</div>
+    <div class="d">장단기 국채 발행량·응찰배율·간접입찰 + 미 국가부채 추이.</div>
+  </a>
+  <a class="card" href="topquant_fx.html" style="--ac:var(--amber)">
+    <span class="go">→</span><span class="ic">💱</span>
+    <div class="t">원/달러 방향</div>
+    <div class="d">달러지수·금리차·위안화·위험선호 5개 동인으로 원화 편향·강도 종합. 3·6·12개월 평균 표기.</div>
+  </a>
+  <a class="card" href="topquant_realtime.html" style="--ac:var(--violet)">
+    <span class="go">→</span><span class="ic">⚡</span>
+    <div class="t">실시간 가격</div>
+    <div class="d">암호화폐(업비트) + 주식(KIS) 실시간 시세와 차트.</div>
+  </a>
+  <a class="card" href="topquant_news.html" style="--ac:var(--amber)">
+    <span class="go">→</span><span class="ic">📰</span>
+    <div class="t">인물 뉴스 브리핑</div>
+    <div class="d">트럼프·연준·중앙은행·빅테크 등 시장 영향 인물 18인의 최근 발언.</div>
+  </a>
+  <a class="card" href="topquant_heatmap.html" style="--ac:var(--teal)">
+    <span class="go">→</span><span class="ic">🗺️</span>
+    <div class="t">시장맵</div>
+    <div class="d">섹터·종목 히트맵으로 오늘 시장의 온도를 한눈에.</div>
+  </a>
+  <a class="card" href="topquant_nps.html" style="--ac:var(--blue)">
+    <span class="go">→</span><span class="ic">🏦</span>
+    <div class="t">연금예측 시뮬레이터</div>
+    <div class="d">국민연금 리밸런싱 매도 압력을 KOSPI 시나리오별로 예측.</div>
+  </a>
+  <a class="card" href="topquant_buffett.html" style="--ac:var(--violet)">
+    <span class="go">→</span><span class="ic">🎯</span>
+    <div class="t">버핏지표 예측</div>
+    <div class="d">미국 시총/GDP 밸류에이션의 현재 위치와 시나리오.</div>
+  </a>
+</div>
+
+<div class="foot">
+  ※ 각 보드는 단일 HTML로 독립 작동하며, 데이터는 Vercel 프록시(fred-proxy)를 통해 FRED·Yahoo·한국은행 ECOS·공공데이터포털에서 받아옵니다.
+  <b>모든 신호는 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다. 투자 판단과 책임은 본인에게 있습니다.
+</div>
+
+<script>
+// 라이브 미니 티커 — 실패 시 조용히 숨김
+(async function(){
+  try{
+    const r=await fetch('https://fred-proxy-nine.vercel.app/api/indices?symbols='+encodeURIComponent('^KS11,^GSPC,^IXIC,KRW=X')+'&range=5d',{cache:'no-store'});
+    if(!r.ok) return; const j=await r.json(); if(!j.ok) return;
+    const D=[['^KS11','KOSPI',0],['^GSPC','S&P500',0],['^IXIC','NASDAQ',0],['KRW=X','원/달러',1]];
+    const chips=D.map(([s,n,inv])=>{
+      const a=(j.data&&j.data[s]||[]).filter(x=>x.c!=null); if(a.length<2) return '';
+      const v=a[a.length-1].c, p=a[a.length-2].c, ch=(v/p-1)*100;
+      const cls=Math.abs(ch)<0.005?'flat':((ch>0)!==(inv===1)?'up':'down');
+      return `<span class="tk"><span class="n">${n}</span><span class="v">${v>=1000?Math.round(v).toLocaleString():v.toFixed(2)}</span><span class="c ${cls}">${ch>=0?'▲':'▼'}${Math.abs(ch).toFixed(2)}%</span></span>`;
+    }).join('');
+    if(chips){ const t=document.getElementById('ticker'); t.innerHTML=chips+'<span class="tk"><span class="n" title="전일 대비 · 15분 지연 가능">전일比</span></span>'; t.style.display='flex'; }
+  }catch(e){}
+})();
+</script>
 </body>
 </html>
