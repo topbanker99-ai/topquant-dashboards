@@ -37,6 +37,10 @@ body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui
              radial-gradient(900px 400px at 95% 0%,rgba(91,141,239,.12),transparent 55%),
              linear-gradient(180deg,#121a2c,#0f1626);
   padding:44px 42px 38px;margin-bottom:30px}
+.hero .artbg{position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:url('assets/hero_bg_a.webp') right center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 30%,#000 65%);
+  mask-image:linear-gradient(90deg,transparent 0,rgba(0,0,0,.5) 30%,#000 65%)}
 .hero .gridbg{position:absolute;inset:0;pointer-events:none;opacity:.5;
   background-image:linear-gradient(rgba(39,50,74,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(39,50,74,.35) 1px,transparent 1px);
   background-size:44px 44px;mask-image:radial-gradient(720px 320px at 30% 20%,#000 30%,transparent 75%)}
@@ -127,6 +131,7 @@ a.card:hover{border-color:var(--ac);transform:translateY(-2px)}
 
 <!-- HERO -->
 <section class="hero">
+  <div class="artbg"></div>
   <div class="gridbg"></div>
   <svg class="spark" viewBox="0 0 660 240" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
