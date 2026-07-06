@@ -312,6 +312,10 @@ const EXPLAIN={
    <p><b>2) 타이밍(6신호)</b> — 해당 지수의 눌림목·과매도 반전·공포 통과·(한국: 원화·수급 / 미국: 10년금리·신용 스프레드)·추세 회복.</p>
    <p><b>판정 5단계</b>: 보류 → 신중 → 관망(추격 자제) → 관심(분할 준비) → 분할매수 검토.</p>
    <p><b>역발상 조합</b>: ⑥눌림목 + ⑦과매도 반전 + ⑧공포 통과 동시 점등 → 즉시 '분할매수 검토'.</p>
+   <p><b>레짐 인식(2년 데이터 검증)</b>: 지수를 <b>추세장 / 중립 / 약세</b>로 자동 분류(200일선 위 비율·기울기)해 게이트를 조정합니다.
+   ① <b>추세장</b>: 밸류(버핏) 부담으로 구조가 7이어도 <b>눌림목이 있으면 '관심' 발화</b>(강세장 영구 매수불가 방지) — 단 밸류 red면 <b>비중 50% 축소</b> 안내. 과열은 매도이유가 아니라 모멘텀이라 <b>눌림목 위주로만</b> 진입.
+   ② <b>약세(200일선 이탈)</b>: 매수존 진입 금지 — <b>반등을 사지 않고</b> 추세 회복(200일선 재돌파)까지 대기(떨어지는 칼 방어).
+   <br>실전 근거: 최근 2년 코스피는 눌림목 매수 20일 수익 <b>+9.4%</b>(평상시 +5.5%)로 엣지가 컸고, 나스닥은 눌림목 엣지가 없어 타이밍을 더 엄격히 요구합니다.</p>
    <p><b>분할매수 플랜</b>: '관심' 이상이면 현재가 기준 1~4차 분할 가격(0/−4/−8/−13%)이 표시됩니다 — 한 번에 사지 말고 내려올 때마다 1회분.</p>
    <p style="color:var(--rose)">⚠ 보조 지표입니다. 분할 전제.</p>`},
  RATE:{title:'① 금리 사이클', body:`<p>연준 기준금리(DFF)의 <b>방향</b>. 최근 3개월 <b>인하=순풍(우호)</b>, 인상=역풍(불리), 동결=중립.</p>`},
@@ -601,6 +605,37 @@ function calcTrend(a){
       +(day!=null?`<span class="m ${day<=-3?'down':'flat'}">당일 ${pct(day)}${day<=-3?' ⚠ 급락일':''}</span>`:'')};
 }
 
+// ── 적응형(자기 과거분포 기준) + 레짐 인식 유틸 (2년 백테스트 검증) ──
+function _smaAt(a,end,n){ if(!a||end+1<n)return null; let s=0; for(let k=end-n+1;k<=end;k++)s+=a[k].c; return s/n; }
+// 200일선 이격의 z-score: 절대 임계값 대신 '이 지수 자기 최근 1년 분포'에서 얼마나 극단인지
+function gapZ(a,win){ win=win||252;
+  if(!a||a.length<230) return null;
+  const gaps=[], from=Math.max(200, a.length-win);
+  for(let i=from;i<a.length;i++){ const s=_smaAt(a,i,200); if(s) gaps.push((a[i].c/s-1)*100); }
+  if(gaps.length<30) return null;
+  const m=gaps.reduce((x,y)=>x+y,0)/gaps.length;
+  const sd=Math.sqrt(gaps.reduce((x,y)=>x+(y-m)*(y-m),0)/gaps.length)||1e-9;
+  const cur=gaps[gaps.length-1];
+  return {cur, z:(cur-m)/sd};
+}
+// 레짐: 최근 1년 200일선 위 비율 + 200일선 기울기 → 추세장/중립/약세
+function regimeOf(a){
+  if(!a||a.length<220) return {kind:'중립',pAbove:null,slope:null};
+  let above=0,cnt=0;
+  const from=Math.max(200, a.length-252);            // 200일선 산출 가능한 구간 전부(1년 배열이면 ~최근 50일)
+  for(let i=from;i<a.length;i++){ const s=_smaAt(a,i,200); if(s){cnt++; if(a[i].c>s)above++;} }
+  const pAbove=cnt?above/cnt:null;
+  const s0=_smaAt(a,a.length-1,200), s1=_smaAt(a,a.length-21,200);
+  const slope=(s0&&s1)?(s0/s1-1)*100:null;
+  const last=a[a.length-1].c;
+  let kind='중립';
+  if(pAbove!=null&&slope!=null&&s0!=null){
+    if(last<s0||slope<0) kind='약세';
+    else if(pAbove>=0.70&&slope>0) kind='추세';
+  }
+  return {kind,pAbove,slope};
+}
+
 // ── 종합 판정 + 분할 플랜 (시장별) ──
 const _V={green:2,amber:1,red:0};
 const TNAME={dd:'눌림목',oversold:'과매도반전',fear:'공포통과',won:'원화',flow:'수급',yield:'10년금리',credit:'신용',trend:'추세'};
@@ -612,14 +647,24 @@ function renderComposite(mkt,idxArr){
   const T=tk.reduce((a,k)=>a+(S[k]?_V[S[k].st]:1),0);
   const contrarian=['dd','oversold','fear'].every(k=>S[k]&&S[k].st==='green');
   const crash=S.trend&&S.trend.extra&&S.trend.extra.crash;
+  // ── 레짐 인식 (2년 백테스트: 코스피=추세장 눌림목 엣지 / 나스닥=되돌림장, 게이트·해석을 레짐별로) ──
+  const rg=regimeOf(idxArr), gz=gapZ(idxArr);
+  const strongUp=rg.kind==='추세', weak=rg.kind==='약세';
+  const pullback=(S.dd&&S.dd.st==='green')||(S.oversold&&S.oversold.st==='green'); // 눌림목/과매도 반전
+  const valRed=S.value&&S.value.st==='red';
   let lvl,col,pos;
-  if(R>=8&&(T>=8||contrarian)){lvl='분할매수 검토';col='#2dd4bf';pos=94;}
-  else if(R>=8&&T>=5){lvl='관심 — 분할 준비';col='#5b8def';pos=72;}
-  else if(R>=8){lvl='관망 — 추격 자제';col='#8593ab';pos=52;}
+  // 강한 상방추세에서는 밸류-red를 '하드 차단' 대신 '비중 축소'로 완화(강세장 영구 매수불가 방지) — R 게이트 8→7,
+  // 단 눌림목(pullback) 동반을 요구. 약세(200일선 이탈)면 낙폭 방어 위해 매수존 진입 금지.
+  if(!weak && R>=8 && (T>=8||contrarian)){lvl='분할매수 검토';col='#2dd4bf';pos=94;}
+  else if(!weak && ((R>=8&&T>=5) || (strongUp&&R>=7&&T>=6&&pullback))){lvl='관심 — 분할 준비';col='#5b8def';pos=72;}
+  else if(R>=8 || (strongUp&&R>=7)){lvl='관망 — 추격 자제';col='#8593ab';pos=52;}
   else if(R>=5){lvl='신중 — 소량만';col='#f5b53f';pos=30;}
   else{lvl='매수 보류';col='#f2706e';pos=6;}
+  const inBuyZone=(lvl==='분할매수 검토'||lvl==='관심 — 분할 준비');
+  const sizeNote=(valRed&&inBuyZone)?' · <b class="a">밸류 부담 → 계획 비중의 50%로 축소</b>':'';
+  const rgTag=strongUp?'추세장':(weak?'약세·이탈':'중립');
   $(mkt+'-lvl').textContent=lvl; $(mkt+'-lvl').style.color=col;
-  $(mkt+'-score').textContent='구조 '+R+'/10 · 타이밍 '+T+'/12'+(contrarian?' · 역발상 ★':'');
+  $(mkt+'-score').textContent='구조 '+R+'/10 · 타이밍 '+T+'/12'+(contrarian?' · 역발상 ★':'')+' · 레짐:'+rgTag+(gz?' (이격z '+gz.z.toFixed(1)+')':'');
   $(mkt+'-mk').style.left=pos+'%';
   const tFired=tk.filter(k=>S[k]&&S[k].st==='green').map(k=>TNAME[k]);
   const sBad=S_KEYS.filter(k=>S[k]&&S[k].st==='red').map(k=>SNAME[k]);
@@ -636,7 +681,12 @@ function renderComposite(mkt,idxArr){
   } else {
     body=`${nm} <b class="r">구조 불리(${R}/10)</b>${sBad.length?' — '+sBad.join(' · '):''}. 싸 보여도 지금 하락은 <b>구조적 하락일 위험</b>. 구조 신호 회복까지 매수 보류.`;
   }
-  $(mkt+'-narr').innerHTML=`<div class="narr-h">📗 ${mkt==='kr'?'🇰🇷 코스피':'🇺🇸 나스닥'} 지금 읽기${crash?`<span class="guard">급락일 가드 ⓘ<span class="tipbox">${WHY_GUARD}</span></span>`:''}</div>${body}<span class="narr-foot">타이밍 우호 ${tFired.length}/6(${tFired.join('·')||'—'}) · 분할매수 전제 · 점 예측 아님 · 카드 클릭 시 설명 · 보라 배지에 마우스를 올리면 매수 근거</span>`;
+  body+=sizeNote;
+  // 레짐별 실전 해석 (2년 데이터 검증) — 추세장: 과열은 매도이유 아님·눌림목 위주 / 약세: 방어
+  let rgAdv='';
+  if(strongUp) rgAdv=` <span class="a">추세장(200일선 위 ${rg.pAbove!=null?Math.round(rg.pAbove*100):'—'}%·기울기 +): 과열은 팔 이유가 아니라 모멘텀 — <b>눌림목에서만 분할 진입</b>, 추세 훼손(200일선 붕괴) 전까지 보유.</span>`;
+  else if(weak) rgAdv=` <span class="r">약세·추세 이탈(200일선 아래/기울기 −): 낙폭 방어 우선 — <b>반등을 사지 말고</b> 추세 회복(200일선 재돌파) 확인까지 대기.</span>`;
+  $(mkt+'-narr').innerHTML=`<div class="narr-h">📗 ${mkt==='kr'?'🇰🇷 코스피':'🇺🇸 나스닥'} 지금 읽기${crash?`<span class="guard">급락일 가드 ⓘ<span class="tipbox">${WHY_GUARD}</span></span>`:''}</div>${body}${rgAdv}<span class="narr-foot">타이밍 우호 ${tFired.length}/6(${tFired.join('·')||'—'}) · 레짐:${rgTag} · 분할매수 전제 · 점 예측 아님 · 카드 클릭 시 설명</span>`;
   // 분할매수 플랜 (관심 이상 + 급락일 아님)
   const showPlan=(lvl==='분할매수 검토'||lvl==='관심 — 분할 준비');
   const px=Array.isArray(idxArr)&&idxArr.length?idxArr[idxArr.length-1].c:null;
