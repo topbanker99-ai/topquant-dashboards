@@ -242,8 +242,8 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 국고채 2년(캐리)·경상수지·외환보유액.
-  <b>신호 엔진은 원/달러 추세(이동평균 MA20/60)·과열도(RSI14)·5개 매크로 동인을 융합한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 국고채 2년(캐리)·경상수지·외환보유액. 반도체: Yahoo(^SOX·삼성전자·SK하이닉스). 트럼프 뉴스지수: Google News RSS(공개 프록시 경유, 키워드 규칙 채점).
+  <b>신호 엔진은 원/달러 추세(이동평균 MA20/60)·과열도(RSI14)·7개 동인(거시 5·반도체 상대강도·트럼프 뉴스지수)을 융합한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
   단기 환율 예측의 한계(랜덤워크)를 전제로, 점 예측이 아니라 방향·강도·헷지 판단 보조로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
 
@@ -264,12 +264,15 @@ const C={grid:'#1b2438',line:'#27324a'};
 
 // dir:+1 → 이 지표가 오르면 '원화 약세(달러 강세)' 압력. w=가중치(합=1). dead=중립 데드밴드(20일 %변화 기준).
 const DRIVERS=[
- {id:'DTWEXBGS',    name:'달러지수(광의)',   sub:'달러 강세 → 원화 약세',  w:0.30, dir:+1, dead:0.5, unit:''},
- {id:'CARRY',       name:'미-한 금리차(캐리)', sub:'미 금리>한국 → 달러 매수', w:0.20, dir:+1, dead:0.08, unit:'%p'},
- {id:'DEXCHUS',     name:'위안화 CNY/USD',   sub:'위안 약세에 원화 동조',  w:0.20, dir:+1, dead:0.5, unit:''},
- {id:'VIXCLS',      name:'변동성 VIX',       sub:'위험회피 → 원화 약세',   w:0.15, dir:+1, dead:5.0, unit:''},
- {id:'BAMLH0A0HYM2',name:'하이일드 스프레드',sub:'신용경계 → 원화 약세',   w:0.15, dir:+1, dead:3.0, unit:'%p'},
+ {id:'DTWEXBGS',    name:'달러지수(광의)',   sub:'달러 강세 → 원화 약세',  w:0.24, dir:+1, dead:0.5, unit:''},
+ {id:'CARRY',       name:'미-한 금리차(캐리)', sub:'미 금리>한국 → 달러 매수', w:0.14, dir:+1, dead:0.08, unit:'%p'},
+ {id:'DEXCHUS',     name:'위안화 CNY/USD',   sub:'위안 약세에 원화 동조',  w:0.14, dir:+1, dead:0.5, unit:''},
+ {id:'SEMI',        name:'반도체 상대강도',   sub:'韓반도체−SOX 20일 · 백테스트 방향', w:0.15, dir:+1, dead:3.0, unit:'%p', fmt:'pt'},
+ {id:'VIXCLS',      name:'변동성 VIX',       sub:'위험회피 → 원화 약세',   w:0.12, dir:+1, dead:5.0, unit:''},
+ {id:'BAMLH0A0HYM2',name:'하이일드 스프레드',sub:'신용경계 → 원화 약세',   w:0.11, dir:+1, dead:3.0, unit:'%p'},
+ {id:'TRUMP',       name:'트럼프 정책 리스크', sub:'관세·무역 발언 뉴스지수(72h)', w:0.10, dir:+1, dead:1.5, unit:'건', fmt:'pt'},
 ];
+// SEMI·TRUMP는 fmt:'pt' — 20일 %변화가 아니라 지표값 자체로 투표(SEMI=상대강도 %p, TRUMP=뉴스지수 pt)
 const MOM=20; // 모멘텀 창(유효 거래일)
 let fxChart=null, fxData=[];
 let lastResults=null, lastScore=0; // 초보자 해석용 마지막 계산 상태
@@ -282,7 +285,7 @@ const EXPLAIN={
    <p><b>내 투자에 미치는 영향:</b> 미국 주식 같은 <b>달러 자산</b>을 가지고 있으면, 원/달러가 오를 때(원화 약세) 같은 달러라도 <b>원화로 바꾸면 더 많아져</b> 환차익이 납니다. 반대로 내리면 환차손.</p>
    <p style="color:var(--faint)">기억법: "환율이 오른다 = 원화가 싸진다 = 달러 자산엔 유리"</p>`},
  SCORE:{title:'매크로 동인 컴포짓이란?', body:`
-   <p>아래 <b>5개 거시 동인</b>이 각각 원화를 <b>약세/강세 어느 쪽으로 미는지 투표</b>하고, 중요도(가중치)대로 합산한 점수입니다.</p>
+   <p>아래 <b>7개 동인</b>(거시 5 + 반도체 상대강도 + 트럼프 뉴스지수)이 각각 원화를 <b>약세/강세 어느 쪽으로 미는지 투표</b>하고, 중요도(가중치)대로 합산한 점수입니다.</p>
    <p><b>+</b>면 <b>원화 약세</b> 쪽, <b>−</b>면 <b>원화 강세</b> 쪽. 숫자가 클수록 그 방향의 힘이 셉니다.</p>
    <p>이 점수는 신호 엔진에서 <b>'펀더멘털(거시) 입장'</b>으로 쓰이고, 차트 추세와 합쳐져 최종 신호가 됩니다.</p>
    <p style="color:var(--rose)">⚠ 보조지표입니다. 이것 하나만 보고 매매하지 마세요.</p>`},
@@ -323,6 +326,15 @@ const EXPLAIN={
    <p>신용도 낮은 회사채가 안전한 국채보다 <b>이자를 얼마나 더 줘야 하는지의 차이</b>(%p)입니다. <b>신용 위험의 체온계</b>.</p>
    <p><b>벌어지면(오르면):</b> 시장이 위험을 경계하는 중 → 위험회피 → 원화 약세 압력.</p>
    <p style="color:var(--faint)">기억법: "스프레드 확대 = 돈줄 경계 = 위험자산·원화에 부담."</p>`},
+ SEMI:{title:'반도체 상대강도 (韓반도체 − SOX)', body:`
+   <p>한국 반도체(삼성전자·SK하이닉스 평균)의 <b>최근 20일 수익률에서 미국 필라델피아 반도체지수(SOX) 수익률을 뺀 값</b>(%p)입니다. 반도체는 한국 수출의 약 20%라 환율의 핵심 실물 동인입니다.</p>
+   <p><b>방향은 2년 백테스트로 정했습니다</b>: 이 값이 높을수록(한국 반도체가 상대적으로 강할수록) 이후 5~10일 원/달러가 <b>상승(원화 약세)</b>하는 경향(상관 +0.27~+0.34, 상위25% +0.73% vs 하위25% −0.54%).</p>
+   <p style="color:var(--rose)">⚠ 고전 이론(반도체 강세→수출↑→원화 강세)과 <b>반대 부호</b>입니다 — 현 데이터 환경에서 반도체 랠리가 위험선호·달러 강세 국면과 동행한 경험적 관계이므로, 분기마다 재검증합니다.</p>`},
+ TRUMP:{title:'트럼프 정책 리스크 (뉴스지수)', body:`
+   <p>Google 뉴스에서 <b>트럼프 관련 관세·무역·환율 헤드라인(최근 72시간)</b>을 매일 수집해 키워드로 채점합니다.</p>
+   <p><b>+ (원화 약세 압력)</b>: 관세·무역전쟁·제재·보복·압박 등. <b>− (원화 강세)</b>: 유예·철회·타결·합의·완화 등. 최근 24시간 기사일수록 가중치가 큽니다(1.0/0.7/0.4).</p>
+   <p>값(pt)이 클수록 관세발 원화 약세 리스크가 뉴스에 짙게 깔린 상태입니다. 현재값 칸은 관련 헤드라인 건수.</p>
+   <p style="color:var(--rose)">⚠ 키워드 규칙 기반이라 풍자·부정 문맥을 구분하지 못할 수 있습니다. 발언 이벤트는 예고 없이 방향이 바뀌므로 보조 지표로만.</p>`},
 };
 
 function setLive(ok,txt){const b=$('liveBadge');b.className=ok?'live':'live err';$('liveText').textContent=txt;}
@@ -353,6 +365,51 @@ async function carryData(d){
   const usP=us[Math.min(MOM,us.length-1)].v, krP=kr[Math.min(MOM,kr.length-1)].v;
   const sPast=usP-krP;
   return {d, data:[{v:sNow}], now:sNow, mom:sNow-sPast}; // mom: 20일간 금리차 변화(%p)
+}
+
+// 반도체 상대강도 = (삼성+하이닉스 평균 20일 수익률) − SOX 20일 수익률 (%p)
+// 방향(dir:+1)은 2년 백테스트 결과: 상대강도↑ → 이후 5~10일 원/달러 상승(원화 약세) corr +0.27~+0.34.
+// 고전 이론(반도체↑→수출↑→원화강세)과 반대 부호 — 이 데이터 환경의 경험적 관계이며 분기마다 재검증 필요.
+async function semiData(d){
+  const r=await fetch('https://fred-proxy-nine.vercel.app/api/indices?symbols='+encodeURIComponent('^SOX,005930.KS,000660.KS')+'&range=3mo',{cache:'no-store'});
+  if(!r.ok) throw new Error('SEMI '+r.status);
+  const j=await r.json();
+  const g=s=>(((j.data||{})[s])||[]).filter(x=>x.c!=null);
+  const mom=a=>{ if(a.length<21) return null; const l=a[a.length-1].c, p=a[a.length-21].c; return p?(l/p-1)*100:null; };
+  const sox=mom(g('^SOX')), sam=mom(g('005930.KS')), hyn=mom(g('000660.KS'));
+  if(sox==null||sam==null||hyn==null) return {d,data:null,now:null,mom:null};
+  const rel=(sam+hyn)/2 - sox;
+  return {d, data:[{v:rel}], now:rel, mom:rel};
+}
+// 트럼프 정책 리스크 — Google News RSS(뉴스보드와 동일 프록시 체인)에서 최근 72h 헤드라인을
+// 키워드 사전으로 채점: 관세·무역전쟁 등 = 원화 약세(+), 유예·타결 등 = 강세(−). 최신일수록 가중.
+let trumpHeads=[];
+async function trumpData(d){
+  const rss='https://news.google.com/rss/search?q='+encodeURIComponent('트럼프 (관세 OR 무역 OR 환율 OR 달러 OR 제재)')+'&hl=ko&gl=KR&ceid=KR:ko';
+  const proxies=[u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+                 u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+                 u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u)];
+  let xml=null;
+  for(const p of proxies){ try{ const r=await fetch(p(rss),{cache:'no-store'}); if(r.ok){ const t=await r.text(); if(t.includes('<item>')){ xml=t; break; } } }catch(e){} }
+  if(!xml) return {d,data:null,now:null,mom:null};
+  const doc=new DOMParser().parseFromString(xml,'application/xml');
+  const WEAK=['관세','tariff','무역전쟁','무역 전쟁','제재','보복','수입품','방위비','압박','위협','경고','전쟁'];
+  const STRONG=['유예','철회','면제','타결','합의','완화','진전','해빙'];
+  const nowT=Date.now(); let score=0, cnt=0; const heads=[];
+  doc.querySelectorAll('item').forEach(it=>{
+    const t=((it.querySelector('title')||{}).textContent||'');
+    const pd=new Date(((it.querySelector('pubDate')||{}).textContent)||0).getTime();
+    const ageH=(nowT-pd)/3600000;
+    if(!(ageH>=0&&ageH<=72)) return;
+    const wgt= ageH<=24?1.0 : (ageH<=48?0.7 : 0.4);
+    const wk=WEAK.some(k=>t.includes(k)), st=STRONG.some(k=>t.includes(k));
+    if(wk&&!st){ score+=wgt; cnt++; if(heads.length<4) heads.push('▲ '+t); }
+    else if(st&&!wk){ score-=wgt; cnt++; if(heads.length<4) heads.push('▼ '+t); }
+    else if(wk&&st){ cnt++; }
+  });
+  const idx=Math.max(-10,Math.min(10,score));
+  trumpHeads=heads;
+  return {d, data:[{v:idx}], now:cnt, mom:idx};
 }
 
 // data는 최신순(desc). win 거래일 전 대비 %변화
@@ -398,6 +455,8 @@ async function loadSignal(){
   const results=await Promise.all(DRIVERS.map(async d=>{
     try{
       if(d.id==='CARRY') return await carryData(d);
+      if(d.id==='SEMI') return await semiData(d);
+      if(d.id==='TRUMP') return await trumpData(d);
       const data=await fred(d.id); return {d, data, now:data[0].v, mom:pctChange(data,MOM)};
     }
     catch(e){ return {d, data:null, now:null, mom:null, err:e.message}; }
@@ -413,15 +472,18 @@ async function loadSignal(){
     // 방향 라벨: 약세압력(+) → rose, 강세압력(−) → teal
     const lbl = vote>0? '원화 약세↑' : (vote<0? '원화 강세↓' : '중립');
     const pill = vote>0? 'weak' : (vote<0? 'strong' : 'neu');
+    // fmt:'pt' 동인은 %변화 대신 지표값 자체 표기
+    const chgTxt = r.mom==null?'—' : (d.fmt==='pt' ? (r.mom>=0?'+':'')+r.mom.toFixed(1)+(d.id==='SEMI'?'%p':'pt') : fmtPct(r.mom));
+    const chgWin = d.fmt==='pt' ? (d.id==='TRUMP'?'72h':'현재') : '20일';
     rows.push(`<div class="drv clk" onclick="openExplain('${d.id}')" title="누르면 쉬운 설명">
       <div class="nm">${d.name}<small>${d.sub} · 가중 ${(d.w*100)|0}%</small></div>
-      <div class="val mono">${r.now==null?'—':fmtNum(r.now,d.unit)}</div>
-      <div class="chg mono ${r.mom>0?'down':(r.mom<0?'up':'flat')}">${r.mom==null?'—':fmtPct(r.mom)}</div>
+      <div class="val mono">${r.now==null?'—':(d.id==='TRUMP'?Math.round(r.now)+'건':fmtNum(r.now,d.unit))}</div>
+      <div class="chg mono ${r.mom>0?'down':(r.mom<0?'up':'flat')}">${chgTxt}</div>
       <div class="vote"><span class="pill ${pill}">${lbl}</span></div>
     </div>`);
     tiles.push(`<div class="tile clk" onclick="openExplain('${d.id}')" title="누르면 쉬운 설명"><div class="t">${d.name} <span style="color:var(--faint)">ⓘ</span></div>
-      <div class="v">${r.now==null?'—':fmtNum(r.now,d.unit)}</div>
-      <div class="c ${r.mom>0?'down':(r.mom<0?'up':'flat')}">${arrow(r.mom)} ${r.mom==null?'—':fmtPct(r.mom)} <span style="color:var(--faint)">20일</span></div></div>`);
+      <div class="v">${r.now==null?'—':(d.id==='TRUMP'?Math.round(r.now)+'건':fmtNum(r.now,d.unit))}</div>
+      <div class="c ${r.mom>0?'down':(r.mom<0?'up':'flat')}">${arrow(r.mom)} ${chgTxt} <span style="color:var(--faint)">${chgWin}</span></div></div>`);
   });
   $('driverList').innerHTML=rows.join('');
   $('tiles').innerHTML=tiles.join('');
@@ -531,7 +593,11 @@ function renderNarrative(e){
 function openExplain(key){
   const e=EXPLAIN[key]; if(!e)return;
   $('m-title').textContent=e.title;
-  $('m-body').innerHTML=e.body;
+  let body=e.body;
+  if(key==='TRUMP'&&trumpHeads.length){
+    body+='<p style="border-top:1px solid var(--line);padding-top:9px"><b>최근 채점된 헤드라인</b><br>'+trumpHeads.map(h=>'<span style="font-size:12px;color:var(--faint)">'+h.replace(/</g,'&lt;')+'</span>').join('<br>')+'</p>';
+  }
+  $('m-body').innerHTML=body;
   $('modal').style.display='flex';
 }
 function closeModal(){ $('modal').style.display='none'; }
