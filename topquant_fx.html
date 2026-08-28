@@ -398,13 +398,17 @@ async function fred(id,limit=160){
   return ((j&&j.observations)||[]).map(o=>({date:o.date,v:o.value==='.'?null:parseFloat(o.value)})).filter(o=>o.v!=null);
 }
 
-// 한국은행 ECOS 일별 시계열 → fred와 동일하게 최신순(desc) {date,v} 반환
+// 한국은행 ECOS 시계열 → fred와 동일하게 최신순(desc) {date,v} 반환
 const ECOS_BASE='https://fred-proxy-nine.vercel.app/api/kr';
 async function ecosSeries(stat,cycle,item,startd,endd){
   const url=`${ECOS_BASE}?path=StatisticSearch/json/kr/1/400/${stat}/${cycle}/${startd}/${endd}/${item}`;
   const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error('ECOS '+r.status);
-  const j=await r.json(); const rows=(j&&j.StatisticSearch&&j.StatisticSearch.row)||[];
+  const j=await r.json();
+  if(j&&j.RESULT) throw new Error(`${stat}/${item}: ${j.RESULT.MESSAGE||j.RESULT.CODE||'데이터 오류'}`);
+  const rows=(j&&j.StatisticSearch&&j.StatisticSearch.row)||[];
+  if(!rows.length) throw new Error(`${stat}/${item}: 데이터 없음`);
   const a=rows.map(x=>({date:x.TIME,v:parseFloat(x.DATA_VALUE)})).filter(x=>!isNaN(x.v));
+  if(!a.length) throw new Error(`${stat}/${item}: 숫자 데이터 없음`);
   a.reverse(); return a; // 최신순
 }
 // 미-한 금리차(캐리) = 美 2년(DGS2) − 韓 국고채 2년(ECOS 817Y002/010195000).
@@ -685,17 +689,19 @@ function closeModal(){ $('modal').style.display='none'; }
 
 // ── 한국 경제 펀더멘털 — 경상수지 + 외환보유액 (ECOS, 참고용) ──
 async function loadKrMacro(){
-  try{
-    const y=new Date().getFullYear();
-    const [ca, fx] = await Promise.all([
-      ecosSeries('301Y013','M','S10000',(y-2)+'01',y+'12'),   // 경상수지 (백만달러)
-      ecosSeries('732Y001','M','0100000',(y-2)+'01',y+'12'),  // 외환보유액 총계 (백만달러)
-    ]);
-    renderKrMacro(ca, fx);
-  } catch(e){ renderKrMacro([], []); }
+  const y=new Date().getFullYear();
+  const requests=[
+    ['경상수지', ecosSeries('301Y013','M','000000',(y-2)+'01',y+'12')], // 경상수지 (백만달러)
+    ['외환보유액', ecosSeries('732Y001','M','99',(y-2)+'01',y+'12')],   // 외환보유액 합계 (천달러)
+  ];
+  const settled=await Promise.allSettled(requests.map(x=>x[1]));
+  const ca=settled[0].status==='fulfilled'?settled[0].value:[];
+  const fx=settled[1].status==='fulfilled'?settled[1].value:[];
+  const errors=settled.map((r,i)=>r.status==='rejected'?`${requests[i][0]} ${r.reason.message}`:null).filter(Boolean);
+  renderKrMacro(ca, fx, errors);
 }
 
-function renderKrMacro(ca, fx){
+function renderKrMacro(ca, fx, errors=[]){
   const caV=ca&&ca.length?ca[0].v:null;
   const fxV=fx&&fx.length?fx[0].v:null;
   const caDate=ca&&ca.length?ca[0].date:'';
@@ -706,35 +712,38 @@ function renderKrMacro(ca, fx){
   // 12개월 합산(경상수지 연간 흑자)
   const caSum12=ca&&ca.length>=12?ca.slice(0,12).reduce((s,x)=>s+x.v,0):null;
 
-  const fmt_m=v=>v==null?'—':(v>=0?'+':'')+Math.round(v/100)/10+'억$';   // 백만→억달러
-  const fmt_b=v=>v==null?'—':'$'+(v/1000).toFixed(0)+'B'; // 백만→십억
+  const fmtCaB=v=>{ // 경상수지: 백만달러 → 십억달러
+    if(v==null)return '—'; const n=v/1000, sign=n>0?'+':(n<0?'-':''); return sign+'$'+Math.abs(n).toFixed(1)+'B';
+  };
+  const fmtFxB=v=>v==null?'—':'$'+(v/1000000).toFixed(1)+'B'; // 외환보유액: 천달러 → 십억달러
+  const fmtFxDelta=v=>v==null?'—':(v>=0?'▲':'▼')+' $'+Math.abs(v/1000000).toFixed(2)+'B';
 
   const caCls=caV==null?'flat':(caV>0?'up':'down');
   const fxCls=fx3m==null?'flat':(fx3m>0?'up':'down');
   const ca3mCls=ca3m==null?'flat':(ca3m>0?'up':'down');
 
   $('krFundTiles').innerHTML=[
-    `<div class="tile"><div class="t">경상수지 (월, 백만$)</div>
-       <div class="v ${caCls}">${fmt_m(caV)}</div>
-       <div class="c flat">${caDate||'—'} · 3M변화 <span class="${ca3mCls}">${ca3m==null?'—':(ca3m>=0?'+':'')+Math.round(ca3m/100)/10+'억$'}</span></div></div>`,
+    `<div class="tile"><div class="t">경상수지 (월, $B)</div>
+       <div class="v ${caCls}">${fmtCaB(caV)}</div>
+       <div class="c flat">${caDate||'—'} · 3M변화 <span class="${ca3mCls}">${fmtCaB(ca3m)}</span></div></div>`,
     `<div class="tile"><div class="t">경상수지 12개월 합산</div>
-       <div class="v ${caSum12==null?'flat':(caSum12>0?'up':'down')}">${caSum12==null?'—':(caSum12>=0?'+':'')+Math.round(caSum12/100)/10+'억$'}</div>
+       <div class="v ${caSum12==null?'flat':(caSum12>0?'up':'down')}">${fmtCaB(caSum12)}</div>
        <div class="c flat">${caSum12!=null?(caSum12>0?'연간 흑자 → 원화 지지':'연간 적자 → 원화 약세 구조 우려'):'ECOS 데이터 로드 중'}</div></div>`,
-    `<div class="tile"><div class="t">외환보유액 (백만$)</div>
-       <div class="v ${fxCls}">${fxV==null?'—':fmt_b(fxV)}</div>
-       <div class="c flat">${fxDate||'—'} · 3M <span class="${fxCls}">${fx3m==null?'—':(fx3m>=0?'▲':'▼')+Math.abs(Math.round(fx3m/100)/10)+'억$'}</span></div></div>`,
+    `<div class="tile"><div class="t">외환보유액 (합계, $B)</div>
+       <div class="v ${fxCls}">${fmtFxB(fxV)}</div>
+       <div class="c flat">${fxDate||'—'} · 3M <span class="${fxCls}">${fmtFxDelta(fx3m)}</span></div></div>`,
   ].join('');
 
   // 해석 노트
   let note='';
   if(caV!=null && fxV!=null){
-    const shield = caSum12!=null&&caSum12>0 && fxV>350000; // 350B+ reserves
+    const shield = caSum12!=null&&caSum12>0 && fxV/1000000>350; // 외환보유액 350B+
     const weak   = caSum12!=null&&caSum12<0 && fx3m!=null&&fx3m<0;
     if(shield) note='✅ 경상수지 흑자 + 외환보유액 충분 → 원화 방어력 양호. 단기 충격은 흡수 가능.';
     else if(weak) note='⚠ 경상수지 적자 + 외환보유액 감소 동시 진행 → 원화 약세 구조적 압력 상존.';
     else note='경상수지·외환보유액 지표 확인. 장기 추세와 함께 판단하세요.';
   } else {
-    note='ECOS API 로드 중 또는 데이터 미수신. 한국은행 API 키 확인 후 새로고침.';
+    note=errors.length?'ECOS 일부 데이터 미수신 · '+errors.join(' · '):'ECOS 데이터 미수신. 잠시 후 새로고침해 주세요.';
   }
   $('krFundNote').textContent=note;
 }
