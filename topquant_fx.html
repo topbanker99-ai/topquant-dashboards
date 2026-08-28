@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>탑퀀트 · 원/달러 방향 보드</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232dd4bf'/><stop offset='1' stop-color='%235b8def'/></linearGradient></defs><rect width='24' height='24' rx='6' fill='url(%23g)'/><path d='M5 16 L9.5 10.5 L13 13 L19 5.5' stroke='%230d1320' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
-<meta name="description" content="한·미 금리차 축소·확대 추세를 포함한 7개 동인 원화 편향 종합">
+<meta name="description" content="한·미 금리차와 2026년 8월 국내 금융시장 맥락을 반영한 원화 편향 보드">
 <meta property="og:title" content="탑퀀트 · 원/달러 방향 보드">
-<meta property="og:description" content="한·미 금리차 축소·확대 추세를 포함한 7개 동인 원화 편향 종합">
+<meta property="og:description" content="한·미 금리차와 2026년 8월 국내 금융시장 맥락을 반영한 원화 편향 보드">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://topbanker99-ai.github.io/topquant-dashboards/assets/og.png">
 <meta property="og:image:width" content="1200">
@@ -89,7 +89,7 @@ background:linear-gradient(90deg,#2dd4bf 0%,#27324a 50%,#f2706e 100%)}
 .tile .c{font-family:'IBM Plex Mono',monospace;font-size:12px;margin-top:3px}
 .btn{background:var(--panel2);color:var(--mute);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-weight:600;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace}
 .btn:hover{color:var(--ink)}
-.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6}
+.disc{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--faint);line-height:1.6;overflow-wrap:anywhere}
 .disc b{color:var(--mute)}
 /* 초보자 해석 */
 .clk{cursor:pointer}
@@ -245,6 +245,38 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
   <div class="tiles" id="tiles"></div>
 </div>
 
+<!-- 2026년 8월 국내 금융시장 맥락 — 8/28 스냅샷, 신호 점수에 미포함 -->
+<div class="card" id="augMarketCard">
+  <div class="secttl">2026년 8월 국내 금융시장 — 전망 vs 실현
+    <span class="r">2026-08-28 기준 · 정성 맥락 · 점수 미포함</span></div>
+  <div class="narr" style="margin-bottom:12px">
+    <div class="narr-h">국내 맥락이 원/달러 신호에 주는 뜻</div>
+    확인된 한국은행의 <b>25bp 인상</b>과 한·미 금리차 축소는 <b class="up2">원화 강세 배경</b>입니다.
+    8월 6일 전망은 수출업체 달러 매도·SK하이닉스 ADR 환전도 하락 요인으로 제시했으며, 국내외 장기금리 상승과 워시 의장 연설 전 불확실성은 <b class="down2">단기 되돌림 위험</b>으로 함께 봅니다.
+    <span class="narr-foot">우리금융경영연구소 8/6 전망과 8/28 공식 실현값을 분리 비교 · 기존 신호 가중치·임계값은 변경하지 않음</span>
+  </div>
+  <div class="tiles" style="margin-bottom:12px">
+    <div class="tile"><div class="t">한국은행 기준금리 · 8/27</div>
+      <div class="v up">3.00%</div><div class="c up">+25bp 인상 · 2.75% 동결 전망 상회</div></div>
+    <div class="tile"><div class="t">국고채 · 8/28 ECOS</div>
+      <div class="v flat">3Y 3.788%</div><div class="c flat">7월말 +3.0bp · 10Y 4.284% (+2.3bp)</div></div>
+    <div class="tile"><div class="t">원/달러 매매기준율 · ECOS</div>
+      <div class="v up">₩1,380.3</div><div class="c up">7월말 대비 -60.8원(-4.22%) · 전망 1,420원 하회</div>
+      <div class="c flat">은행 고시 572회차 ₩1,374.3 · 사용자 제공값</div></div>
+    <div class="tile"><div class="t">KOSPI · 8/28 종가</div>
+      <div class="v flat">6,788.88</div><div class="c flat">7월말 대비 +2.93% · 전망 7,500은 미도달</div></div>
+  </div>
+  <div class="banner" style="margin-bottom:10px">
+    <b>워시 연준 의장 잭슨홀 기조연설: 아직 예정 단계.</b> 8월 28일 10:00 ET(한국시간 23:00) 예정으로 원문은 이 스냅샷 시점에 공개 전입니다.
+    미국 10년물 4.66%·30년물 5.18%(8/26 FRED) 환경에서 확인 포인트는 ① 인플레이션 시 추가 인상 조건 ② 포워드가이던스 축소·시장 가격발견 기조 ③ 장기금리 급등과 재무부 바이백 확대에 대한 평가입니다.
+  </div>
+  <div class="trigbar">
+    <span class="trg">원화 강세: 한은 인상 · 금리차 축소 · 외환수급 개선</span>
+    <span class="trg">상방 위험: 美 장기금리 · 워시 발언 · 중동 불확실성</span>
+    <span class="trg">美 재무부: 장기물 바이백 회당 $2B → 최소 $4B, 9/9 시행</span>
+  </div>
+</div>
+
 <!-- 한국 경제 펀더멘털 — 참고 지표 (월간, 신호 점수에 미포함) -->
 <div class="card">
   <div class="secttl">한국 경제 방패 — 참고 지표 ⓘ <span class="r">한국은행 ECOS · 월간 · 신호 점수에 미포함</span></div>
@@ -257,7 +289,8 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 국고채 2년(캐리)·경상수지·외환보유액. 반도체: Yahoo(^SOX·삼성전자·SK하이닉스). 트럼프 뉴스지수: Google News RSS(RSS2JSON 경유, 키워드 규칙 채점).
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DGS10·DGS30·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 기준금리·국고채 2/3/10년·원/달러 매매기준율·경상수지·외환보유액. 반도체: Yahoo(^SOX·삼성전자·SK하이닉스). 트럼프 뉴스지수: Google News RSS(RSS2JSON 경유, 키워드 규칙 채점).<br>
+  8월 시장 맥락: <a href="https://www.wfri.re.kr/ko/mo/research_report/research_report.php?idx=2605&amp;page_type=view&amp;mode=view" target="_blank" rel="noopener" style="color:var(--blue)">우리금융경영연구소 8월 금융시장 브리프</a> · <a href="https://www.bok.or.kr/portal/bbs/P0000559/view.do?nttId=11064191&amp;menuNo=200690" target="_blank" rel="noopener" style="color:var(--blue)">한국은행 8/27 통화정책방향</a> · <a href="https://www.federalreserve.gov/newsevents/2026-august.htm" target="_blank" rel="noopener" style="color:var(--blue)">연준 8월 일정</a> · <a href="https://home.treasury.gov/news/press-releases/sb0607" target="_blank" rel="noopener" style="color:var(--blue)">미 재무부 장기물 바이백 확대</a>.<br>
   <b>신호 엔진은 원/달러 추세(이동평균 MA20/60)·과열도(RSI14)·7개 동인(거시 5·반도체 상대강도·트럼프 뉴스지수)을 융합한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
   단기 환율 예측의 한계(랜덤워크)를 전제로, 점 예측이 아니라 방향·강도·헷지 판단 보조로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
@@ -627,10 +660,11 @@ function renderNarrative(e){
     why=`추세와 매크로 동인이 엇갈려 방향이 뚜렷하지 않아요.`;
     impact=`방향이 약할 땐 환율보다 <b>종목 자체 흐름</b>에 집중하는 편이 낫습니다.`;
   }
+  const localCtx=`<br><b>2026년 8월 국내 맥락:</b> 한은 25bp 인상·한미 금리차 축소·원/달러 월간 하락은 원화 강세를 지지하지만, 미국 장기금리와 워시 연설 전 불확실성은 되돌림 위험입니다.`;
   const warn=e.reversal?`<br><span style="color:var(--amber)">⚠ ${e.reversal}</span>`:'';
   $('narr').innerHTML=`<div class="narr-h">📘 신호 엔진 요약</div>
-    종합 신호: <b>${dirTxt} · 강도 ${e.strg} · 신뢰도 ${e.conf}</b>. ${why}<br>${impact}${warn}
-    <span class="narr-foot">추세(이동평균)+과열도(RSI)+매크로 동인 융합 · 보조지표 · 점 예측 아님 · 각 항목 클릭 시 설명</span>`;
+    종합 신호: <b>${dirTxt} · 강도 ${e.strg} · 신뢰도 ${e.conf}</b>. ${why}<br>${impact}${localCtx}${warn}
+    <span class="narr-foot">정량 점수는 기존 엔진 그대로 · 8월 국내 맥락은 정성 보정 · 보조지표 · 점 예측 아님 · 각 항목 클릭 시 설명</span>`;
 }
 
 // ── 쉬운 설명 모달 ──
