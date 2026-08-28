@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>탑퀀트 · 원/달러 방향 보드</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232dd4bf'/><stop offset='1' stop-color='%235b8def'/></linearGradient></defs><rect width='24' height='24' rx='6' fill='url(%23g)'/><path d='M5 16 L9.5 10.5 L13 13 L19 5.5' stroke='%230d1320' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
-<meta name="description" content="달러지수·금리차·위안화·위험선호 5개 동인 원화 편향 종합">
+<meta name="description" content="한·미 금리차 축소·확대 추세를 포함한 7개 동인 원화 편향 종합">
 <meta property="og:title" content="탑퀀트 · 원/달러 방향 보드">
-<meta property="og:description" content="달러지수·금리차·위안화·위험선호 5개 동인 원화 편향 종합">
+<meta property="og:description" content="한·미 금리차 축소·확대 추세를 포함한 7개 동인 원화 편향 종합">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://topbanker99-ai.github.io/topquant-dashboards/assets/og.png">
 <meta property="og:image:width" content="1200">
@@ -70,6 +70,13 @@ background:linear-gradient(90deg,#2dd4bf 0%,#27324a 50%,#f2706e 100%)}
 .drv .val{font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right;min-width:96px}
 .drv .chg{font-family:'IBM Plex Mono',monospace;font-size:12px;min-width:78px;text-align:right}
 .drv .vote{min-width:92px;text-align:right;font-size:12px;font-weight:600}
+@media(max-width:640px){
+  .sigwrap>*{min-width:0}
+  .drv{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 10px}
+  .drv .nm{grid-column:1/-1;min-width:0}
+  .drv .val,.drv .chg,.drv .vote{min-width:0;text-align:left}
+  .drv .vote{text-align:right}
+}
 .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600}
 .pill.weak{background:rgba(242,112,110,.15);color:#f2a3a2}
 .pill.strong{background:rgba(45,212,191,.15);color:#7ee7da}
@@ -159,7 +166,7 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
 
 <div class="banner">
   <b>● 방향 보조용 보드입니다.</b> 단기 환율은 점(point) 예측이 통계적으로 어렵습니다(랜덤워크에 가까움).
-  이 보드는 <b>"원화 강세/약세 방향 편향 + 강도"</b>를 5개 핵심 동인으로 종합해 매매·헷지 판단을 돕습니다. 점쟁이가 아닙니다.
+  이 보드는 <b>"원화 강세/약세 방향 편향 + 강도"</b>를 7개 핵심 동인으로 종합해 매매·헷지 판단을 돕습니다. 점쟁이가 아닙니다.
 </div>
 
 <!-- HERO: 원/달러 -->
@@ -224,6 +231,14 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
   </div>
 </div>
 
+<!-- 한·미 금리차 추세 -->
+<div class="card">
+  <div class="secttl"><span class="clk" onclick="openExplain('CARRY')" title="누르면 쉬운 설명" style="border-bottom:1px dotted var(--faint)">한·미 2년물 금리차 — 축소·확대 동향 ⓘ</span>
+    <span class="r">美 DGS2 − 韓 국고채 2년 · 동일 날짜 정렬</span></div>
+  <div class="banner" id="carryNarr" style="margin-bottom:12px">동일 관측일 기준 금리차를 계산하는 중…</div>
+  <div class="tiles3" id="carryTiles"></div>
+</div>
+
 <!-- DRIVER TILES -->
 <div class="card">
   <div class="secttl">핵심 동인 현재값 <span class="r"><button class="btn" id="refreshBtn">새로고침</button></span></div>
@@ -242,7 +257,7 @@ color:#f0d9a8;border-radius:8px;padding:6px 11px}
 </div>
 
 <div class="disc">
-  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 국고채 2년(캐리)·경상수지·외환보유액. 반도체: Yahoo(^SOX·삼성전자·SK하이닉스). 트럼프 뉴스지수: Google News RSS(공개 프록시 경유, 키워드 규칙 채점).
+  ※ 출처: FRED(Federal Reserve Bank of St. Louis) — DEXKOUS·DTWEXBGS·DGS2·DEXCHUS·VIXCLS·BAMLH0A0HYM2. 한국은행 ECOS — 국고채 2년(캐리)·경상수지·외환보유액. 반도체: Yahoo(^SOX·삼성전자·SK하이닉스). 트럼프 뉴스지수: Google News RSS(RSS2JSON 경유, 키워드 규칙 채점).
   <b>신호 엔진은 원/달러 추세(이동평균 MA20/60)·과열도(RSI14)·7개 동인(거시 5·반도체 상대강도·트럼프 뉴스지수)을 융합한 규칙 기반 보조 지표</b>이며 미래 수익을 보장하지 않습니다.
   단기 환율 예측의 한계(랜덤워크)를 전제로, 점 예측이 아니라 방향·강도·헷지 판단 보조로만 사용하세요. 투자 판단과 책임은 본인에게 있습니다.
 </div>
@@ -265,17 +280,17 @@ const C={grid:'#1b2438',line:'#27324a'};
 // dir:+1 → 이 지표가 오르면 '원화 약세(달러 강세)' 압력. w=가중치(합=1). dead=중립 데드밴드(20일 %변화 기준).
 const DRIVERS=[
  {id:'DTWEXBGS',    name:'달러지수(광의)',   sub:'달러 강세 → 원화 약세',  w:0.24, dir:+1, dead:0.5, unit:''},
- {id:'CARRY',       name:'미-한 금리차(캐리)', sub:'미 금리>한국 → 달러 매수', w:0.14, dir:+1, dead:0.08, unit:'%p'},
+ {id:'CARRY',       name:'미-한 금리차(캐리)', sub:'격차 확대 → 원화 약세 · 축소 → 원화 강세', w:0.14, dir:+1, dead:0.08, unit:'%p', fmt:'pp'},
  {id:'DEXCHUS',     name:'위안화 CNY/USD',   sub:'위안 약세에 원화 동조',  w:0.14, dir:+1, dead:0.5, unit:''},
  {id:'SEMI',        name:'반도체 상대강도',   sub:'韓반도체−SOX 20일 · 백테스트 방향', w:0.15, dir:+1, dead:3.0, unit:'%p', fmt:'pt'},
  {id:'VIXCLS',      name:'변동성 VIX',       sub:'위험회피 → 원화 약세',   w:0.12, dir:+1, dead:5.0, unit:''},
  {id:'BAMLH0A0HYM2',name:'하이일드 스프레드',sub:'신용경계 → 원화 약세',   w:0.11, dir:+1, dead:3.0, unit:'%p'},
  {id:'TRUMP',       name:'트럼프 정책 리스크', sub:'관세·무역 발언 뉴스지수(72h)', w:0.10, dir:+1, dead:1.5, unit:'건', fmt:'pt'},
 ];
-// SEMI·TRUMP는 fmt:'pt' — 20일 %변화가 아니라 지표값 자체로 투표(SEMI=상대강도 %p, TRUMP=뉴스지수 pt)
+// SEMI·TRUMP는 fmt:'pt'로 지표값 자체를, CARRY는 fmt:'pp'로 금리차의 %p 변화를 표시한다.
 const MOM=20; // 모멘텀 창(유효 거래일)
 let fxChart=null, fxData=[];
-let lastResults=null, lastScore=0; // 초보자 해석용 마지막 계산 상태
+let lastResults=null, lastScore=0, lastCarry=null; // 초보자 해석용 마지막 계산 상태
 
 // ── 초보자용 쉬운 설명 사전 ──
 const EXPLAIN={
@@ -291,7 +306,7 @@ const EXPLAIN={
    <p style="color:var(--rose)">⚠ 보조지표입니다. 이것 하나만 보고 매매하지 마세요.</p>`},
  ENGINE:{title:'신호 엔진 — 종합 신호', body:`
    <p>세 가지를 <b>합쳐</b> 만든 최종 방향 신호입니다.</p>
-   <p>① <b>추세</b>(이동평균 골든/데드크로스) ② <b>과열도</b>(RSI) ③ <b>매크로 동인 컴포짓</b>(거시 5종).</p>
+   <p>① <b>추세</b>(이동평균 골든/데드크로스) ② <b>과열도</b>(RSI) ③ <b>매크로 동인 컴포짓</b>(7개 동인).</p>
    <p><b>점수</b>는 −100(원화 강세)~+100(원화 약세). <b>신뢰도</b>는 추세와 거시가 <b>같은 방향이면 '높음'</b>, RSI 과열로 되돌림 위험이면 '낮음'.</p>
    <p>읽는 법: 부호=<b>방향</b>, 크기=<b>강도</b>, 신뢰도=<b>믿을 만한 정도</b>. 트리거 줄에 '지금 무슨 일이 켜졌는지' 요약됩니다.</p>
    <p style="color:var(--rose)">⚠ 매매 보조용입니다. 단독 매수/매도 신호로 쓰지 마세요.</p>`},
@@ -310,10 +325,10 @@ const EXPLAIN={
    <p><b>오르면(달러 강세):</b> 보통 원화 약세 압력 → 원/달러 상승.</p>
    <p style="color:var(--faint)">비유: 달러가 '인기'가 많아지면 원화로 사려면 더 비싸집니다. 환율을 움직이는 가장 큰 힘이라 가중 30%.</p>`},
  CARRY:{title:'미-한 금리차 (캐리)', body:`
-   <p>미국 2년 국채금리 − 한국 2년 국고채금리. <b>환율을 움직이는 가장 큰 힘</b>(캐리)입니다.</p>
-   <p><b>미국이 한국보다 금리가 높고 그 격차가 더 벌어지면:</b> 돈이 이자 더 주는 달러로 몰려 → 원화 약세 압력(원/달러 상승).</p>
-   <p>지금 값은 현재 금리차(%p), 변화는 최근 20일간 금리차가 벌어졌는지(+)·좁혀졌는지(−)입니다.</p>
-   <p style="color:var(--faint)">데이터: 美 FRED DGS2 + 韓 한국은행 ECOS 국고채(2년). 기억법: "금리차 벌어지면 달러로 돈이 몰린다."</p>`},
+   <p>미국 2년 국채금리 − 한국 2년 국고채금리. 양국 데이터의 <b>같은 관측일끼리</b> 맞춘 뒤 계산합니다.</p>
+   <p><b>금리차 확대(+):</b> 달러 캐리 매력 증가 → 원화 약세 압력. <b>금리차 축소(−):</b> 달러 캐리 우위 완화 → 원화 강세 압력.</p>
+   <p>5·20·60거래일 변화를 함께 보여 단기와 중기 흐름을 구분합니다. 편향 점수에는 기존대로 <b>20거래일 변화</b>만 반영합니다.</p>
+   <p style="color:var(--faint)">데이터: 美 FRED DGS2 + 韓 한국은행 ECOS 국고채(2년). 기존 가중치 14%·중립밴드 ±0.08%p 유지.</p>`},
  DEXCHUS:{title:'위안화 (CNY/USD)', body:`
    <p>1달러당 <b>중국 위안화</b> 값. 오르면 위안 약세입니다.</p>
    <p><b>관계:</b> 한국 수출·경제가 중국과 엮여 있어 <b>원화는 위안화와 같이 움직이는 경향</b>이 큽니다.</p>
@@ -356,15 +371,23 @@ async function ecosSeries(stat,cycle,item,startd,endd){
   const a=rows.map(x=>({date:x.TIME,v:parseFloat(x.DATA_VALUE)})).filter(x=>!isNaN(x.v));
   a.reverse(); return a; // 최신순
 }
-// 미-한 금리차(캐리) = 美 2년(DGS2) − 韓 국고채 2년(ECOS 817Y002/010195000). +=美 우위(원화 약세 압력)
+// 미-한 금리차(캐리) = 美 2년(DGS2) − 韓 국고채 2년(ECOS 817Y002/010195000).
+// 양국 휴장일이 다르므로 같은 배열 인덱스가 아니라 동일 관측일 교집합으로 정렬한다.
 async function carryData(d){
-  const y=new Date().getFullYear();
-  const [us,kr]=await Promise.all([ fred('DGS2',160), ecosSeries('817Y002','D','010195000',(y-1)+'0601',y+'1231') ]);
+  const end=new Date(), start=new Date(end); start.setMonth(start.getMonth()-15);
+  const ymd=x=>x.getFullYear()+String(x.getMonth()+1).padStart(2,'0')+String(x.getDate()).padStart(2,'0');
+  const [us,kr]=await Promise.all([ fred('DGS2',260), ecosSeries('817Y002','D','010195000',ymd(start),ymd(end)) ]);
   if(!us.length||!kr.length) return {d,data:null,now:null,mom:null};
-  const sNow=us[0].v-kr[0].v;
-  const usP=us[Math.min(MOM,us.length-1)].v, krP=kr[Math.min(MOM,kr.length-1)].v;
-  const sPast=usP-krP;
-  return {d, data:[{v:sNow}], now:sNow, mom:sNow-sPast}; // mom: 20일간 금리차 변화(%p)
+  const key=x=>String(x.date||'').replaceAll('-','');
+  const usMap=new Map(us.map(x=>[key(x),x.v]));
+  const krMap=new Map(kr.map(x=>[key(x),x.v]));
+  const dates=[...usMap.keys()].filter(k=>krMap.has(k)).sort().reverse();
+  if(dates.length<61) return {d,data:null,now:null,mom:null};
+  const spreads=dates.map(k=>({date:k.slice(0,4)+'-'+k.slice(4,6)+'-'+k.slice(6),v:usMap.get(k)-krMap.get(k),us:usMap.get(k),kr:krMap.get(k)}));
+  const changes={};
+  [5,20,60].forEach(n=>{ changes[n]=spreads[0].v-spreads[Math.min(n,spreads.length-1)].v; });
+  const current=spreads[0];
+  return {d,data:spreads,now:current.v,mom:changes[MOM],extra:{asOf:current.date,us:current.us,kr:current.kr,changes}};
 }
 
 // 반도체 상대강도 = (삼성+하이닉스 평균 20일 수익률) − SOX 20일 수익률 (%p)
@@ -381,24 +404,23 @@ async function semiData(d){
   const rel=(sam+hyn)/2 - sox;
   return {d, data:[{v:rel}], now:rel, mom:rel};
 }
-// 트럼프 정책 리스크 — Google News RSS(뉴스보드와 동일 프록시 체인)에서 최근 72h 헤드라인을
-// 키워드 사전으로 채점: 관세·무역전쟁 등 = 원화 약세(+), 유예·타결 등 = 강세(−). 최신일수록 가중.
+// 트럼프 정책 리스크 — Google News RSS를 CORS 허용 JSON으로 읽어 최근 72h 헤드라인을 채점한다.
+// 키워드 사전: 관세·무역전쟁 등 = 원화 약세(+), 유예·타결 등 = 강세(−). 최신일수록 가중.
 let trumpHeads=[];
 async function trumpData(d){
   const rss='https://news.google.com/rss/search?q='+encodeURIComponent('트럼프 (관세 OR 무역 OR 환율 OR 달러 OR 제재)')+'&hl=ko&gl=KR&ceid=KR:ko';
-  const proxies=[u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
-                 u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
-                 u=>'https://api.codetabs.com/v1/proxy/?quest='+encodeURIComponent(u)];
-  let xml=null;
-  for(const p of proxies){ try{ const r=await fetch(p(rss),{cache:'no-store'}); if(r.ok){ const t=await r.text(); if(t.includes('<item>')){ xml=t; break; } } }catch(e){} }
-  if(!xml) return {d,data:null,now:null,mom:null};
-  const doc=new DOMParser().parseFromString(xml,'application/xml');
+  const url='https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(rss);
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok) return {d,data:null,now:null,mom:null};
+  const j=await r.json();
+  const items=(j&&j.status==='ok'&&Array.isArray(j.items))?j.items:[];
+  if(!items.length) return {d,data:null,now:null,mom:null};
   const WEAK=['관세','tariff','무역전쟁','무역 전쟁','제재','보복','수입품','방위비','압박','위협','경고','전쟁'];
   const STRONG=['유예','철회','면제','타결','합의','완화','진전','해빙'];
   const nowT=Date.now(); let score=0, cnt=0; const heads=[];
-  doc.querySelectorAll('item').forEach(it=>{
-    const t=((it.querySelector('title')||{}).textContent||'');
-    const pd=new Date(((it.querySelector('pubDate')||{}).textContent)||0).getTime();
+  items.forEach(it=>{
+    const t=String(it.title||'');
+    const pd=new Date(it.pubDate||0).getTime();
     const ageH=(nowT-pd)/3600000;
     if(!(ageH>=0&&ageH<=72)) return;
     const wgt= ageH<=24?1.0 : (ageH<=48?0.7 : 0.4);
@@ -419,6 +441,27 @@ const arrow=p=> p>0.001?'▲':(p<-0.001?'▼':'·');
 const cls=p=> p>0.001?'down':(p<-0.001?'up':'flat'); // 원/달러↑(약세)=rose, ↓(강세)=teal
 
 function fmtNum(v,unit){ if(v==null)return '—'; const d=Math.abs(v)>=100?0:(Math.abs(v)>=10?2:2); return v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})+(unit||''); }
+
+function renderCarryTrend(r){
+  lastCarry=r&&r.extra?r.extra:null;
+  if(!lastCarry){
+    $('carryNarr').innerHTML='<b>금리차 데이터를 불러오지 못했습니다.</b> FRED·ECOS 응답을 확인한 뒤 새로고침해 주세요.';
+    $('carryTiles').innerHTML='';
+    return;
+  }
+  const fmt=v=>(v>=0?'+':'')+v.toFixed(2)+'%p';
+  const label=v=>v>0?'확대':(v<0?'축소':'보합');
+  const pressure=v=>v>0?'원화 약세 압력':(v<0?'원화 강세 압력':'중립');
+  const m20=lastCarry.changes[20], active=Math.abs(m20)>0.08;
+  const voteTxt=active?pressure(m20):`${label(m20)} 중이나 중립밴드 안`;
+  $('carryNarr').innerHTML=`<b>${lastCarry.asOf} 동일 관측일 기준</b> · 미국 ${lastCarry.us.toFixed(2)}% − 한국 ${lastCarry.kr.toFixed(2)}% = <b>${r.now.toFixed(2)}%p</b>. `+
+    `20거래일 ${fmt(m20)}로 <b>${voteTxt}</b>. 가중치 14%·중립밴드 ±0.08%p는 유지합니다.`;
+  $('carryTiles').innerHTML=[5,20,60].map(n=>{
+    const v=lastCarry.changes[n], c=v>0?'down':(v<0?'up':'flat');
+    return `<div class="tile clk" onclick="openExplain('CARRY')" title="누르면 쉬운 설명"><div class="t">${n}거래일 금리차 변화 <span style="color:var(--faint)">ⓘ</span></div>
+      <div class="v ${c}">${fmt(v)}</div><div class="c ${c}">${label(v)} · ${pressure(v)}</div></div>`;
+  }).join('');
+}
 
 async function loadHero(days){
   const data=await fred('DEXKOUS', Math.max(days+15,275)); // SMA60·RSI + 1년 평균(252거래일) 여유분 확보
@@ -473,7 +516,7 @@ async function loadSignal(){
     const lbl = vote>0? '원화 약세↑' : (vote<0? '원화 강세↓' : '중립');
     const pill = vote>0? 'weak' : (vote<0? 'strong' : 'neu');
     // fmt:'pt' 동인은 %변화 대신 지표값 자체 표기
-    const chgTxt = r.mom==null?'—' : (d.fmt==='pt' ? (r.mom>=0?'+':'')+r.mom.toFixed(1)+(d.id==='SEMI'?'%p':'pt') : fmtPct(r.mom));
+    const chgTxt = r.mom==null?'—' : (d.fmt==='pt' ? (r.mom>=0?'+':'')+r.mom.toFixed(1)+(d.id==='SEMI'?'%p':'pt') : (d.fmt==='pp' ? (r.mom>=0?'+':'')+r.mom.toFixed(2)+'%p' : fmtPct(r.mom)));
     const chgWin = d.fmt==='pt' ? (d.id==='TRUMP'?'72h':'현재') : '20일';
     rows.push(`<div class="drv clk" onclick="openExplain('${d.id}')" title="누르면 쉬운 설명">
       <div class="nm">${d.name}<small>${d.sub} · 가중 ${(d.w*100)|0}%</small></div>
@@ -487,6 +530,7 @@ async function loadSignal(){
   });
   $('driverList').innerHTML=rows.join('');
   $('tiles').innerHTML=tiles.join('');
+  renderCarryTrend(results.find(r=>r.d.id==='CARRY'));
   lastResults=state; lastScore=score;
   // score: -1..+1 → -100..+100
   const s100=Math.round(score*100);
@@ -553,7 +597,7 @@ function renderEngine(){
        <div class="c ${e.r>=70?'down':(e.r<=30?'up':'flat')}">${rsiState}</div></div>`+
     `<div class="tile clk" onclick="openExplain('SCORE')" title="누르면 쉬운 설명"><div class="t">매크로 동인 컴포짓 <span style="color:var(--faint)">ⓘ</span></div>
        <div class="v ${e.comp>0?'down':(e.comp<0?'up':'flat')}">${(e.comp>0?'+':'')+Math.round(e.comp*100)}</div>
-       <div class="c">거시 5종 종합</div></div>`;
+       <div class="c">7개 동인 종합</div></div>`;
   // 트리거
   const trg=[];
   if(e.golden) trg.push('⚡ 골든크로스: MA20이 MA60 상향돌파 → 원화 약세 추세 가속');
